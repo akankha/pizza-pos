@@ -41,6 +41,116 @@ if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
 
 const PORT = process.env.PORT || 3001;
 
+// Security middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: process.env.NODE_ENV === "production",
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/", limiter);
+
+// More strict rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts
+  message: "Too many login attempts, please try again later.",
+});
+app.use("/api/auth/login", authLimiter);
+
+// Middleware
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      "http://localhost:3000",
+    ],
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
+app.use(sanitizeSql);
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/users", usersRoutes);
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Initialize database asynchronously
+// Socket.io for real-time updates (only in development)
+if (io) {
+  io.on("connection", (socket: any) => {
+    console.log("Client connected:", socket.id);
+
+    // Join kitchen room
+    socket.on("join:kitchen", () => {
+      socket.join("kitchen");
+      console.log("Kitchen display joined:", socket.id);
+    });
+
+    // New order created
+    socket.on("order:created", (order: any) => {
+      console.log("New order created:", order.id);
+      io.to("kitchen").emit("order:new", order);
+    });
+
+    // Order status updated
+    socket.on(
+      "order:status",
+      ({ orderId, status }: { orderId: string; status: string }) => {
+        console.log(`Order ${orderId} status updated to ${status}`);
+        io.emit("order:updated", { orderId, status });
+      }
+    );
+
+    // Order paid
+    socket.on("order:paid", (order: any) => {
+      console.log("Order paid:", order.id);
+      io.emit("order:completed", order);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Client disconnected:", socket.id);
+    });
+  });
+}
+
+// Error handling middleware
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error("Error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message || "Internal server error",
+    });
+  }
+);
+
 // Initialize database asynchronously
 async function startServer() {
   try {
@@ -52,115 +162,6 @@ async function startServer() {
     console.error("❌ Database initialization failed:", error);
     process.exit(1);
   }
-
-  // Security middleware
-  app.use(
-    helmet({
-      contentSecurityPolicy: process.env.NODE_ENV === "production",
-      crossOriginEmbedderPolicy: false,
-    })
-  );
-
-  // Rate limiting
-  const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
-    message: "Too many requests from this IP, please try again later.",
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-  app.use("/api/", limiter);
-
-  // More strict rate limiting for auth routes
-  const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 attempts
-    message: "Too many login attempts, please try again later.",
-  });
-  app.use("/api/auth/login", authLimiter);
-
-  // Middleware
-  app.use(
-    cors({
-      origin: [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:3000",
-      ],
-      credentials: true,
-    })
-  );
-  app.use(express.json());
-  app.use(cookieParser());
-  app.use(sanitizeSql);
-
-  // Routes
-  app.use("/api/auth", authRoutes);
-  app.use("/api/menu", menuRoutes);
-  app.use("/api/orders", orderRoutes);
-  app.use("/api/admin", adminRoutes);
-  app.use("/api/settings", settingsRoutes);
-  app.use("/api/users", usersRoutes);
-
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
-  });
-
-  // Socket.io for real-time updates (only in development)
-  if (io) {
-    io.on("connection", (socket: any) => {
-      console.log("Client connected:", socket.id);
-
-      // Join kitchen room
-      socket.on("join:kitchen", () => {
-        socket.join("kitchen");
-        console.log("Kitchen display joined:", socket.id);
-      });
-
-      // New order created
-      socket.on("order:created", (order: any) => {
-        console.log("New order created:", order.id);
-        io.to("kitchen").emit("order:new", order);
-      });
-
-      // Order status updated
-      socket.on(
-        "order:status",
-        ({ orderId, status }: { orderId: string; status: string }) => {
-          console.log(`Order ${orderId} status updated to ${status}`);
-          io.emit("order:updated", { orderId, status });
-        }
-      );
-
-      // Order paid
-      socket.on("order:paid", (order: any) => {
-        console.log("Order paid:", order.id);
-        io.emit("order:completed", order);
-      });
-
-      socket.on("disconnect", () => {
-        console.log("Client disconnected:", socket.id);
-      });
-    });
-  }
-
-  // Error handling middleware
-  app.use(
-    (
-      err: any,
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      console.error("Error:", err);
-      res.status(500).json({
-        success: false,
-        error: err.message || "Internal server error",
-      });
-    }
-  );
 
   // Only start server if not in serverless environment (Vercel)
   if (process.env.VERCEL !== "1") {
