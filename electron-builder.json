@@ -1,0 +1,30 @@
+{
+  "name": "pizza-pos-kiosk",
+  "version": "1.0.0",
+  "description": "Pizza Shop POS Kiosk Application",
+  "main": "electron/main.js",
+  "author": "Pizza Shop",
+  "build": {
+    "appId": "com.pizzashop.pos",
+    "productName": "Pizza POS Kiosk",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "client/dist/**/*",
+      "server/dist/**/*",
+      "server/data/**/*"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "client/public/pizza-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
