@@ -131,6 +131,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
+// Only start server if not in serverless environment (Vercel)
+if (process.env.VERCEL !== '1') {
   httpServer.listen(PORT, () => {
     console.log(`
 ╔════════════════════════════════════════╗
@@ -142,8 +144,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     `);
   });
 }
+}
 
 // Start the server
 startServer().catch(console.error);
 
+// Export app for Vercel serverless
+export default app;
 export { io };

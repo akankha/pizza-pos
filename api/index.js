@@ -1,3 +1,4 @@
-const app = require("../server/dist/index.js");
+// Vercel serverless function handler
+import app from "../server/dist/index.js";
 
-module.exports = app;
+export default app;
