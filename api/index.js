@@ -1,4 +1,3 @@
 // Vercel serverless function handler
-import app from "../server/dist/index.js";
-
-export default app;
+// Import the built Express app from server/dist
+export { default } from "../server/dist/index.js";

@@ -1,35 +1,41 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '../stores/cartStore';
-import TouchButton from '../components/TouchButton';
-import OrderItemCard from '../components/OrderItemCard';
-import { ArrowLeft, CreditCard, Banknote, Home, Receipt } from 'lucide-react';
-import type { PaymentMethod } from '../../../shared/types';
+import { ArrowLeft, Banknote, CreditCard, Home, Receipt } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { PaymentMethod } from "../../../shared/types";
+import OrderItemCard from "../components/OrderItemCard";
+import TouchButton from "../components/TouchButton";
+import { useCartStore } from "../stores/cartStore";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
+  const { items, updateQuantity, removeItem, clearCart, getTotal } =
+    useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
-  const [orderNotes, setOrderNotes] = useState('');
-  const [taxRates, setTaxRates] = useState({ gst: 0.05, pst: 0.07, gstLabel: 'GST', pstLabel: 'PST' });
+  const [orderNotes, setOrderNotes] = useState("");
+  const [taxRates, setTaxRates] = useState({
+    gst: 0.05,
+    pst: 0.07,
+    gstLabel: "GST",
+    pstLabel: "PST",
+  });
 
   useEffect(() => {
     // Fetch tax rates from settings
-    fetch('/api/settings')
-      .then(res => res.json())
-      .then(data => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success && data.data) {
           setTaxRates({
             gst: parseFloat(data.data.gst_rate) || 0.05,
             pst: parseFloat(data.data.pst_rate) || 0.07,
-            gstLabel: data.data.tax_label_gst || 'GST',
-            pstLabel: data.data.tax_label_pst || 'PST'
+            gstLabel: data.data.tax_label_gst || "GST",
+            pstLabel: data.data.tax_label_pst || "PST",
           });
         }
       })
-      .catch(err => console.error('Failed to fetch tax settings:', err));
+      .catch((err) => console.error("Failed to fetch tax settings:", err));
   }, []);
 
   const handlePayment = async (paymentMethod: PaymentMethod) => {
@@ -39,42 +45,36 @@ export default function CheckoutPage() {
 
     try {
       // Create order with payment method
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+      const orderResponse = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           items,
           paymentMethod,
-          notes: orderNotes.trim() || undefined
+          notes: orderNotes.trim() || undefined,
         }),
       });
 
       const orderResult = await orderResponse.json();
 
       if (!orderResult.success) {
-        throw new Error(orderResult.error || 'Failed to create order');
+        throw new Error(orderResult.error || "Failed to create order");
       }
 
       // Store order ID for receipt
       setCompletedOrderId(orderResult.data.id);
 
-      // Emit socket event for kitchen
-      const socket = (window as any).socket;
-      if (socket?.connected) {
-        socket.emit('order:created', orderResult.data);
-      }
-
-      // Show success
+      // Show success (kitchen will auto-refresh via polling)
       setShowSuccess(true);
       clearCart();
 
       // Return to home after delay
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 5000);
     } catch (error) {
-      console.error('Payment error:', error);
-      alert('Payment failed. Please try again.');
+      console.error("Payment error:", error);
+      alert("Payment failed. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
 
   const handleDownloadReceipt = () => {
     if (completedOrderId) {
-      window.open(`/api/orders/${completedOrderId}/receipt/pdf`, '_blank');
+      window.open(`/api/orders/${completedOrderId}/receipt/pdf`, "_blank");
     }
   };
 
@@ -91,11 +91,13 @@ export default function CheckoutPage() {
       <div className="h-screen w-screen bg-[#10B981] flex flex-col items-center justify-center p-8">
         <div className="text-center text-white">
           <div className="bg-white/20 backdrop-blur-lg rounded-full w-48 h-48 flex items-center justify-center mx-auto mb-8 animate-pulse">
-            <div className="text-9xl" aria-hidden="true">✓</div>
+            <div className="text-9xl" aria-hidden="true">
+              ✓
+            </div>
           </div>
           <h1 className="text-6xl font-bold mb-4">Order Complete!</h1>
           <p className="text-3xl">Thank you for your order</p>
-          
+
           {/* Receipt Download Button */}
           {completedOrderId && (
             <TouchButton
@@ -109,8 +111,10 @@ export default function CheckoutPage() {
               <span className="ml-3">Download Receipt</span>
             </TouchButton>
           )}
-          
-          <p className="text-2xl mt-8 opacity-80" aria-live="polite">Returning to home screen...</p>
+
+          <p className="text-2xl mt-8 opacity-80" aria-live="polite">
+            Returning to home screen...
+          </p>
         </div>
       </div>
     );
@@ -124,17 +128,17 @@ export default function CheckoutPage() {
       <div className="bg-white border-b border-gray-200 shadow-sm p-6">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
-            onClick={() => navigate('/new-order')}
+            onClick={() => navigate("/new-order")}
             variant="ghost"
             size="medium"
           >
             <ArrowLeft size={28} />
           </TouchButton>
-          
+
           <h1 className="text-4xl font-bold text-gray-800">🛒 Checkout</h1>
-          
+
           <TouchButton
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             variant="ghost"
             size="medium"
           >
@@ -146,9 +150,11 @@ export default function CheckoutPage() {
       {items.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="text-9xl mb-6 opacity-30">🛒</div>
-          <h2 className="text-4xl font-bold text-gray-400 mb-8">Your cart is empty</h2>
+          <h2 className="text-4xl font-bold text-gray-400 mb-8">
+            Your cart is empty
+          </h2>
           <TouchButton
-            onClick={() => navigate('/new-order')}
+            onClick={() => navigate("/new-order")}
             variant="primary"
             size="large"
             className="text-2xl"
@@ -179,7 +185,10 @@ export default function CheckoutPage() {
 
             {/* Order Notes */}
             <div className="mb-6">
-              <label htmlFor="orderNotes" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="orderNotes"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Order Notes (Optional)
               </label>
               <textarea
@@ -199,20 +208,34 @@ export default function CheckoutPage() {
             {/* Total */}
             <div className="bg-gray-50 rounded-2xl p-4 md:p-6 mb-4 md:mb-8 border-2 border-gray-200">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-xl font-semibold text-gray-600">Subtotal:</span>
-                <span className="text-xl font-bold text-gray-800">${total.toFixed(2)}</span>
+                <span className="text-xl font-semibold text-gray-600">
+                  Subtotal:
+                </span>
+                <span className="text-xl font-bold text-gray-800">
+                  ${total.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xl font-semibold text-gray-600">{taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%):</span>
-                <span className="text-xl font-bold text-gray-800">${(total * taxRates.gst).toFixed(2)}</span>
+                <span className="text-xl font-semibold text-gray-600">
+                  {taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%):
+                </span>
+                <span className="text-xl font-bold text-gray-800">
+                  ${(total * taxRates.gst).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xl font-semibold text-gray-600">{taxRates.pstLabel} ({(taxRates.pst * 100).toFixed(1)}%):</span>
-                <span className="text-xl font-bold text-gray-800">${(total * taxRates.pst).toFixed(2)}</span>
+                <span className="text-xl font-semibold text-gray-600">
+                  {taxRates.pstLabel} ({(taxRates.pst * 100).toFixed(1)}%):
+                </span>
+                <span className="text-xl font-bold text-gray-800">
+                  ${(total * taxRates.pst).toFixed(2)}
+                </span>
               </div>
               <div className="border-t-2 border-gray-300 mt-4 pt-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-gray-700">Total:</span>
+                  <span className="text-2xl font-bold text-gray-700">
+                    Total:
+                  </span>
                   <span className="text-4xl font-bold text-[#FF6B35]">
                     ${(total * (1 + taxRates.gst + taxRates.pst)).toFixed(2)}
                   </span>
@@ -223,7 +246,7 @@ export default function CheckoutPage() {
             {/* Payment buttons */}
             <div className="space-y-4 mt-6">
               <TouchButton
-                onClick={() => handlePayment('card')}
+                onClick={() => handlePayment("card")}
                 variant="primary"
                 size="large"
                 disabled={isProcessing}
@@ -232,12 +255,14 @@ export default function CheckoutPage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <CreditCard size={24} aria-hidden="true" />
-                  <span>{isProcessing ? 'Processing...' : 'Pay with Card'}</span>
+                  <span>
+                    {isProcessing ? "Processing..." : "Pay with Card"}
+                  </span>
                 </div>
               </TouchButton>
 
               <TouchButton
-                onClick={() => handlePayment('cash')}
+                onClick={() => handlePayment("cash")}
                 variant="success"
                 size="large"
                 disabled={isProcessing}
@@ -246,7 +271,9 @@ export default function CheckoutPage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <Banknote size={24} aria-hidden="true" />
-                  <span>{isProcessing ? 'Processing...' : 'Pay with Cash'}</span>
+                  <span>
+                    {isProcessing ? "Processing..." : "Pay with Cash"}
+                  </span>
                 </div>
               </TouchButton>
             </div>
