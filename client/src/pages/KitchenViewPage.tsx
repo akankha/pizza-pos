@@ -9,7 +9,6 @@ export default function KitchenViewPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   const fetchOrders = async () => {
     try {
@@ -32,7 +31,6 @@ export default function KitchenViewPage() {
     // Auto-refresh every 3 seconds for real-time updates
     const interval = setInterval(() => {
       fetchOrders();
-      setLastUpdate(new Date());
     }, 3000);
 
     return () => clearInterval(interval);
@@ -137,7 +135,7 @@ export default function KitchenViewPage() {
             </span>
           </span>
           <span className="text-gray-600 font-medium">
-            Status: {connected ? "🟢 Connected" : "🔴 Disconnected"}
+            🔄 Auto-refresh: Every 3 seconds
           </span>
         </div>
       </div>
