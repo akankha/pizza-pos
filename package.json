@@ -11,7 +11,7 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm install && npm run build",
     "build:server": "cd server && npm install && npm run build",
-    "vercel-build": "cd client && npm install && npm run build && cd ../server && npm install && npm run build",
+    "vercel-build": "npm install --prefix client && npm install --prefix server && npm run build:client && npm run build:server",
     "start": "cd server && node dist/index.js",
     "start:production": "NODE_ENV=production cd server && node dist/index.js",
     "preview": "npm run build && npm run start",
