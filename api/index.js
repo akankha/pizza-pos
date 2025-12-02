@@ -1,6 +1,5 @@
 // Vercel serverless function handler
 const path = require("path");
-const express = require("express");
 
 // Load built Express app
 let app;
