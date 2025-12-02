@@ -18,9 +18,7 @@ const pool = mysql.createPool({
 // Get all menu items
 router.get("/", async (req, res) => {
   try {
-    const [items] = await pool.query(
-      "SELECT * FROM menu_items WHERE available = 1"
-    );
+    const [items] = await pool.query("SELECT * FROM menu_items");
     res.json({ success: true, data: items });
   } catch (error) {
     console.error("Error fetching menu:", error);
@@ -31,7 +29,9 @@ router.get("/", async (req, res) => {
 // Get sizes
 router.get("/sizes", async (req, res) => {
   try {
-    const [sizes] = await pool.query("SELECT * FROM sizes ORDER BY price ASC");
+    const [sizes] = await pool.query(
+      "SELECT * FROM sizes ORDER BY base_price ASC"
+    );
     res.json({ success: true, data: sizes });
   } catch (error) {
     console.error("Error fetching sizes:", error);
@@ -43,7 +43,7 @@ router.get("/sizes", async (req, res) => {
 router.get("/crusts", async (req, res) => {
   try {
     const [crusts] = await pool.query(
-      "SELECT * FROM crusts ORDER BY extra_price ASC"
+      "SELECT * FROM crusts ORDER BY price_modifier ASC"
     );
     res.json({ success: true, data: crusts });
   } catch (error) {
@@ -56,7 +56,7 @@ router.get("/crusts", async (req, res) => {
 router.get("/toppings", async (req, res) => {
   try {
     const [toppings] = await pool.query(
-      "SELECT * FROM toppings WHERE available = 1 ORDER BY category, name"
+      "SELECT * FROM toppings ORDER BY category, name"
     );
     res.json({ success: true, data: toppings });
   } catch (error) {
@@ -69,7 +69,7 @@ router.get("/toppings", async (req, res) => {
 router.get("/specialty-pizzas", async (req, res) => {
   try {
     const [pizzas] = await pool.query(
-      "SELECT * FROM specialty_pizzas WHERE available = 1"
+      "SELECT * FROM specialty_pizzas WHERE active = 1"
     );
     res.json({ success: true, data: pizzas });
   } catch (error) {
@@ -84,7 +84,7 @@ router.get("/specialty-pizzas", async (req, res) => {
 router.get("/combos", async (req, res) => {
   try {
     const [combos] = await pool.query(
-      "SELECT * FROM combos WHERE available = 1"
+      "SELECT * FROM combo_deals WHERE active = 1"
     );
     res.json({ success: true, data: combos });
   } catch (error) {
@@ -96,7 +96,9 @@ router.get("/combos", async (req, res) => {
 // Get sides
 router.get("/sides", async (req, res) => {
   try {
-    const [sides] = await pool.query("SELECT * FROM sides WHERE available = 1");
+    const [sides] = await pool.query(
+      "SELECT * FROM menu_items WHERE category = 'side'"
+    );
     res.json({ success: true, data: sides });
   } catch (error) {
     console.error("Error fetching sides:", error);
@@ -108,7 +110,7 @@ router.get("/sides", async (req, res) => {
 router.get("/drinks", async (req, res) => {
   try {
     const [drinks] = await pool.query(
-      "SELECT * FROM drinks WHERE available = 1"
+      "SELECT * FROM menu_items WHERE category = 'drink'"
     );
     res.json({ success: true, data: drinks });
   } catch (error) {
