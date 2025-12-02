@@ -7,6 +7,9 @@ const { initDatabase } = require("./db-init");
 
 const app = express();
 
+// Trust proxy for Vercel
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(
   helmet({
