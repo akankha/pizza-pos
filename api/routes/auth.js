@@ -25,9 +25,10 @@ router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const [users] = await pool.query("SELECT * FROM admin_users WHERE username = ?", [
-      username,
-    ]);
+    const [users] = await pool.query(
+      "SELECT * FROM admin_users WHERE username = ?",
+      [username]
+    );
 
     if (users.length === 0) {
       return res
@@ -89,7 +90,7 @@ router.get("/verify", async (req, res) => {
 
     const decoded = jwt.verify(token, JWT_SECRET);
     const [users] = await pool.query(
-      "SELECT id, username, name, role FROM users WHERE id = ?",
+      "SELECT id, username, name, role FROM admin_users WHERE id = ?",
       [decoded.id]
     );
 

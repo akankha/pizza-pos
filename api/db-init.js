@@ -152,8 +152,19 @@ async function initDatabase() {
     // Settings table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS restaurant_settings (
-        \`key\` VARCHAR(255) PRIMARY KEY,
-        \`value\` TEXT NOT NULL
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        restaurant_name VARCHAR(255) NOT NULL DEFAULT 'Pizza Paradise',
+        restaurant_address VARCHAR(255) NOT NULL DEFAULT '123 Main Street',
+        restaurant_city VARCHAR(255) NOT NULL DEFAULT 'Your City, ST 12345',
+        restaurant_phone VARCHAR(50) NOT NULL DEFAULT '(555) 123-4567',
+        gst_rate DECIMAL(5, 4) NOT NULL DEFAULT 0.05,
+        pst_rate DECIMAL(5, 4) NOT NULL DEFAULT 0.07,
+        tax_label_gst VARCHAR(50) NOT NULL DEFAULT 'GST',
+        tax_label_pst VARCHAR(50) NOT NULL DEFAULT 'PST',
+        printer_enabled TINYINT(1) NOT NULL DEFAULT 1,
+        auto_print TINYINT(1) NOT NULL DEFAULT 1,
+        print_copies INT NOT NULL DEFAULT 1,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
 
@@ -161,7 +172,7 @@ async function initDatabase() {
 
     // Check if admin user exists
     const [users] = await connection.query(
-      "SELECT COUNT(*) as count FROM users"
+      "SELECT COUNT(*) as count FROM admin_users"
     );
     if (users[0].count === 0) {
       console.log("Seeding admin user...");
@@ -177,26 +188,26 @@ async function initDatabase() {
 
     // Check if default settings exist
     const [settings] = await connection.query(
-      "SELECT COUNT(*) as count FROM settings"
+      "SELECT COUNT(*) as count FROM restaurant_settings"
     );
     if (settings[0].count === 0) {
       console.log("Seeding default settings...");
-      const defaultSettings = [
-        ["store_name", "Pizza Palace"],
-        ["store_address", "123 Main St"],
-        ["store_phone", "555-1234"],
-        ["gst_rate", "0.05"],
-        ["pst_rate", "0.07"],
-        ["tax_label_gst", "GST"],
-        ["tax_label_pst", "PST"],
-      ];
-
-      for (const [key, value] of defaultSettings) {
-        await connection.query(
-          "INSERT INTO settings (`key`, `value`) VALUES (?, ?)",
-          [key, value]
-        );
-      }
+      await connection.query(
+        `INSERT INTO restaurant_settings (
+          restaurant_name, restaurant_address, restaurant_city, restaurant_phone,
+          gst_rate, pst_rate, tax_label_gst, tax_label_pst
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          "Pizza Paradise",
+          "123 Main Street",
+          "Your City, ST 12345",
+          "(555) 123-4567",
+          0.05,
+          0.07,
+          "GST",
+          "PST",
+        ]
+      );
       console.log("✅ Default settings created");
     }
 

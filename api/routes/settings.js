@@ -18,12 +18,15 @@ const pool = mysql.createPool({
 // Get settings
 router.get("/", async (req, res) => {
   try {
-    const [settings] = await pool.query("SELECT * FROM settings");
-    const settingsObj = {};
-    settings.forEach((s) => {
-      settingsObj[s.key] = s.value;
-    });
-    res.json({ success: true, data: settingsObj });
+    const [settings] = await pool.query(
+      "SELECT * FROM restaurant_settings LIMIT 1"
+    );
+    if (settings.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Settings not found" });
+    }
+    res.json({ success: true, data: settings[0] });
   } catch (error) {
     console.error("Error fetching settings:", error);
     res.status(500).json({ success: false, error: "Failed to fetch settings" });
@@ -33,14 +36,48 @@ router.get("/", async (req, res) => {
 // Update settings
 router.put("/", async (req, res) => {
   try {
-    const settings = req.body;
+    const {
+      restaurant_name,
+      restaurant_address,
+      restaurant_city,
+      restaurant_phone,
+      gst_rate,
+      pst_rate,
+      tax_label_gst,
+      tax_label_pst,
+      printer_enabled,
+      auto_print,
+      print_copies,
+    } = req.body;
 
-    for (const [key, value] of Object.entries(settings)) {
-      await pool.query(
-        "INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?",
-        [key, value, value]
-      );
-    }
+    await pool.query(
+      `UPDATE restaurant_settings SET 
+        restaurant_name = ?,
+        restaurant_address = ?,
+        restaurant_city = ?,
+        restaurant_phone = ?,
+        gst_rate = ?,
+        pst_rate = ?,
+        tax_label_gst = ?,
+        tax_label_pst = ?,
+        printer_enabled = ?,
+        auto_print = ?,
+        print_copies = ?
+      WHERE id = 1`,
+      [
+        restaurant_name,
+        restaurant_address,
+        restaurant_city,
+        restaurant_phone,
+        gst_rate,
+        pst_rate,
+        tax_label_gst,
+        tax_label_pst,
+        printer_enabled,
+        auto_print,
+        print_copies,
+      ]
+    );
 
     res.json({ success: true, message: "Settings updated" });
   } catch (error) {
