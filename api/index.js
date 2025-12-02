@@ -1,19 +1,20 @@
 // Vercel serverless function handler
-import dotenv from "dotenv";
+const path = require("path");
+const express = require("express");
 
-dotenv.config();
+// Load built Express app
+let app;
 
-// Set Vercel environment flag
-process.env.VERCEL = "1";
+module.exports = async (req, res) => {
+  if (!app) {
+    // Set environment flag for serverless
+    process.env.VERCEL = "1";
 
-let handler;
-
-export default async function (req, res) {
-  if (!handler) {
-    // Lazy load the Express app on first request
-    const { default: app } = await import("../server/dist/index.js");
-    handler = app;
+    // Import the built app
+    const indexPath = path.join(__dirname, "..", "server", "dist", "index.js");
+    const module = await import(indexPath);
+    app = module.default;
   }
 
-  return handler(req, res);
-}
+  return app(req, res);
+};
