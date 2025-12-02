@@ -1,9 +1,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-const { spawn } = require("child_process");
 
 let mainWindow;
-let serverProcess;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -17,13 +15,14 @@ function createWindow() {
     },
   });
 
-  // In development
+  // In development - connect to Vite dev server
   if (process.env.NODE_ENV === "development") {
     mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
   } else {
-    // In production, load the built app
-    mainWindow.loadFile(path.join(__dirname, "../client/dist/index.html"));
+    // In production - load from Hostinger website
+    const productionUrl = process.env.CLIENT_URL || "https://yourdomain.com";
+    mainWindow.loadURL(productionUrl);
   }
 
   // Prevent navigation away from the app
@@ -31,10 +30,12 @@ function createWindow() {
     event.preventDefault();
   });
 
-  // Disable right-click context menu
-  mainWindow.webContents.on("context-menu", (event) => {
-    event.preventDefault();
-  });
+  // Disable right-click context menu in production
+  if (process.env.NODE_ENV !== "development") {
+    mainWindow.webContents.on("context-menu", (event) => {
+      event.preventDefault();
+    });
+  }
 
   // Auto-restart on crash
   mainWindow.webContents.on("crashed", () => {
@@ -42,44 +43,17 @@ function createWindow() {
     app.relaunch();
     app.exit();
   });
-}
 
-function startServer() {
-  const serverPath = path.join(__dirname, "../server/dist/index.js");
-
-  if (process.env.NODE_ENV === "development") {
-    // In development, assume server is running separately
-    console.log("Development mode: Expecting server to run separately");
-    return;
-  }
-
-  serverProcess = spawn("node", [serverPath], {
-    stdio: "inherit",
-    env: { ...process.env, PORT: "3001" },
-  });
-
-  serverProcess.on("error", (error) => {
-    console.error("Failed to start server:", error);
-  });
-
-  serverProcess.on("close", (code) => {
-    console.log(`Server process exited with code ${code}`);
-  });
-}
+  // Allow Ctrl+Q to quit (for maintenance)
+  mainWindow.webContents.on("before-input-event", (event, input) => {
+    if (input.control && input.key.toLowerCase() === "q") {
+      app.quit();
 
 app.whenReady().then(() => {
-  startServer();
-
-  // Wait for server to start
-  setTimeout(() => {
-    createWindow();
-  }, 2000);
+  createWindow();
 });
 
 app.on("window-all-closed", () => {
-  if (serverProcess) {
-    serverProcess.kill();
-  }
   if (process.platform !== "darwin") {
     app.quit();
   }
@@ -99,4 +73,5 @@ app.on("browser-window-crashed", () => {
 });
 
 // Disable hardware acceleration if needed for compatibility
+// app.disableHardwareAcceleration();
 // app.disableHardwareAcceleration();

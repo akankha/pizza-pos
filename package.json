@@ -9,16 +9,18 @@
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "cd client && npm run build",
-    "build:server": "cd server && npm run build",
-    "vercel-build": "bash install.sh && bash build.sh",
+    "build:client": "cd client && npm install --include=dev && npm run build",
+    "build:server": "cd server && npm install --include=dev && npm run build",
+    "vercel-build": "npm run build:server",
     "start": "cd server && node dist/index.js",
     "start:production": "NODE_ENV=production cd server && node dist/index.js",
     "preview": "npm run build && npm run start",
     "electron:dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "npm run build && electron-builder",
+    "electron:build": "electron-builder",
     "clean": "rm -rf client/dist server/dist client/node_modules server/node_modules node_modules",
-    "deploy:build": "npm run clean && npm install && npm run build"
+    "deploy:vercel": "git push origin master",
+    "deploy:electron": "npm run electron:build",
+    "deploy:hostinger": "npm run build:client"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

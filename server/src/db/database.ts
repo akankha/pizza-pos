@@ -1,12 +1,12 @@
-import mysql from 'mysql2/promise';
+import mysql from "mysql2/promise";
 
 // Database configuration
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_NAME || 'pizza_pos',
-  port: parseInt(process.env.DB_PORT || '3306'),
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root",
+  database: process.env.DB_NAME || "pizza_pos",
+  port: parseInt(process.env.DB_PORT || "3306"),
   socketPath: process.env.DB_SOCKET || undefined,
 };
 
@@ -15,25 +15,34 @@ const pool = mysql.createPool(dbConfig);
 
 // Create tables
 export async function initDatabase() {
-  // First, connect without database to create it
-  const connectionWithoutDb = await mysql.createConnection({
-    host: dbConfig.host,
-    user: dbConfig.user,
-    password: dbConfig.password,
-    port: dbConfig.port,
-    socketPath: dbConfig.socketPath,
-  });
+  // In production (like Hostinger), database should already exist
+  // Only try to create database in local development
+  if (process.env.NODE_ENV !== "production") {
+    const connectionWithoutDb = await mysql.createConnection({
+      host: dbConfig.host,
+      user: dbConfig.user,
+      password: dbConfig.password,
+      port: dbConfig.port,
+      socketPath: dbConfig.socketPath,
+    });
 
-  try {
-    // Create database if not exists
-    await connectionWithoutDb.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
-    console.log(`✅ Database '${dbConfig.database}' ready`);
-  } finally {
-    await connectionWithoutDb.end();
+    try {
+      // Create database if not exists
+      await connectionWithoutDb.query(
+        `CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`
+      );
+      console.log(`✅ Database '${dbConfig.database}' ready`);
+    } catch (error) {
+      console.log(
+        "⚠️ Could not create database (may already exist or no permissions)"
+      );
+    } finally {
+      await connectionWithoutDb.end();
+    }
   }
 
   const connection = await pool.getConnection();
-  
+
   try {
     // Sizes table
     await connection.query(`
@@ -172,28 +181,33 @@ export async function initDatabase() {
     `);
 
     // Insert default settings if not exists
-    const [settingsRows] = await connection.query('SELECT COUNT(*) as count FROM restaurant_settings');
+    const [settingsRows] = await connection.query(
+      "SELECT COUNT(*) as count FROM restaurant_settings"
+    );
     const settingsCount = (settingsRows as any)[0].count;
-    
+
     if (settingsCount === 0) {
-      await connection.query(`
+      await connection.query(
+        `
         INSERT INTO restaurant_settings (
           restaurant_name, restaurant_address, restaurant_city, restaurant_phone,
           gst_rate, pst_rate, tax_label_gst, tax_label_pst
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-        'Pizza Paradise',
-        '123 Main Street',
-        'Your City, ST 12345',
-        '(555) 123-4567',
-        0.05,
-        0.07,
-        'GST',
-        'PST'
-      ]);
+      `,
+        [
+          "Pizza Paradise",
+          "123 Main Street",
+          "Your City, ST 12345",
+          "(555) 123-4567",
+          0.05,
+          0.07,
+          "GST",
+          "PST",
+        ]
+      );
     }
 
-    console.log('✅ Database tables created');
+    console.log("✅ Database tables created");
   } finally {
     connection.release();
   }
@@ -202,65 +216,169 @@ export async function initDatabase() {
 // Seed initial data
 export async function seedDatabase() {
   const connection = await pool.getConnection();
-  
+
   try {
-    const [rows] = await connection.query('SELECT COUNT(*) as count FROM sizes');
+    const [rows] = await connection.query(
+      "SELECT COUNT(*) as count FROM sizes"
+    );
     const sizeCount = (rows as any)[0].count;
-    
+
     if (sizeCount > 0) {
-      console.log('📦 Database already seeded');
+      console.log("📦 Database already seeded");
       return;
     }
 
     // Insert sizes
-    await connection.query('INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)', ['size-small', 'small', 'Small (10")', 8.99]);
-    await connection.query('INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)', ['size-medium', 'medium', 'Medium (14")', 12.99]);
-    await connection.query('INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)', ['size-large', 'large', 'Large (18")', 16.99]);
+    await connection.query(
+      "INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)",
+      ["size-small", "small", 'Small (10")', 8.99]
+    );
+    await connection.query(
+      "INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)",
+      ["size-medium", "medium", 'Medium (14")', 12.99]
+    );
+    await connection.query(
+      "INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)",
+      ["size-large", "large", 'Large (18")', 16.99]
+    );
 
     // Insert crusts
-    await connection.query('INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)', ['crust-thin', 'thin', 'Thin Crust', 0]);
-    await connection.query('INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)', ['crust-regular', 'regular', 'Regular Crust', 0]);
-    await connection.query('INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)', ['crust-thick', 'thick', 'Thick Crust', 1.50]);
-    await connection.query('INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)', ['crust-stuffed', 'stuffed', 'Stuffed Crust', 3.00]);
+    await connection.query(
+      "INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)",
+      ["crust-thin", "thin", "Thin Crust", 0]
+    );
+    await connection.query(
+      "INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)",
+      ["crust-regular", "regular", "Regular Crust", 0]
+    );
+    await connection.query(
+      "INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)",
+      ["crust-thick", "thick", "Thick Crust", 1.5]
+    );
+    await connection.query(
+      "INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)",
+      ["crust-stuffed", "stuffed", "Stuffed Crust", 3.0]
+    );
 
     // Insert toppings - Meats
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-pepperoni', 'Pepperoni', 1.50, 'meat']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-sausage', 'Italian Sausage', 1.50, 'meat']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-bacon', 'Bacon', 1.75, 'meat']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-ham', 'Ham', 1.50, 'meat']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-chicken', 'Grilled Chicken', 2.00, 'meat']);
-    
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-pepperoni", "Pepperoni", 1.5, "meat"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-sausage", "Italian Sausage", 1.5, "meat"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-bacon", "Bacon", 1.75, "meat"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-ham", "Ham", 1.5, "meat"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-chicken", "Grilled Chicken", 2.0, "meat"]
+    );
+
     // Veggies
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-mushroom', 'Mushrooms', 1.00, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-onion', 'Onions', 0.75, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-pepper', 'Bell Peppers', 1.00, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-olive', 'Black Olives', 1.00, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-tomato', 'Fresh Tomatoes', 1.00, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-spinach', 'Spinach', 1.25, 'veggie']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-jalapeno', 'Jalapeños', 1.00, 'veggie']);
-    
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-mushroom", "Mushrooms", 1.0, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-onion", "Onions", 0.75, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-pepper", "Bell Peppers", 1.0, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-olive", "Black Olives", 1.0, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-tomato", "Fresh Tomatoes", 1.0, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-spinach", "Spinach", 1.25, "veggie"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-jalapeno", "Jalapeños", 1.0, "veggie"]
+    );
+
     // Cheese
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-mozzarella', 'Extra Mozzarella', 1.50, 'cheese']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-parmesan', 'Parmesan', 1.25, 'cheese']);
-    await connection.query('INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)', ['top-feta', 'Feta Cheese', 1.75, 'cheese']);
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-mozzarella", "Extra Mozzarella", 1.5, "cheese"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-parmesan", "Parmesan", 1.25, "cheese"]
+    );
+    await connection.query(
+      "INSERT INTO toppings (id, name, price, category) VALUES (?, ?, ?, ?)",
+      ["top-feta", "Feta Cheese", 1.75, "cheese"]
+    );
 
     // Insert sides
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-wings', 'Chicken Wings', 'side', 8.99, '8 pieces']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-breadsticks', 'Garlic Breadsticks', 'side', 5.99, '6 pieces']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-salad', 'Garden Salad', 'side', 6.99, 'Fresh greens']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-fries', 'French Fries', 'side', 4.99, 'Crispy fries']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-mozzsticks', 'Mozzarella Sticks', 'side', 7.99, '6 pieces']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['side-onionrings', 'Onion Rings', 'side', 5.99, '8 pieces']);
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-wings", "Chicken Wings", "side", 8.99, "8 pieces"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-breadsticks", "Garlic Breadsticks", "side", 5.99, "6 pieces"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-salad", "Garden Salad", "side", 6.99, "Fresh greens"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-fries", "French Fries", "side", 4.99, "Crispy fries"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-mozzsticks", "Mozzarella Sticks", "side", 7.99, "6 pieces"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["side-onionrings", "Onion Rings", "side", 5.99, "8 pieces"]
+    );
 
     // Insert drinks
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-coke', 'Coca-Cola', 'drink', 2.49, '20 oz']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-diet', 'Diet Coke', 'drink', 2.49, '20 oz']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-sprite', 'Sprite', 'drink', 2.49, '20 oz']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-water', 'Bottled Water', 'drink', 1.99, '16 oz']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-lemonade', 'Lemonade', 'drink', 2.99, '20 oz']);
-    await connection.query('INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)', ['drink-tea', 'Iced Tea', 'drink', 2.49, '20 oz']);
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-coke", "Coca-Cola", "drink", 2.49, "20 oz"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-diet", "Diet Coke", "drink", 2.49, "20 oz"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-sprite", "Sprite", "drink", 2.49, "20 oz"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-water", "Bottled Water", "drink", 1.99, "16 oz"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-lemonade", "Lemonade", "drink", 2.99, "20 oz"]
+    );
+    await connection.query(
+      "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)",
+      ["drink-tea", "Iced Tea", "drink", 2.49, "20 oz"]
+    );
 
-    console.log('✅ Database seeded with initial data');
+    console.log("✅ Database seeded with initial data");
   } finally {
     connection.release();
   }

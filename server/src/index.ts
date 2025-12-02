@@ -70,12 +70,15 @@ app.use("/api/auth/login", authLimiter);
 // Middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-      "http://localhost:3000",
-    ],
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.CLIENT_URL || "*" // Allow requests from Hostinger domain
+        : [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "http://localhost:3000",
+          ],
     credentials: true,
   })
 );
