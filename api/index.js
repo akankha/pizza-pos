@@ -9,8 +9,8 @@ module.exports = async (req, res) => {
     // Set environment flag for serverless
     process.env.VERCEL = "1";
 
-    // Import the built app
-    const indexPath = path.join(__dirname, "..", "server", "dist", "index.js");
+    // Import the built app from api/dist (copied during build)
+    const indexPath = path.join(__dirname, "dist", "index.js");
     const module = await import(indexPath);
     app = module.default;
   }
