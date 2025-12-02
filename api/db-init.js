@@ -119,7 +119,7 @@ async function initDatabase() {
 
     // Users table
     await connection.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS admin_users (
         id VARCHAR(255) PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
@@ -151,7 +151,7 @@ async function initDatabase() {
 
     // Settings table
     await connection.query(`
-      CREATE TABLE IF NOT EXISTS settings (
+      CREATE TABLE IF NOT EXISTS restaurant_settings (
         \`key\` VARCHAR(255) PRIMARY KEY,
         \`value\` TEXT NOT NULL
       )
@@ -167,7 +167,7 @@ async function initDatabase() {
       console.log("Seeding admin user...");
       const hashedPassword = await bcrypt.hash("admin123", 10);
       await connection.query(
-        "INSERT INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO admin_users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)",
         [uuidv4(), "admin", hashedPassword, "Administrator", "super_admin"]
       );
       console.log(

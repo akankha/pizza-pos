@@ -99,7 +99,9 @@ router.put("/:userId", async (req, res) => {
 // Delete user
 router.delete("/:userId", async (req, res) => {
   try {
-    await pool.query("DELETE FROM users WHERE id = ?", [req.params.userId]);
+    await pool.query("DELETE FROM admin_users WHERE id = ?", [
+      req.params.userId,
+    ]);
     res.json({ success: true, message: "User deleted" });
   } catch (error) {
     console.error("Error deleting user:", error);
