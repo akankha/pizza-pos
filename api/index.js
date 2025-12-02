@@ -1,4 +1,5 @@
-/
+// Vercel serverless function handler
+import dotenv from "dotenv";
 
 dotenv.config();
 
