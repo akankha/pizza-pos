@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Custom focus styles for accessibility */
+  *:focus-visible {
+    outline: 3px solid #FF6B35;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Ensure buttons and links have visible focus */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid #FF6B35;
+    outline-offset: 2px;
+  }
+
+  body {
+    @apply bg-gray-100 text-gray-900 overflow-hidden;
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    letter-spacing: -0.011em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Premium heading typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  /* Premium button text */
+  button {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  #root {
+    @apply h-screen w-screen;
+  }
+}
+
+@layer components {
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+
+  .touch-target-lg {
+    @apply min-h-touch-lg min-w-touch-lg;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+
+  .btn-primary {
+    @apply bg-brand-primary hover:bg-brand-primary/90 active:scale-98 text-white font-semibold rounded-touch shadow-medium transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-secondary hover:bg-brand-secondary/90 active:scale-98 text-white font-semibold rounded-touch shadow-medium transition-all duration-200;
+  }
+
+  .btn-success {
+    @apply bg-brand-success hover:bg-brand-success/90 active:scale-98 text-white font-semibold rounded-touch shadow-medium transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-3xl shadow-xl p-6 border border-gray-100;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/20;
+  }
+
+  .pizza-preview {
+    @apply relative w-full aspect-square rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 border-8 border-orange-300 shadow-2xl;
+  }
+}
+
+@layer utilities {
+  .active\:scale-98:active {
+    transform: scale(0.98);
+  }
+
+  .active\:scale-95:active {
+    transform: scale(0.95);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
