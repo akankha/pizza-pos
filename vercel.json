@@ -1,7 +1,6 @@
 {
   "buildCommand": "cd server && npm install --include=dev && npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "server/dist",
   "rewrites": [
     {
       "source": "/(.*)",
