@@ -85,14 +85,17 @@ router.get("/pending", async (req, res) => {
   try {
     const [orders] = await pool.query(
       `SELECT o.*, 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-          'id', oi.id,
-          'type', oi.type,
-          'item_name', oi.item_name,
-          'quantity', oi.quantity,
-          'price', oi.price,
-          'item_data', oi.item_data
-        )) FROM order_items oi WHERE oi.order_id = o.id) as items
+        COALESCE(
+          (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+            'id', oi.id,
+            'type', oi.type,
+            'item_name', oi.item_name,
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'item_data', oi.item_data
+          )) FROM order_items oi WHERE oi.order_id = o.id),
+          JSON_ARRAY()
+        ) as items
       FROM orders o 
       WHERE o.status IN ('pending', 'preparing')
       ORDER BY o.created_at ASC`
@@ -111,14 +114,17 @@ router.get("/:orderId", async (req, res) => {
   try {
     const [orders] = await pool.query(
       `SELECT o.*, 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-          'id', oi.id,
-          'type', oi.type,
-          'item_name', oi.item_name,
-          'quantity', oi.quantity,
-          'price', oi.price,
-          'item_data', oi.item_data
-        )) FROM order_items oi WHERE oi.order_id = o.id) as items
+        COALESCE(
+          (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+            'id', oi.id,
+            'type', oi.type,
+            'item_name', oi.item_name,
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'item_data', oi.item_data
+          )) FROM order_items oi WHERE oi.order_id = o.id),
+          JSON_ARRAY()
+        ) as items
       FROM orders o 
       WHERE o.id = ?`,
       [req.params.orderId]
