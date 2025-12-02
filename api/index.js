@@ -31,8 +31,19 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-const menuRoutes = require("./routes/menu");
-app.use("/api/menu", menuRoutes);
+const menuRoutes = require('./routes/menu');
+const orderRoutes = require('./routes/orders');
+const authRoutes = require('./routes/auth');
+const settingsRoutes = require('./routes/settings');
+const usersRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin');
+
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
