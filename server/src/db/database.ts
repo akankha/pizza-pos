@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 
+// Load environment variables
+dotenv.config();
 // Database configuration
 const dbConfig = {
   host: process.env.DB_HOST || "localhost",
@@ -7,7 +10,7 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || "root",
   database: process.env.DB_NAME || "pizza_pos",
   port: parseInt(process.env.DB_PORT || "3306"),
-  socketPath: process.env.DB_SOCKET || undefined,
+  connectTimeout: 10000,
 };
 
 // Create connection pool
@@ -18,29 +21,37 @@ export async function initDatabase() {
   // In production (like Hostinger), database should already exist
   // Only try to create database in local development
   if (process.env.NODE_ENV !== "production") {
-    const connectionWithoutDb = await mysql.createConnection({
-      host: dbConfig.host,
-      user: dbConfig.user,
-      password: dbConfig.password,
-      port: dbConfig.port,
-      socketPath: dbConfig.socketPath,
-    });
-
     try {
-      // Create database if not exists
-      await connectionWithoutDb.query(
-        `CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`
-      );
-      console.log(`✅ Database '${dbConfig.database}' ready`);
-    } catch (error) {
-      console.log(
-        "⚠️ Could not create database (may already exist or no permissions)"
-      );
-    } finally {
-      await connectionWithoutDb.end();
+      const connectionWithoutDb = await mysql.createConnection({
+        host: dbConfig.host,
+        user: dbConfig.user,
+        password: dbConfig.password,
+        port: dbConfig.port,
+        connectTimeout: 10000,
+      });
+
+      try {
+        // Create database if not exists
+        await connectionWithoutDb.query(
+          `CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`
+        );
+        console.log(`✅ Database '${dbConfig.database}' ready`);
+      } catch (error) {
+        console.log(
+          "⚠️ Could not create database (may already exist or no permissions)"
+        );
+      } finally {
+        await connectionWithoutDb.end();
+      }
+    } catch (error: any) {
+      console.log("⚠️ Skipping database creation (might already exist)");
+      console.log(`Connection details: ${dbConfig.host}:${dbConfig.port}`);
     }
   }
 
+  console.log(
+    `📡 Connecting to database: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`
+  );
   const connection = await pool.getConnection();
 
   try {
