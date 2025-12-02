@@ -3,6 +3,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const { initDatabase } = require("./db-init");
 
 const app = express();
 
@@ -29,6 +30,16 @@ const limiter = rateLimit({
   max: 100,
 });
 app.use(limiter);
+
+// Database initialization endpoint (run this once after deployment)
+app.post("/api/init-db", async (req, res) => {
+  try {
+    const result = await initDatabase();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Routes
 const menuRoutes = require("./routes/menu");
