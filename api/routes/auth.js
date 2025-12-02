@@ -37,6 +37,16 @@ router.post("/login", async (req, res) => {
     }
 
     const user = users[0];
+
+    // Check if password field exists
+    if (!user.password) {
+      console.error("User password field is missing:", user);
+      return res.status(500).json({
+        success: false,
+        error: "User account not properly configured. Please run /api/init-db",
+      });
+    }
+
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
