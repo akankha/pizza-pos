@@ -1,19 +1,44 @@
-// Vercel serverless function handler
-const path = require("path");
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
-// Load built Express app
-let app;
+const app = express();
 
-module.exports = async (req, res) => {
-  if (!app) {
-    // Set environment flag for serverless
-    process.env.VERCEL = "1";
+// Middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
-    // Import the built app from api/dist (copied during build)
-    const indexPath = path.join(__dirname, "dist", "index.js");
-    const module = await import(indexPath);
-    app = module.default;
-  }
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true,
+  })
+);
 
-  return app(req, res);
-};
+app.use(express.json());
+app.use(cookieParser());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Test route
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API is working!" });
+});
+
+// Export for Vercel
+module.exports = app;
