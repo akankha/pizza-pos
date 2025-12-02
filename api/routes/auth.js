@@ -38,8 +38,9 @@ router.post("/login", async (req, res) => {
 
     const user = users[0];
 
-    // Check if password field exists
-    if (!user.password) {
+    // Check if password field exists (it's password_hash in the database)
+    const passwordHash = user.password_hash || user.password;
+    if (!passwordHash) {
       console.error("User password field is missing:", user);
       return res.status(500).json({
         success: false,
@@ -47,7 +48,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, passwordHash);
 
     if (!validPassword) {
       return res
@@ -75,7 +76,7 @@ router.post("/login", async (req, res) => {
         user: {
           id: user.id,
           username: user.username,
-          name: user.name,
+          name: user.full_name,
           role: user.role,
         },
       },
@@ -100,7 +101,7 @@ router.get("/verify", async (req, res) => {
 
     const decoded = jwt.verify(token, JWT_SECRET);
     const [users] = await pool.query(
-      "SELECT id, username, name, role FROM admin_users WHERE id = ?",
+      "SELECT id, username, full_name as name, role FROM admin_users WHERE id = ?",
       [decoded.id]
     );
 

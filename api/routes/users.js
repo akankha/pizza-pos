@@ -21,7 +21,7 @@ const pool = mysql.createPool({
 router.get("/", async (req, res) => {
   try {
     const [users] = await pool.query(
-      "SELECT id, username, name, role, created_at FROM users"
+      "SELECT id, username, full_name, role, active, created_at, last_login FROM admin_users"
     );
     res.json({ success: true, data: users });
   } catch (error) {
@@ -46,17 +46,17 @@ router.get("/me", async (req, res) => {
 // Create user
 router.post("/", async (req, res) => {
   try {
-    const { username, password, name, role } = req.body;
+    const { username, password, full_name, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = uuidv4();
 
     await pool.query(
-      "INSERT INTO users (id, username, password, name, role) VALUES (?, ?, ?, ?, ?)",
-      [userId, username, hashedPassword, name, role]
+      "INSERT INTO admin_users (id, username, password_hash, full_name, role) VALUES (?, ?, ?, ?, ?)",
+      [userId, username, hashedPassword, full_name, role]
     );
 
     const [users] = await pool.query(
-      "SELECT id, username, name, role, created_at FROM users WHERE id = ?",
+      "SELECT id, username, full_name, role, active, created_at FROM admin_users WHERE id = ?",
       [userId]
     );
     res.json({ success: true, data: users[0] });
@@ -69,24 +69,23 @@ router.post("/", async (req, res) => {
 // Update user
 router.put("/:userId", async (req, res) => {
   try {
-    const { name, role, password } = req.body;
+    const { full_name, role, password } = req.body;
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       await pool.query(
-        "UPDATE users SET name = ?, role = ?, password = ? WHERE id = ?",
-        [name, role, hashedPassword, req.params.userId]
+        "UPDATE admin_users SET full_name = ?, role = ?, password_hash = ? WHERE id = ?",
+        [full_name, role, hashedPassword, req.params.userId]
       );
     } else {
-      await pool.query("UPDATE users SET name = ?, role = ? WHERE id = ?", [
-        name,
-        role,
-        req.params.userId,
-      ]);
+      await pool.query(
+        "UPDATE admin_users SET full_name = ?, role = ? WHERE id = ?",
+        [full_name, role, req.params.userId]
+      );
     }
 
     const [users] = await pool.query(
-      "SELECT id, username, name, role, created_at FROM users WHERE id = ?",
+      "SELECT id, username, full_name, role, active, created_at FROM admin_users WHERE id = ?",
       [req.params.userId]
     );
     res.json({ success: true, data: users[0] });
