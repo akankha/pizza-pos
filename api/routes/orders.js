@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     // Insert order items
     for (const item of items) {
       await connection.query(
-        "INSERT INTO order_items (id, order_id, type, item_name, quantity, price, custom_data) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO order_items (id, order_id, type, item_name, quantity, price, item_data) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           uuidv4(),
           orderId,
@@ -91,7 +91,7 @@ router.get("/pending", async (req, res) => {
           'item_name', oi.item_name,
           'quantity', oi.quantity,
           'price', oi.price,
-          'custom_data', oi.custom_data
+          'item_data', oi.item_data
         )) FROM order_items oi WHERE oi.order_id = o.id) as items
       FROM orders o 
       WHERE o.status IN ('pending', 'preparing')
@@ -117,7 +117,7 @@ router.get("/:orderId", async (req, res) => {
           'item_name', oi.item_name,
           'quantity', oi.quantity,
           'price', oi.price,
-          'custom_data', oi.custom_data
+          'item_data', oi.item_data
         )) FROM order_items oi WHERE oi.order_id = o.id) as items
       FROM orders o 
       WHERE o.id = ?`,

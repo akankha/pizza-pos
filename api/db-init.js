@@ -112,7 +112,7 @@ async function initDatabase() {
         item_name VARCHAR(255) NOT NULL,
         quantity INT NOT NULL DEFAULT 1,
         price DECIMAL(10, 2) NOT NULL,
-        custom_data TEXT,
+        item_data TEXT,
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
       )
     `);
