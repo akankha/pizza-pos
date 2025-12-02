@@ -71,7 +71,21 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [orders] = await pool.query(
-      "SELECT * FROM orders ORDER BY created_at DESC LIMIT 100"
+      `SELECT o.id, o.total, o.status, o.payment_method as paymentMethod, o.notes, 
+        o.created_at as createdAt, o.updated_at as updatedAt,
+        COALESCE(
+          (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+            'id', oi.id,
+            'type', oi.type,
+            'name', oi.item_name,
+            'quantity', oi.quantity,
+            'price', oi.price
+          )) FROM order_items oi WHERE oi.order_id = o.id),
+          JSON_ARRAY()
+        ) as items
+      FROM orders o 
+      ORDER BY o.created_at DESC 
+      LIMIT 100`
     );
     res.json({ success: true, data: orders });
   } catch (error) {
@@ -84,15 +98,17 @@ router.get("/", async (req, res) => {
 router.get("/pending", async (req, res) => {
   try {
     const [orders] = await pool.query(
-      `SELECT o.*, 
+      `SELECT o.id, o.total, o.status, o.payment_method, o.notes, 
+        o.created_at as createdAt, o.updated_at as updatedAt,
         COALESCE(
           (SELECT JSON_ARRAYAGG(JSON_OBJECT(
             'id', oi.id,
             'type', oi.type,
-            'item_name', oi.item_name,
+            'name', oi.item_name,
             'quantity', oi.quantity,
             'price', oi.price,
-            'item_data', oi.item_data
+            'customPizza', IF(oi.custom_data IS NOT NULL, JSON_EXTRACT(oi.custom_data, '$.customPizza'), NULL),
+            'notes', IF(oi.custom_data IS NOT NULL, JSON_EXTRACT(oi.custom_data, '$.notes'), NULL)
           )) FROM order_items oi WHERE oi.order_id = o.id),
           JSON_ARRAY()
         ) as items
@@ -113,15 +129,17 @@ router.get("/pending", async (req, res) => {
 router.get("/:orderId", async (req, res) => {
   try {
     const [orders] = await pool.query(
-      `SELECT o.*, 
+      `SELECT o.id, o.total, o.status, o.payment_method as paymentMethod, o.notes, 
+        o.created_at as createdAt, o.updated_at as updatedAt,
         COALESCE(
           (SELECT JSON_ARRAYAGG(JSON_OBJECT(
             'id', oi.id,
             'type', oi.type,
-            'item_name', oi.item_name,
+            'name', oi.item_name,
             'quantity', oi.quantity,
             'price', oi.price,
-            'item_data', oi.item_data
+            'customPizza', IF(oi.custom_data IS NOT NULL, JSON_EXTRACT(oi.custom_data, '$.customPizza'), NULL),
+            'notes', IF(oi.custom_data IS NOT NULL, JSON_EXTRACT(oi.custom_data, '$.notes'), NULL)
           )) FROM order_items oi WHERE oi.order_id = o.id),
           JSON_ARRAY()
         ) as items
