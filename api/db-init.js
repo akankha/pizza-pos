@@ -108,7 +108,7 @@ async function initDatabase() {
       CREATE TABLE IF NOT EXISTS order_items (
         id VARCHAR(255) PRIMARY KEY,
         order_id VARCHAR(255) NOT NULL,
-        item_type VARCHAR(50) NOT NULL,
+        type VARCHAR(50) NOT NULL,
         item_name VARCHAR(255) NOT NULL,
         quantity INT NOT NULL DEFAULT 1,
         price DECIMAL(10, 2) NOT NULL,
