@@ -87,13 +87,14 @@ router.get("/", async (req, res) => {
       ORDER BY o.created_at DESC 
       LIMIT 100`
     );
-    
+
     // Parse JSON fields
-    const parsedOrders = orders.map(order => ({
+    const parsedOrders = orders.map((order) => ({
       ...order,
-      items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+      items:
+        typeof order.items === "string" ? JSON.parse(order.items) : order.items,
     }));
-    
+
     res.json({ success: true, data: parsedOrders });
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -123,14 +124,15 @@ router.get("/pending", async (req, res) => {
       WHERE o.status IN ('pending', 'preparing')
       ORDER BY o.created_at ASC`
     );
-    
+
     // Parse JSON fields
-    const parsedOrders = orders.map(order => ({
+    const parsedOrders = orders.map((order) => ({
       ...order,
-      items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items,
-      paymentMethod: order.payment_method
+      items:
+        typeof order.items === "string" ? JSON.parse(order.items) : order.items,
+      paymentMethod: order.payment_method,
     }));
-    
+
     res.json({ success: true, data: parsedOrders });
   } catch (error) {
     console.error("Error fetching pending orders:", error);
@@ -169,7 +171,10 @@ router.get("/:orderId", async (req, res) => {
 
     const order = {
       ...orders[0],
-      items: typeof orders[0].items === 'string' ? JSON.parse(orders[0].items) : orders[0].items
+      items:
+        typeof orders[0].items === "string"
+          ? JSON.parse(orders[0].items)
+          : orders[0].items,
     };
 
     res.json({ success: true, data: order });
