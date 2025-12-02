@@ -30,6 +30,10 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Routes
+const menuRoutes = require("./routes/menu");
+app.use("/api/menu", menuRoutes);
+
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
