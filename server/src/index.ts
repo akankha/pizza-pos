@@ -23,20 +23,24 @@ const httpServer = createServer(app);
 
 // Socket.IO only for local development (not compatible with Vercel serverless)
 let io: any = null;
-if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
-  const { Server } = await import("socket.io");
-  io = new Server(httpServer, {
-    cors: {
-      origin: [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:3000",
-      ],
-      methods: ["GET", "POST", "PATCH", "DELETE"],
-      credentials: true,
-    },
-  });
+
+// Initialize Socket.IO asynchronously
+async function initializeSocketIO() {
+  if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
+    const { Server } = await import("socket.io");
+    io = new Server(httpServer, {
+      cors: {
+        origin: [
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "http://localhost:5175",
+          "http://localhost:3000",
+        ],
+        methods: ["GET", "POST", "PATCH", "DELETE"],
+        credentials: true,
+      },
+    });
+  }
 }
 
 const PORT = process.env.PORT || 3001;
@@ -157,6 +161,7 @@ app.use(
 // Initialize database asynchronously
 async function startServer() {
   try {
+    await initializeSocketIO();
     await initDatabase();
     await seedDatabase();
     await seedAdminUser();
