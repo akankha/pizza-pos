@@ -36,18 +36,37 @@ export class OrderService {
       });
       console.log("Items:", JSON.stringify(items, null, 2));
 
-      await connection.query(
-        "INSERT INTO orders (id, total, status, notes, payment_method, created_by, created_by_name) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [
-          orderId,
-          total,
-          "pending",
-          notes || null,
-          paymentMethod || null,
-          createdBy || null,
-          createdByName || null,
-        ]
-      );
+      // Check if created_by columns exist (for backward compatibility)
+      const [columns] = await connection.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'orders' 
+        AND COLUMN_NAME = 'created_by'
+      `);
+
+      const hasCreatedByColumn = (columns as any[]).length > 0;
+
+      if (hasCreatedByColumn) {
+        await connection.query(
+          "INSERT INTO orders (id, total, status, notes, payment_method, created_by, created_by_name) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [
+            orderId,
+            total,
+            "pending",
+            notes || null,
+            paymentMethod || null,
+            createdBy || null,
+            createdByName || null,
+          ]
+        );
+      } else {
+        // Fallback for databases without created_by columns
+        await connection.query(
+          "INSERT INTO orders (id, total, status, notes, payment_method) VALUES (?, ?, ?, ?, ?)",
+          [orderId, total, "pending", notes || null, paymentMethod || null]
+        );
+      }
 
       for (const item of items) {
         const itemId = item.id || uuidv4();

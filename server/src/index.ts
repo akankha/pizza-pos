@@ -11,6 +11,7 @@ import { sanitizeSql } from "./middleware/validation.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import menuRoutes from "./routes/menu.js";
+import migrationsRoutes from "./routes/migrations.js";
 import orderRoutes from "./routes/orders.js";
 import settingsRoutes from "./routes/settings.js";
 import usersRoutes from "./routes/users.js";
@@ -77,32 +78,33 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
-      
-      const allowedOrigins = process.env.NODE_ENV === "production"
-        ? [
-            process.env.CLIENT_URL,
-            "https://pos.akankha.com",
-            "https://pos.akankha.com/",
-            "http://pos.akankha.com",
-            "http://pos.akankha.com/"
-          ].filter(Boolean)
-        : [
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://localhost:5175",
-            "http://localhost:3000",
-          ];
-      
+
+      const allowedOrigins =
+        process.env.NODE_ENV === "production"
+          ? [
+              process.env.CLIENT_URL,
+              "https://pos.akankha.com",
+              "https://pos.akankha.com/",
+              "http://pos.akankha.com",
+              "http://pos.akankha.com/",
+            ].filter(Boolean)
+          : [
+              "http://localhost:5173",
+              "http://localhost:5174",
+              "http://localhost:5175",
+              "http://localhost:3000",
+            ];
+
       // Remove trailing slash from origin for comparison
-      const normalizedOrigin = origin.replace(/\/$/, '');
-      const isAllowed = allowedOrigins.some(allowed => 
-        allowed?.replace(/\/$/, '') === normalizedOrigin
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some(
+        (allowed) => allowed?.replace(/\/$/, "") === normalizedOrigin
       );
-      
+
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
@@ -119,6 +121,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/migrations", migrationsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
