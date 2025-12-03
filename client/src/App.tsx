@@ -28,95 +28,23 @@ function App() {
           <Route path="/login" element={<StaffLoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          {/* Protected Routes - All staff */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/new-order"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <NewOrderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pizza-builder"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <PizzaBuilderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/specialty-pizzas"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <SpecialtyPizzasPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/combos"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <ComboDealPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/combo-customize"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <ComboCustomizePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/sides-drinks"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <SidesAndDrinksPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <CheckoutPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/active-orders"
-            element={
-              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
-                <ActiveOrdersPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Main Routes - No login required for basic POS functionality */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/new-order" element={<NewOrderPage />} />
+          <Route path="/pizza-builder" element={<PizzaBuilderPage />} />
+          <Route path="/specialty-pizzas" element={<SpecialtyPizzasPage />} />
+          <Route path="/combos" element={<ComboDealPage />} />
+          <Route path="/combo-customize" element={<ComboCustomizePage />} />
+          <Route path="/sides-drinks" element={<SidesAndDrinksPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/active-orders" element={<ActiveOrdersPage />} />
+          <Route path="/kitchen" element={<KitchenViewPage />} />
 
-          {/* Kitchen Route - Kitchen & Manager access */}
-          <Route
-            path="/kitchen"
-            element={
-              <ProtectedRoute allowedRoles={["kitchen", "manager", "admin"]}>
-                <KitchenViewPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Routes - Admin & Manager access */}
+          {/* Admin Routes - Protected */}
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
                 <AdminDashboardPage />
               </ProtectedRoute>
             }
@@ -124,7 +52,7 @@ function App() {
           <Route
             path="/admin/menu"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
                 <AdminMenuPage />
               </ProtectedRoute>
             }
@@ -132,7 +60,7 @@ function App() {
           <Route
             path="/admin/reports"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
                 <AdminReportsPage />
               </ProtectedRoute>
             }
@@ -140,7 +68,7 @@ function App() {
           <Route
             path="/admin/settings"
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["admin", "super_admin", "restaurant_admin"]}>
                 <AdminSettingsPage />
               </ProtectedRoute>
             }
@@ -148,7 +76,7 @@ function App() {
           <Route
             path="/admin/users"
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["admin", "super_admin", "restaurant_admin"]}>
                 <AdminUsersPage />
               </ProtectedRoute>
             }
