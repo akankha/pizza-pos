@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { MenuData } from '../../../shared/types';
-import { apiUrl } from '../utils/api';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import type { MenuData } from "../../../shared/types";
+import { apiUrl } from "../utils/api";
 
 interface MenuContextType {
   menuData: MenuData | null;
@@ -23,22 +23,22 @@ export function MenuProvider({ children }: { children: React.ReactNode }) {
       // Add cache-busting parameter to force fresh data
       const timestamp = new Date().getTime();
       const response = await fetch(apiUrl(`api/menu?t=${timestamp}`), {
-        cache: 'no-store',
+        cache: "no-store",
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
       });
       const result = await response.json();
-      
+
       if (result.success) {
         setMenuData(result.data);
       } else {
-        setError(result.error || 'Failed to load menu');
+        setError(result.error || "Failed to load menu");
       }
     } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Menu fetch error:', err);
+      setError("Failed to connect to server");
+      console.error("Menu fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,9 @@ export function MenuProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <MenuContext.Provider value={{ menuData, loading, error, refetch: fetchMenu }}>
+    <MenuContext.Provider
+      value={{ menuData, loading, error, refetch: fetchMenu }}
+    >
       {children}
     </MenuContext.Provider>
   );
@@ -58,7 +60,7 @@ export function MenuProvider({ children }: { children: React.ReactNode }) {
 export function useMenu() {
   const context = useContext(MenuContext);
   if (context === undefined) {
-    throw new Error('useMenu must be used within MenuProvider');
+    throw new Error("useMenu must be used within MenuProvider");
   }
   return context;
 }
