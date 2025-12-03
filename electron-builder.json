@@ -9,7 +9,8 @@
     "target": ["nsis"],
     "icon": "client/public/pizza-icon.ico",
     "signingHashAlgorithms": ["sha256"],
-    "sign": null
+    "sign": null,
+    "publisherName": "Akankha"
   },
   "nsis": {
     "oneClick": false,
@@ -17,7 +18,8 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
     "installerIcon": "client/public/pizza-icon.ico",
-    "uninstallerIcon": "client/public/pizza-icon.ico"
+    "uninstallerIcon": "client/public/pizza-icon.ico",
+    "shortcutName": "Pizza POS"
   },
   "forceCodeSigning": false
 }
