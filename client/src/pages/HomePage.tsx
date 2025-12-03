@@ -6,12 +6,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMenu } from "../contexts/MenuContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { refetch } = useMenu();
 
   const handleRefresh = () => {
-    window.location.reload();
+    // Refetch menu data without reloading the page
+    refetch();
   };
 
   const mainActions = [

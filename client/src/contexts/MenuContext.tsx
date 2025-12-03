@@ -20,7 +20,15 @@ export function MenuProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(apiUrl('api/menu'));
+      // Add cache-busting parameter to force fresh data
+      const timestamp = new Date().getTime();
+      const response = await fetch(apiUrl(`api/menu?t=${timestamp}`), {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       const result = await response.json();
       
       if (result.success) {
