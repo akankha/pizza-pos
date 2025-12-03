@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TouchButton from '../components/TouchButton';
 import { ArrowLeft, Save, Building2, Printer } from 'lucide-react';
 import { authFetch } from '../utils/auth';
+import { apiUrl } from '../utils/api';
 
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function AdminSettingsPage() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/settings');
+      const response = await fetch(apiUrl('api/settings'));
       const result = await response.json();
       if (result.success && result.data) {
         setSettings({

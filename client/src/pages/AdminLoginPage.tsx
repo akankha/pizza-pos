@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TouchButton from '../components/TouchButton';
+import { apiUrl } from '../utils/api';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -20,7 +21,7 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(apiUrl('api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

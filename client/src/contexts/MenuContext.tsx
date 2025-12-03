@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { MenuData } from '../../../shared/types';
+import { apiUrl } from '../utils/api';
 
 interface MenuContextType {
   menuData: MenuData | null;
@@ -19,7 +20,7 @@ export function MenuProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/menu');
+      const response = await fetch(apiUrl('api/menu'));
       const result = await response.json();
       
       if (result.success) {

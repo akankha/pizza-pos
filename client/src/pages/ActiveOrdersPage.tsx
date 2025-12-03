@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TouchButton from '../components/TouchButton';
 import { ArrowLeft, Clock, CheckCircle, Receipt } from 'lucide-react';
+import { apiUrl } from '../utils/api';
 
 interface Order {
   id: string;
@@ -25,7 +26,7 @@ export default function ActiveOrdersPage() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch('/api/orders/pending');
+      const response = await fetch(apiUrl('/api/orders/pending'));
       const result = await response.json();
       if (result.success) {
         setOrders(result.data);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TouchButton from '../components/TouchButton';
+import { apiUrl } from '../utils/api';
 import { 
   ArrowLeft, 
   Pizza, 
@@ -38,7 +39,7 @@ export default function AdminDashboardPage() {
   const verifyAuth = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/auth/verify', {
+      const response = await fetch(apiUrl('api/auth/verify'), {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -59,7 +60,7 @@ export default function AdminDashboardPage() {
   const loadStats = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/admin/stats', {
+      const response = await fetch(apiUrl('api/admin/stats'), {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -82,7 +83,7 @@ export default function AdminDashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(apiUrl('api/auth/logout'), {
         method: 'POST',
         credentials: 'include'
       });

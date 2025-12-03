@@ -5,6 +5,7 @@ import type { PaymentMethod } from "../../../shared/types";
 import OrderItemCard from "../components/OrderItemCard";
 import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
+import { apiUrl } from "../utils/api";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Fetch tax rates from settings
-    fetch("/api/settings")
+    fetch(apiUrl("api/settings"))
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -45,7 +46,7 @@ export default function CheckoutPage() {
 
     try {
       // Create order with payment method
-      const orderResponse = await fetch("/api/orders", {
+      const orderResponse = await fetch(apiUrl("api/orders"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

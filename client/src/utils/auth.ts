@@ -1,3 +1,5 @@
+import { apiUrl } from './api';
+
 // Helper function to make authenticated API requests
 export const authFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('authToken');
@@ -7,7 +9,7 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
     ...(token && { 'Authorization': `Bearer ${token}` }),
   };
 
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     ...options,
     headers: {
       ...defaultHeaders,
