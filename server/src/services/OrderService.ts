@@ -4,31 +4,45 @@ import type { Order, OrderItem, OrderStatus, PaymentMethod } from '../../../shar
 
 export class OrderService {
   async createOrder(items: OrderItem[], notes?: string, paymentMethod?: PaymentMethod): Promise<Order> {
-    const orderId = uuidv4();
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const connection = await db.getConnection();
     
-    await db.query(
-      'INSERT INTO orders (id, total, status, notes, payment_method) VALUES (?, ?, ?, ?, ?)',
-      [orderId, total, 'pending', notes || null, paymentMethod || null]
-    );
-
-    for (const item of items) {
-      await db.query(
-        'INSERT INTO order_items (id, order_id, type, name, price, quantity, custom_pizza, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-          item.id,
-          orderId,
-          item.type,
-          item.name,
-          item.price,
-          item.quantity,
-          item.customPizza ? JSON.stringify(item.customPizza) : null,
-          item.notes || null
-        ]
+    try {
+      await connection.beginTransaction();
+      
+      const orderId = uuidv4();
+      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      
+      await connection.query(
+        'INSERT INTO orders (id, total, status, notes, payment_method) VALUES (?, ?, ?, ?, ?)',
+        [orderId, total, 'pending', notes || null, paymentMethod || null]
       );
-    }
 
-    return (await this.getOrder(orderId))!;
+      for (const item of items) {
+        const itemId = item.id || uuidv4();
+        await connection.query(
+          'INSERT INTO order_items (id, order_id, type, name, price, quantity, custom_pizza, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            itemId,
+            orderId,
+            item.type || 'custom_pizza',
+            item.name,
+            item.price,
+            item.quantity,
+            item.customPizza ? JSON.stringify(item.customPizza) : null,
+            item.notes || null
+          ]
+        );
+      }
+
+      await connection.commit();
+      return (await this.getOrder(orderId))!;
+    } catch (error) {
+      await connection.rollback();
+      console.error('Order creation error:', error);
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 
   async getOrder(orderId: string): Promise<Order | null> {
