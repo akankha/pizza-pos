@@ -57,6 +57,12 @@ export class PrinterService {
    */
   static async connect(): Promise<boolean> {
     try {
+      // Check if running on Vercel (serverless environment)
+      if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+        console.log("⚠️ Printer not available on serverless environment");
+        return false;
+      }
+
       // Try to find the printer device
       const devices = USB.findPrinter();
 
@@ -136,6 +142,15 @@ export class PrinterService {
     error?: string;
   }> {
     try {
+      // Check if running on Vercel (serverless environment)
+      if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+        return {
+          connected: false,
+          ready: false,
+          error: "Printer functionality not available on serverless deployment",
+        };
+      }
+
       const settings = await this.getSettings();
 
       if (!settings.printer_enabled) {
@@ -176,6 +191,15 @@ export class PrinterService {
     copies: number = 1
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      // Check if running on Vercel (serverless environment)
+      if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+        console.log("⚠️ Printer not available on serverless environment");
+        return {
+          success: false,
+          error: "Printer functionality requires local server with USB access",
+        };
+      }
+
       const settings = await this.getSettings();
 
       // Check if printer is enabled
@@ -264,12 +288,21 @@ export class PrinterService {
     success: boolean;
     error?: string;
   }> {
+    // Check if running on Vercel (serverless environment)
+    if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+      return {
+        success: false,
+        error:
+          "Printer functionality is not available on serverless deployment. Please run the server locally or on a dedicated server with USB access.",
+      };
+    }
+
     const testReceipt = `
 ========================================
            PRINTER TEST
 ========================================
 
-Xprinter XP-N160II
+MUNBYN / Xprinter
 Thermal Receipt Printer Test
 
 Date: ${new Date().toLocaleString()}
@@ -298,6 +331,14 @@ configured properly!
    */
   static async autoPrintOrderReceipt(receiptText: string): Promise<void> {
     try {
+      // Check if running on Vercel (serverless environment)
+      if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+        console.log(
+          "⚠️ Auto-print skipped - running on serverless environment"
+        );
+        return;
+      }
+
       console.log("🖨️ Auto-print triggered for order receipt");
       const settings = await this.getSettings();
 
@@ -337,6 +378,14 @@ configured properly!
    */
   static getAvailablePrinters(): any[] {
     try {
+      // Check if running on Vercel (serverless environment)
+      if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+        console.log(
+          "⚠️ Printer listing not available on serverless environment"
+        );
+        return [];
+      }
+
       const devices = USB.findPrinter();
       return devices || [];
     } catch (error) {
