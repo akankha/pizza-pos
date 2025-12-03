@@ -2,6 +2,8 @@
   "name": "pizza-pos",
   "version": "1.0.0",
   "description": "Pizza Shop POS System for Windows Touchscreen Kiosks",
+  "author": "Akankha",
+  "main": "electron/main.js",
   "private": true,
   "scripts": {
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",

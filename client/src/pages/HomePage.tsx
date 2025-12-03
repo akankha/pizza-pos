@@ -1,45 +1,55 @@
-import { useNavigate } from 'react-router-dom';
-import { Pizza, ClipboardList, ChefHat, ShieldCheck } from 'lucide-react';
+import {
+  ChefHat,
+  ClipboardList,
+  Pizza,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   const mainActions = [
     {
-      title: 'New Order',
-      description: 'Start taking customer orders',
+      title: "New Order",
+      description: "Start taking customer orders",
       icon: Pizza,
-      path: '/new-order',
-      color: 'from-[#FF6B35] to-orange-500',
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-[#FF6B35]',
+      path: "/new-order",
+      color: "from-[#FF6B35] to-orange-500",
+      iconBg: "bg-orange-100",
+      iconColor: "text-[#FF6B35]",
     },
     {
-      title: 'Active Orders',
-      description: 'View and manage pending orders',
+      title: "Active Orders",
+      description: "View and manage pending orders",
       icon: ClipboardList,
-      path: '/active-orders',
-      color: 'from-[#004E89] to-blue-600',
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-[#004E89]',
+      path: "/active-orders",
+      color: "from-[#004E89] to-blue-600",
+      iconBg: "bg-blue-100",
+      iconColor: "text-[#004E89]",
     },
     {
-      title: 'Kitchen Display',
-      description: 'Real-time order preparation',
+      title: "Kitchen Display",
+      description: "Real-time order preparation",
       icon: ChefHat,
-      path: '/kitchen',
-      color: 'from-[#10B981] to-emerald-600',
-      iconBg: 'bg-emerald-100',
-      iconColor: 'text-[#10B981]',
+      path: "/kitchen",
+      color: "from-[#10B981] to-emerald-600",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-[#10B981]",
     },
     {
-      title: 'Admin Panel',
-      description: 'Manage menu, reports & settings',
+      title: "Admin Panel",
+      description: "Manage menu, reports & settings",
       icon: ShieldCheck,
-      path: '/admin/login',
-      color: 'from-purple-600 to-indigo-600',
-      iconBg: 'bg-purple-100',
-      iconColor: 'text-purple-600',
+      path: "/admin/login",
+      color: "from-purple-600 to-indigo-600",
+      iconBg: "bg-purple-100",
+      iconColor: "text-purple-600",
     },
   ];
 
@@ -58,21 +68,31 @@ export default function HomePage() {
                 <p className="text-sm text-gray-500">Point of Sale System</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-600">
-                {new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-              <p className="text-xs text-gray-500">
-                {new Date().toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleRefresh}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md"
+                aria-label="Refresh menu"
+              >
+                <RefreshCw size={24} />
+                <span className="font-semibold text-lg">Refresh Menu</span>
+              </button>
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-600">
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date().toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -102,13 +122,15 @@ export default function HomePage() {
               >
                 {/* Glossy overlay effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                
+
                 <div className="relative flex flex-col items-center text-center gap-5">
                   {/* Icon with glow effect */}
-                  <div className={`${action.iconBg} p-6 rounded-2xl shadow-md group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                  <div
+                    className={`${action.iconBg} p-6 rounded-2xl shadow-md group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
+                  >
                     <action.icon size={48} className={action.iconColor} />
                   </div>
-                  
+
                   {/* Content */}
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#FF6B35] transition-colors">
@@ -121,7 +143,12 @@ export default function HomePage() {
 
                   {/* Visual Indicator with glow */}
                   <div className="mt-2 pt-4 border-t border-gray-100 w-full">
-                    <div className={`h-1 rounded-full ${action.iconColor.replace('text-', 'bg-')} group-hover:h-2 group-hover:shadow-lg transition-all duration-300`}></div>
+                    <div
+                      className={`h-1 rounded-full ${action.iconColor.replace(
+                        "text-",
+                        "bg-"
+                      )} group-hover:h-2 group-hover:shadow-lg transition-all duration-300`}
+                    ></div>
                   </div>
                 </div>
               </button>
@@ -132,7 +159,9 @@ export default function HomePage() {
           <div className="mt-12 bg-[#FF6B35]/10 rounded-card p-6 border border-[#FF6B35]/20">
             <div className="flex items-center justify-center gap-3 text-gray-900">
               <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
-              <p className="text-sm font-medium">System Ready • All Services Online</p>
+              <p className="text-sm font-medium">
+                System Ready • All Services Online
+              </p>
             </div>
           </div>
         </div>

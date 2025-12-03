@@ -20,9 +20,15 @@ function createWindow() {
     mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
   } else {
-    // In production - load from Hostinger website
-    const productionUrl = process.env.CLIENT_URL || "https://yourdomain.com";
-    mainWindow.loadURL(productionUrl);
+    // In production - load from deployed client
+    mainWindow.loadURL("https://pos.akankha.com");
+
+    // Auto-refresh every 5 minutes to get latest menu updates
+    setInterval(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.reload();
+      }
+    }, 5 * 60 * 1000); // 5 minutes
   }
 
   // Prevent navigation away from the app
@@ -48,6 +54,9 @@ function createWindow() {
   mainWindow.webContents.on("before-input-event", (event, input) => {
     if (input.control && input.key.toLowerCase() === "q") {
       app.quit();
+    }
+  });
+}
 
 app.whenReady().then(() => {
   createWindow();
@@ -73,5 +82,4 @@ app.on("browser-window-crashed", () => {
 });
 
 // Disable hardware acceleration if needed for compatibility
-// app.disableHardwareAcceleration();
 // app.disableHardwareAcceleration();
