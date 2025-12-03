@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const printService = require("./printService");
 
 let mainWindow;
 
@@ -58,8 +59,64 @@ function createWindow() {
   });
 }
 
+// IPC Handlers for printing
+ipcMain.handle("print-receipt", async (event, orderData) => {
+  try {
+    console.log("Print request received:", orderData);
+
+    // Get restaurant settings from the API
+    let restaurantInfo = {
+      name: "Pizza Shop",
+      address: "",
+      phone: "",
+    };
+
+    try {
+      const fetch = require("node-fetch");
+      const response = await fetch(
+        "https://pizza-pos-server.vercel.app/api/settings"
+      );
+      const result = await response.json();
+      if (result.success && result.data) {
+        restaurantInfo = {
+          name: result.data.restaurant_name || "Pizza Shop",
+          address: result.data.restaurant_address || "",
+          phone: result.data.restaurant_phone || "",
+        };
+      }
+    } catch (err) {
+      console.error("Failed to fetch restaurant settings:", err);
+    }
+
+    const receiptText = printService.formatReceipt({
+      ...orderData,
+      restaurantInfo,
+    });
+
+    await printService.print(receiptText, orderData.copies || 1);
+    return { success: true };
+  } catch (error) {
+    console.error("Print error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("check-printer", async () => {
+  try {
+    const connected = await printService.connect();
+    return { success: true, connected };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 app.whenReady().then(() => {
   createWindow();
+
+  // Initialize printer on startup
+  printService.connect().catch((err) => {
+    console.error("Failed to connect to printer on startup:", err);
+  });
 });
 
 app.on("window-all-closed", () => {

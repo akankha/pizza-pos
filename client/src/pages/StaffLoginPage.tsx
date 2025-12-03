@@ -1,7 +1,6 @@
 import { Lock, LogIn, Pizza, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TouchButton from "../components/TouchButton";
 import { apiUrl } from "../utils/api";
 
 export default function StaffLoginPage() {
@@ -120,20 +119,16 @@ export default function StaffLoginPage() {
           </div>
 
           {/* Login Button */}
-          <TouchButton
+          <button
             type="submit"
-            variant="primary"
-            size="large"
-            fullWidth
             disabled={loading}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 px-8 rounded-2xl text-2xl font-bold hover:from-orange-700 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3"
           >
-            <div className="flex items-center justify-center gap-3">
-              <LogIn size={28} />
-              <span className="text-2xl font-bold">
-                {loading ? "Signing In..." : "Sign In"}
-              </span>
-            </div>
-          </TouchButton>
+            <LogIn size={28} />
+            <span className="text-2xl font-bold">
+              {loading ? "Signing In..." : "Sign In"}
+            </span>
+          </button>
         </form>
 
         {/* Admin Link */}

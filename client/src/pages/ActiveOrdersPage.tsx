@@ -1,17 +1,9 @@
 import { ArrowLeft, CheckCircle, Clock, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { Order } from "../../../shared/types";
 import TouchButton from "../components/TouchButton";
 import { apiUrl } from "../utils/api";
-
-interface Order {
-  id: string;
-  items: any[];
-  total: number;
-  status: string;
-  paymentMethod?: string;
-  createdAt: string;
-}
 
 export default function ActiveOrdersPage() {
   const navigate = useNavigate();

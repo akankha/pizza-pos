@@ -14,8 +14,18 @@ export {};
 declare global {
   interface Window {
     socket: any;
-    electron: {
+    electron?: {
       platform: string;
+      printer?: {
+        print: (
+          orderData: any
+        ) => Promise<{ success: boolean; error?: string }>;
+        checkStatus: () => Promise<{
+          success: boolean;
+          connected?: boolean;
+          error?: string;
+        }>;
+      };
     };
   }
 }

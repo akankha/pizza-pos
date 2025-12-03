@@ -6,6 +6,7 @@ import OrderItemCard from "../components/OrderItemCard";
 import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
 import { apiUrl } from "../utils/api";
+import { getCurrentUser } from "../utils/auth";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -69,6 +70,41 @@ export default function CheckoutPage() {
 
       // Store order ID for receipt
       setCompletedOrderId(orderResult.data.id);
+
+      // Print receipt locally if running in Electron
+      if (window.electron?.printer) {
+        try {
+          const printData = {
+            orderId: orderResult.data.id,
+            orderNumber: parseInt(new Date().getTime().toString().slice(-6)),
+            items: items.map((item) => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+              customPizza: item.customPizza,
+            })),
+            subtotal: getTotal(),
+            gst: getTotal() * taxRates.gst,
+            pst: getTotal() * taxRates.pst,
+            tax: getTotal() * (taxRates.gst + taxRates.pst),
+            total: getTotal() * (1 + taxRates.gst + taxRates.pst),
+            paymentMethod,
+            createdByName: currentUser?.full_name || currentUser?.username,
+            notes: orderNotes.trim() || undefined,
+            copies: 1,
+          };
+
+          const printResult = await window.electron.printer.print(printData);
+          if (printResult.success) {
+            console.log("✅ Receipt printed successfully");
+          } else {
+            console.error("❌ Print failed:", printResult.error);
+          }
+        } catch (printError) {
+          console.error("Print error:", printError);
+          // Don't block order completion if printing fails
+        }
+      }
 
       // Show success (kitchen will auto-refresh via polling)
       setShowSuccess(true);

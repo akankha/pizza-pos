@@ -4,4 +4,10 @@ const { contextBridge, ipcRenderer } = require("electron");
 // ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("electron", {
   platform: process.platform,
+
+  // Printer API
+  printer: {
+    print: (orderData) => ipcRenderer.invoke("print-receipt", orderData),
+    checkStatus: () => ipcRenderer.invoke("check-printer"),
+  },
 });

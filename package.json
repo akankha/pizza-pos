@@ -32,6 +32,9 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-usb": "^3.0.0-alpha.4",
+    "node-fetch": "^2.7.0"
   }
 }
