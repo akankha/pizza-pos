@@ -1,9 +1,6 @@
-import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 
-// Load environment variables
-dotenv.config();
-// Database configuration
+// Database configuration (Vercel injects env vars directly, no need for dotenv)
 const dbConfig = {
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
@@ -12,6 +9,20 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || "3306"),
   connectTimeout: 10000,
 };
+
+// Debug logging
+console.log("📡 Database config:", {
+  host: dbConfig.host,
+  port: dbConfig.port,
+  database: dbConfig.database,
+  user: dbConfig.user,
+  envVarsSet: {
+    DB_HOST: !!process.env.DB_HOST,
+    DB_USER: !!process.env.DB_USER,
+    DB_PASSWORD: !!process.env.DB_PASSWORD,
+    DB_NAME: !!process.env.DB_NAME,
+  }
+});
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);

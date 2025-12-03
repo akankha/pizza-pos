@@ -74,15 +74,37 @@ app.use("/api/auth/login", authLimiter);
 // Middleware
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.CLIENT_URL || "*" // Allow requests from Hostinger domain
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, Postman, curl)
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = process.env.NODE_ENV === "production"
+        ? [
+            process.env.CLIENT_URL,
+            "https://pos.akankha.com",
+            "https://pos.akankha.com/",
+            "http://pos.akankha.com",
+            "http://pos.akankha.com/"
+          ].filter(Boolean)
         : [
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
             "http://localhost:3000",
-          ],
+          ];
+      
+      // Remove trailing slash from origin for comparison
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      const isAllowed = allowedOrigins.some(allowed => 
+        allowed?.replace(/\/$/, '') === normalizedOrigin
+      );
+      
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
