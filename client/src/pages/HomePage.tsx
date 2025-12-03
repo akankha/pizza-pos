@@ -5,16 +5,30 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMenu } from "../contexts/MenuContext";
+import { getCurrentUser, logout } from "../utils/auth";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { refetch } = useMenu();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    setCurrentUser(user);
+  }, []);
 
   const handleRefresh = () => {
     // Refetch menu data without reloading the page
     refetch();
+  };
+
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to logout?")) {
+      logout();
+    }
   };
 
   const mainActions = [
@@ -72,6 +86,21 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              {/* Current User Display */}
+              {currentUser && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+                  <User size={20} className="text-gray-600" />
+                  <div className="text-sm">
+                    <p className="font-semibold text-gray-800">
+                      {currentUser.full_name || currentUser.username}
+                    </p>
+                    <p className="text-gray-600 capitalize">
+                      {currentUser.role}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleRefresh}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md"
@@ -80,6 +109,16 @@ export default function HomePage() {
                 <RefreshCw size={24} />
                 <span className="font-semibold text-lg">Refresh Menu</span>
               </button>
+
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-md"
+                aria-label="Logout"
+              >
+                <LogOut size={24} />
+                <span className="font-semibold text-lg">Logout</span>
+              </button>
+
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-600">
                   {new Date().toLocaleDateString("en-US", {

@@ -1,43 +1,159 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import NewOrderPage from './pages/NewOrderPage';
-import PizzaBuilderPage from './pages/PizzaBuilderPage';
-import SpecialtyPizzasPage from './pages/SpecialtyPizzasPage';
-import ComboDealPage from './pages/ComboDealPage';
-import ComboCustomizePage from './pages/ComboCustomizePage';
-import SidesAndDrinksPage from './pages/SidesAndDrinksPage';
-import CheckoutPage from './pages/CheckoutPage';
-import KitchenViewPage from './pages/KitchenViewPage';
-import ActiveOrdersPage from './pages/ActiveOrdersPage';
-import AdminLoginPage from './pages/AdminLoginPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import AdminMenuPage from './pages/AdminMenuPage';
-import AdminReportsPage from './pages/AdminReportsPage';
-import AdminSettingsPage from './pages/AdminSettingsPage';
-import AdminUsersPage from './pages/AdminUsersPage';
-import { MenuProvider } from './contexts/MenuContext';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { MenuProvider } from "./contexts/MenuContext";
+import ActiveOrdersPage from "./pages/ActiveOrdersPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+import AdminMenuPage from "./pages/AdminMenuPage";
+import AdminReportsPage from "./pages/AdminReportsPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ComboCustomizePage from "./pages/ComboCustomizePage";
+import ComboDealPage from "./pages/ComboDealPage";
+import HomePage from "./pages/HomePage";
+import KitchenViewPage from "./pages/KitchenViewPage";
+import NewOrderPage from "./pages/NewOrderPage";
+import PizzaBuilderPage from "./pages/PizzaBuilderPage";
+import SidesAndDrinksPage from "./pages/SidesAndDrinksPage";
+import SpecialtyPizzasPage from "./pages/SpecialtyPizzasPage";
+import StaffLoginPage from "./pages/StaffLoginPage";
 
 function App() {
   return (
     <BrowserRouter>
       <MenuProvider>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/new-order" element={<NewOrderPage />} />
-          <Route path="/pizza-builder" element={<PizzaBuilderPage />} />
-          <Route path="/specialty-pizzas" element={<SpecialtyPizzasPage />} />
-          <Route path="/combos" element={<ComboDealPage />} />
-          <Route path="/combo-customize" element={<ComboCustomizePage />} />
-          <Route path="/sides-drinks" element={<SidesAndDrinksPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/active-orders" element={<ActiveOrdersPage />} />
-          <Route path="/kitchen" element={<KitchenViewPage />} />
+          {/* Public Routes */}
+          <Route path="/login" element={<StaffLoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/menu" element={<AdminMenuPage />} />
-          <Route path="/admin/reports" element={<AdminReportsPage />} />
-          <Route path="/admin/settings" element={<AdminSettingsPage />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
+
+          {/* Protected Routes - All staff */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/new-order"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <NewOrderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pizza-builder"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <PizzaBuilderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/specialty-pizzas"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <SpecialtyPizzasPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/combos"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <ComboDealPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/combo-customize"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <ComboCustomizePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sides-drinks"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <SidesAndDrinksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/active-orders"
+            element={
+              <ProtectedRoute allowedRoles={["cashier", "manager", "admin"]}>
+                <ActiveOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Kitchen Route - Kitchen & Manager access */}
+          <Route
+            path="/kitchen"
+            element={
+              <ProtectedRoute allowedRoles={["kitchen", "manager", "admin"]}>
+                <KitchenViewPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes - Admin & Manager access */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/menu"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AdminMenuPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AdminReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </MenuProvider>

@@ -1,10 +1,19 @@
 // Shared types for both client and server
 
-export type PizzaSizeName = 'small' | 'medium' | 'large' | 'xlarge';
-export type CrustType = 'thin' | 'regular' | 'thick' | 'stuffed';
-export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-export type PaymentMethod = 'cash' | 'card' | 'debit' | 'credit';
-export type UserRole = 'super_admin' | 'restaurant_admin' | 'reception' | 'kitchen';
+export type PizzaSizeName = "small" | "medium" | "large" | "xlarge";
+export type CrustType = "thin" | "regular" | "thick" | "stuffed";
+export type OrderStatus =
+  | "pending"
+  | "preparing"
+  | "ready"
+  | "completed"
+  | "cancelled";
+export type PaymentMethod = "cash" | "card" | "debit" | "credit";
+export type UserRole =
+  | "super_admin"
+  | "restaurant_admin"
+  | "reception"
+  | "kitchen";
 
 export interface User {
   id: string;
@@ -28,7 +37,7 @@ export interface Topping {
   id: string;
   name: string;
   price: number;
-  category: 'meat' | 'veggie' | 'cheese' | 'sauce';
+  category: "meat" | "veggie" | "cheese" | "sauce";
 }
 
 export interface PizzaSize {
@@ -54,7 +63,7 @@ export interface CustomPizza {
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'pizza' | 'side' | 'drink';
+  category: "pizza" | "side" | "drink";
   price: number;
   description?: string;
 }
@@ -84,7 +93,7 @@ export interface ComboDeal {
 
 export interface OrderItem {
   id: string;
-  type: 'custom_pizza' | 'specialty_pizza' | 'combo_deal' | 'side' | 'drink';
+  type: "custom_pizza" | "specialty_pizza" | "combo_deal" | "side" | "drink";
   name: string;
   price: number;
   quantity: number;
@@ -104,6 +113,8 @@ export interface Order {
   status: OrderStatus;
   paymentMethod?: PaymentMethod;
   notes?: string;
+  createdBy?: string;
+  createdByName?: string;
   createdAt: string;
   updatedAt?: string;
 }

@@ -45,7 +45,10 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // Create order with payment method
+      // Get current user info
+      const currentUser = getCurrentUser();
+
+      // Create order with payment method and user info
       const orderResponse = await fetch(apiUrl("api/orders"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,6 +56,8 @@ export default function CheckoutPage() {
           items,
           paymentMethod,
           notes: orderNotes.trim() || undefined,
+          createdBy: currentUser?.id,
+          createdByName: currentUser?.full_name || currentUser?.username,
         }),
       });
 

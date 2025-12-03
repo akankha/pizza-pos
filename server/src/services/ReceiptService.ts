@@ -25,6 +25,8 @@ interface ReceiptData {
   customerPhone?: string;
   customerEmail?: string;
   notes?: string;
+  createdBy?: string;
+  createdByName?: string;
 }
 
 interface RestaurantSettings {
@@ -173,6 +175,11 @@ export class ReceiptService {
     doc.moveDown(0.5);
     doc.fontSize(8).font('Helvetica');
     doc.text(`Payment: ${data.paymentMethod.toUpperCase()}`);
+    
+    // Staff member who took the order
+    if (data.createdByName) {
+      doc.text(`Served by: ${data.createdByName}`);
+    }
 
     // QR Code for order tracking
     doc.moveDown();
