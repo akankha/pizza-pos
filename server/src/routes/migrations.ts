@@ -27,9 +27,9 @@ router.post("/add-created-by", async (req, res) => {
 
     // Add created_by and created_by_name columns to orders table
     await db.query(`
-      ALTER TABLE orders 
-      ADD COLUMN created_by VARCHAR(36) NULL,
-      ADD COLUMN created_by_name VARCHAR(255) NULL
+ALTER TABLE orders 
+ADD COLUMN created_by VARCHAR(36) NULL,
+ADD COLUMN created_by_name VARCHAR(255) NULL
     `);
 
     console.log("Successfully added created_by and created_by_name columns");
@@ -37,10 +37,10 @@ router.post("/add-created-by", async (req, res) => {
     // Try to add foreign key constraint (may fail if users table doesn't exist)
     try {
       await db.query(`
-        ALTER TABLE orders 
-        ADD CONSTRAINT fk_orders_created_by 
-        FOREIGN KEY (created_by) REFERENCES users(id) 
-        ON DELETE SET NULL
+ALTER TABLE orders 
+ADD CONSTRAINT fk_orders_created_by 
+FOREIGN KEY (created_by) REFERENCES users(id) 
+ON DELETE SET NULL
       `);
       console.log("Successfully added foreign key constraint");
     } catch (fkError: any) {
