@@ -1,15 +1,18 @@
-import type { Order } from '../../../shared/types';
-import { Clock, Check } from 'lucide-react';
+import { Check, Clock } from "lucide-react";
+import type { Order } from "../../../shared/types";
 
 interface KitchenOrderCardProps {
   order: Order;
   onComplete: (orderId: string) => void;
 }
 
-export default function KitchenOrderCard({ order, onComplete }: KitchenOrderCardProps) {
+export default function KitchenOrderCard({
+  order,
+  onComplete,
+}: KitchenOrderCardProps) {
   const orderTime = new Date(order.createdAt).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const timeSince = Math.floor(
@@ -27,15 +30,22 @@ export default function KitchenOrderCard({ order, onComplete }: KitchenOrderCard
           <div className="flex items-center gap-2 mt-2 text-gray-600">
             <Clock size={20} />
             <span className="text-lg">
-              {orderTime} • {timeSince} min{timeSince !== 1 ? 's' : ''} ago
+              {orderTime} • {timeSince} min{timeSince !== 1 ? "s" : ""} ago
             </span>
           </div>
+          {order.createdByName && (
+            <div className="mt-2 text-gray-700">
+              <span className="text-md font-semibold">
+                Taken by: {order.createdByName}
+              </span>
+            </div>
+          )}
         </div>
         <div
           className={`px-4 py-2 rounded-full text-lg font-bold ${
-            order.status === 'pending'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-blue-100 text-blue-800'
+            order.status === "pending"
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-blue-100 text-blue-800"
           }`}
         >
           {order.status.toUpperCase()}
@@ -51,24 +61,28 @@ export default function KitchenOrderCard({ order, onComplete }: KitchenOrderCard
                 <h3 className="text-2xl font-bold text-pizza-brown">
                   {item.quantity}x {item.name}
                 </h3>
-                
+
                 {item.customPizza && (
                   <div className="mt-2 space-y-1">
                     <p className="text-lg font-semibold text-gray-700">
-                      Size: {item.customPizza.size.toUpperCase()} • Crust: {item.customPizza.crust.charAt(0).toUpperCase() + item.customPizza.crust.slice(1)}
+                      Size: {item.customPizza.size.toUpperCase()} • Crust:{" "}
+                      {item.customPizza.crust.charAt(0).toUpperCase() +
+                        item.customPizza.crust.slice(1)}
                     </p>
-                    
+
                     {item.customPizza.toppings.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-md font-semibold text-gray-600">Toppings:</p>
+                        <p className="text-md font-semibold text-gray-600">
+                          Toppings:
+                        </p>
                         <p className="text-lg text-gray-700">
-                          {item.customPizza.toppings.join(', ')}
+                          {item.customPizza.toppings.join(", ")}
                         </p>
                       </div>
                     )}
                   </div>
                 )}
-                
+
                 {item.notes && (
                   <p className="mt-2 text-lg text-red-600 font-semibold">
                     Note: {item.notes}

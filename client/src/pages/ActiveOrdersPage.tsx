@@ -100,6 +100,11 @@ export default function ActiveOrdersPage() {
                         <p className="text-sm text-gray-500">
                           {new Date(order.createdAt).toLocaleTimeString()}
                         </p>
+                        {order.createdByName && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            By: {order.createdByName}
+                          </p>
+                        )}
                       </div>
                       <div
                         className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-md ${
