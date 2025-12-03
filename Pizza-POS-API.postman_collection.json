@@ -7,7 +7,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:3001",
+			"value": "https://pizza-pos.vercel.app/",
 			"type": "string"
 		},
 		{
