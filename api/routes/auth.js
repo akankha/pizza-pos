@@ -25,6 +25,13 @@ router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: "Username and password are required",
+      });
+    }
+
     const [users] = await pool.query(
       "SELECT * FROM admin_users WHERE username = ?",
       [username]
@@ -83,7 +90,13 @@ router.post("/login", async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ success: false, error: "Login failed" });
+    console.error("Error stack:", error.stack);
+    res.status(500).json({
+      success: false,
+      error: "Login failed",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 });
 

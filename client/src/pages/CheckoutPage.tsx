@@ -83,7 +83,10 @@ export default function CheckoutPage() {
 
   const handleDownloadReceipt = () => {
     if (completedOrderId) {
-      window.open(`/api/orders/${completedOrderId}/receipt/pdf`, "_blank");
+      window.open(
+        apiUrl(`/api/orders/${completedOrderId}/receipt/pdf`),
+        "_blank"
+      );
     }
   };
 
