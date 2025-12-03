@@ -12,6 +12,10 @@ export class OrderService {
       const orderId = uuidv4();
       const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       
+      // Debug logging
+      console.log('Creating order:', { orderId, total, itemCount: items.length });
+      console.log('Items:', JSON.stringify(items, null, 2));
+      
       await connection.query(
         'INSERT INTO orders (id, total, status, notes, payment_method) VALUES (?, ?, ?, ?, ?)',
         [orderId, total, 'pending', notes || null, paymentMethod || null]
@@ -19,12 +23,23 @@ export class OrderService {
 
       for (const item of items) {
         const itemId = item.id || uuidv4();
+        const itemType = item.type || 'custom_pizza';
+        
+        console.log('Inserting order item:', {
+          id: itemId,
+          orderId,
+          type: itemType,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        });
+        
         await connection.query(
           'INSERT INTO order_items (id, order_id, type, name, price, quantity, custom_pizza, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           [
             itemId,
             orderId,
-            item.type || 'custom_pizza',
+            itemType,
             item.name,
             item.price,
             item.quantity,
