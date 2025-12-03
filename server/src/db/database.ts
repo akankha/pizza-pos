@@ -129,15 +129,9 @@ export async function initDatabase() {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id VARCHAR(255) PRIMARY KEY,
-        order_number INT NOT NULL AUTO_INCREMENT UNIQUE,
-        subtotal DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-        tax_gst DECIMAL(10, 2) DEFAULT 0.00,
-        tax_pst DECIMAL(10, 2) DEFAULT 0.00,
         total DECIMAL(10, 2) NOT NULL,
-        status ENUM('pending', 'preparing', 'ready', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
-        payment_method ENUM('cash', 'card', 'debit', 'credit') DEFAULT NULL,
-        customer_name VARCHAR(255) DEFAULT NULL,
-        customer_phone VARCHAR(50) DEFAULT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        payment_method VARCHAR(50),
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -149,14 +143,10 @@ export async function initDatabase() {
       CREATE TABLE IF NOT EXISTS order_items (
         id VARCHAR(255) PRIMARY KEY,
         order_id VARCHAR(255) NOT NULL,
-        type ENUM('custom_pizza', 'specialty_pizza', 'combo_deal', 'side', 'drink') NOT NULL,
-        specialty_pizza_id VARCHAR(255) DEFAULT NULL,
-        combo_id VARCHAR(255) DEFAULT NULL,
-        menu_item_id VARCHAR(255) DEFAULT NULL,
+        type VARCHAR(50) NOT NULL,
         name VARCHAR(255) NOT NULL,
         price DECIMAL(10, 2) NOT NULL,
         quantity INT NOT NULL DEFAULT 1,
-        item_data JSON DEFAULT NULL,
         custom_pizza TEXT,
         notes TEXT,
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
@@ -194,6 +184,9 @@ export async function initDatabase() {
         pst_rate DECIMAL(5, 4) NOT NULL DEFAULT 0.07,
         tax_label_gst VARCHAR(50) NOT NULL DEFAULT 'GST',
         tax_label_pst VARCHAR(50) NOT NULL DEFAULT 'PST',
+        printer_enabled TINYINT(1) NOT NULL DEFAULT 1,
+        auto_print TINYINT(1) NOT NULL DEFAULT 1,
+        print_copies INT NOT NULL DEFAULT 1,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
