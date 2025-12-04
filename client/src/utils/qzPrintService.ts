@@ -30,9 +30,6 @@ interface PrintData {
 }
 
 class QZPrintService {
-  private isConnected: boolean = false;
-  private printerName: string = "";
-
   /**
    * Connect to QZ Tray
    */
@@ -44,11 +41,9 @@ class QZPrintService {
         console.log("✅ Connected to QZ Tray");
       }
 
-      this.isConnected = true;
       return true;
     } catch (error) {
       console.error("❌ Failed to connect to QZ Tray:", error);
-      this.isConnected = false;
       return false;
     }
   }
@@ -72,14 +67,12 @@ class QZPrintService {
       );
 
       if (thermalPrinter) {
-        this.printerName = thermalPrinter;
         console.log("✅ Found thermal printer:", thermalPrinter);
         return thermalPrinter;
       }
 
       // Fallback to default printer if no thermal printer found
       const defaultPrinter = await qz.printers.getDefault();
-      this.printerName = defaultPrinter;
       console.log("⚠️  Using default printer:", defaultPrinter);
       return defaultPrinter;
     } catch (error) {
@@ -227,7 +220,6 @@ class QZPrintService {
   async disconnect(): Promise<void> {
     if (qz.websocket.isActive()) {
       await qz.websocket.disconnect();
-      this.isConnected = false;
       console.log("🔌 Disconnected from QZ Tray");
     }
   }

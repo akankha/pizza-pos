@@ -97,7 +97,7 @@ On the **production machine** (kiosk with MUNBYN printer):
      ☑️ Remember this decision
      [Allow] [Block]
      ```
-   - Check "Remember this decision"
+   - **IMPORTANT: Check "Remember this decision"** ✅
    - Click **"Allow"**
 
 3. **Create test order:**
@@ -107,6 +107,47 @@ On the **production machine** (kiosk with MUNBYN printer):
    - Complete order
 
 4. **Receipt should auto-print!** 🎉
+
+---
+
+## IMPORTANT: Stop the "Allow" Popup Every Time
+
+The popup says "An anonymous request wants to connect to QZ Tray - Untrusted website". Here's how to fix it permanently:
+
+### Solution: Check "Remember this decision" Box
+
+When the popup appears:
+
+1. **CHECK the box** ☑️ "Remember this decision" (bottom of popup)
+2. Click **"Allow"** button
+3. Done! It won't ask again
+
+**Important:** You MUST check the "Remember this decision" checkbox, otherwise it will ask every single time.
+
+---
+
+### If Checkbox Doesn't Stay Checked (Troubleshooting)
+
+Some QZ Tray versions have a bug where the checkbox doesn't work. Try these:
+
+**Option 1: Whitelist in Site Manager**
+
+1. After clicking "Allow" once, right-click QZ Tray icon
+2. Click "Site Manager"
+3. You should see your site listed as "Allowed (1)"
+4. If not, complete another order and check the box again
+
+**Option 2: Downgrade QZ Tray (if still asking)**
+
+- Uninstall current QZ Tray
+- Download QZ Tray 2.1.x from: https://github.com/qzind/tray/releases
+- Install and test
+
+**Option 3: Use Kiosk Browser with Auto-Allow**
+
+- Install Chrome in kiosk mode
+- Set to always allow QZ Tray connections
+- See "Browser Kiosk Mode" section below
 
 ---
 
