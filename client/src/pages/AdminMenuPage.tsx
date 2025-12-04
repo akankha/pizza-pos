@@ -306,34 +306,41 @@ function EditModal({ item, type, onSave, onCancel }: any) {
       };
     }
 
-    return (
-      item || {
-        name: "",
-        displayName: "",
-        price: 0,
-        basePrice: 0,
-        priceModifier: 0,
-        description: "",
-        category:
-          type === "topping"
-            ? "veggie"
-            : type === "combo"
-            ? "combo"
-            : type === "specialty"
-            ? "specialty"
-            : "",
-        type: "",
-        items: "",
-        toppings: "",
-        toppings_allowed: 3,
-        prices: {
-          small: 0,
-          medium: 0,
-          large: 0,
-          xlarge: 0,
-        },
-      }
-    );
+    if (item) {
+      // For existing items, preserve all fields including toppings_allowed
+      return {
+        ...item,
+        toppings_allowed: item.toppings_allowed ?? 3,
+      };
+    }
+
+    // For new items
+    return {
+      name: "",
+      displayName: "",
+      price: 0,
+      basePrice: 0,
+      priceModifier: 0,
+      description: "",
+      category:
+        type === "topping"
+          ? "veggie"
+          : type === "combo"
+          ? "combo"
+          : type === "specialty"
+          ? "specialty"
+          : "",
+      type: "",
+      items: "",
+      toppings: "",
+      toppings_allowed: 3,
+      prices: {
+        small: 0,
+        medium: 0,
+        large: 0,
+        xlarge: 0,
+      },
+    };
   };
 
   const [formData, setFormData] = useState(initializeFormData());
