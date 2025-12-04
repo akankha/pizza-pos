@@ -7,6 +7,7 @@ import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
 import { apiUrl } from "../utils/api";
 import { getCurrentUser } from "../utils/auth";
+import { qzPrintService } from "../utils/qzPrintService";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -71,39 +72,64 @@ export default function CheckoutPage() {
       // Store order ID for receipt
       setCompletedOrderId(orderResult.data.id);
 
-      // Print receipt locally if running in Electron
-      if (window.electron?.printer) {
-        try {
-          const printData = {
-            orderId: orderResult.data.id,
-            orderNumber: parseInt(new Date().getTime().toString().slice(-6)),
-            items: items.map((item) => ({
-              name: item.name,
-              quantity: item.quantity,
-              price: item.price,
-              customPizza: item.customPizza,
-            })),
-            subtotal: getTotal(),
-            gst: getTotal() * taxRates.gst,
-            pst: getTotal() * taxRates.pst,
-            tax: getTotal() * (taxRates.gst + taxRates.pst),
-            total: getTotal() * (1 + taxRates.gst + taxRates.pst),
-            paymentMethod,
-            createdByName: currentUser?.full_name || currentUser?.username,
-            notes: orderNotes.trim() || undefined,
-            copies: 1,
-          };
+      // Get restaurant settings
+      let restaurantInfo = {
+        name: "Pizza Shop",
+        address: "",
+        phone: "",
+      };
 
-          const printResult = await window.electron.printer.print(printData);
-          if (printResult.success) {
-            console.log("✅ Receipt printed successfully");
-          } else {
-            console.error("❌ Print failed:", printResult.error);
-          }
-        } catch (printError) {
-          console.error("Print error:", printError);
-          // Don't block order completion if printing fails
+      try {
+        const settingsRes = await fetch(apiUrl("api/settings"));
+        const settingsData = await settingsRes.json();
+        if (settingsData.success && settingsData.data) {
+          restaurantInfo = {
+            name: settingsData.data.restaurant_name || "Pizza Shop",
+            address: settingsData.data.restaurant_address || "",
+            phone: settingsData.data.restaurant_phone || "",
+          };
         }
+      } catch (err) {
+        console.error("Failed to fetch restaurant settings:", err);
+      }
+
+      // Auto-print receipt via QZ Tray (works in browsers!)
+      try {
+        const printData = {
+          orderId: orderResult.data.id,
+          orderNumber: parseInt(new Date().getTime().toString().slice(-6)),
+          items: items.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            customPizza: item.customPizza,
+          })),
+          subtotal: getTotal(),
+          gst: getTotal() * taxRates.gst,
+          pst: getTotal() * taxRates.pst,
+          tax: getTotal() * (taxRates.gst + taxRates.pst),
+          total: getTotal() * (1 + taxRates.gst + taxRates.pst),
+          paymentMethod,
+          createdByName: currentUser?.full_name || currentUser?.username,
+          notes: orderNotes.trim() || undefined,
+          restaurantInfo,
+        };
+
+        console.log("🖨️  Attempting to print via QZ Tray...");
+        const printResult = await qzPrintService.print(printData);
+
+        if (printResult.success) {
+          console.log("✅ Receipt printed successfully via QZ Tray");
+        } else {
+          console.warn("⚠️  Print failed:", printResult.error);
+          console.log(
+            "💡 Make sure QZ Tray is running and printer is connected"
+          );
+        }
+      } catch (printError) {
+        console.error("Print error:", printError);
+        console.log("💡 Install QZ Tray from https://qz.io/download/");
+        // Don't block order completion if printing fails
       }
 
       // Show success (kitchen will auto-refresh via polling)
