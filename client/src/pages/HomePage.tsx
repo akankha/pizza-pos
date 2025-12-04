@@ -27,8 +27,8 @@ export default function HomePage() {
       setCurrentUser(updatedUser);
     };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
   const handleRefresh = () => {
@@ -44,17 +44,17 @@ export default function HomePage() {
 
   const handleAdminAccess = () => {
     // Check if user is already logged in as admin
-    console.log('Current user:', currentUser);
-    console.log('User role:', currentUser?.role);
-    
+    console.log("Current user:", currentUser);
+    console.log("User role:", currentUser?.role);
+
     if (
       currentUser?.role === "super_admin" ||
       currentUser?.role === "restaurant_admin"
     ) {
-      console.log('User is admin, navigating to dashboard');
+      console.log("User is admin, navigating to dashboard");
       navigate("/admin/dashboard");
     } else {
-      console.log('User is not admin, navigating to login');
+      console.log("User is not admin, navigating to login");
       navigate("/admin/login");
     }
   };

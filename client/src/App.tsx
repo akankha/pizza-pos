@@ -29,16 +29,86 @@ function App() {
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* Main Routes - Require login for staff accountability */}
-          <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} /><HomePage /></ProtectedRoute>} />
-          <Route path="/new-order" element={<ProtectedRoute><NewOrderPage /></ProtectedRoute>} />
-          <Route path="/pizza-builder" element={<ProtectedRoute><PizzaBuilderPage /></ProtectedRoute>} />
-          <Route path="/specialty-pizzas" element={<ProtectedRoute><SpecialtyPizzasPage /></ProtectedRoute>} />
-          <Route path="/combos" element={<ProtectedRoute><ComboDealPage /></ProtectedRoute>} />
-          <Route path="/combo-customize" element={<ProtectedRoute><ComboCustomizePage /></ProtectedRoute>} />
-          <Route path="/sides-drinks" element={<ProtectedRoute><SidesAndDrinksPage /></ProtectedRoute>} />
-          <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-          <Route path="/active-orders" element={<ProtectedRoute><ActiveOrdersPage /></ProtectedRoute>} />
-          <Route path="/kitchen" element={<ProtectedRoute><KitchenViewPage /></ProtectedRoute>} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/new-order"
+            element={
+              <ProtectedRoute>
+                <NewOrderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pizza-builder"
+            element={
+              <ProtectedRoute>
+                <PizzaBuilderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/specialty-pizzas"
+            element={
+              <ProtectedRoute>
+                <SpecialtyPizzasPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/combos"
+            element={
+              <ProtectedRoute>
+                <ComboDealPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/combo-customize"
+            element={
+              <ProtectedRoute>
+                <ComboCustomizePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sides-drinks"
+            element={
+              <ProtectedRoute>
+                <SidesAndDrinksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/active-orders"
+            element={
+              <ProtectedRoute>
+                <ActiveOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/kitchen"
+            element={
+              <ProtectedRoute>
+                <KitchenViewPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Admin Routes - Protected */}
           <Route
