@@ -62,7 +62,7 @@ function createWindow() {
 // IPC Handlers for printing
 ipcMain.handle("print-receipt", async (event, orderData) => {
   try {
-    console.log("Print request received:", orderData);
+    console.log("📄 Print request received for order:", orderData.orderId);
 
     // Get restaurant settings from the API
     let restaurantInfo = {
@@ -83,20 +83,27 @@ ipcMain.handle("print-receipt", async (event, orderData) => {
           address: result.data.restaurant_address || "",
           phone: result.data.restaurant_phone || "",
         };
+        console.log("✅ Restaurant info loaded");
       }
     } catch (err) {
-      console.error("Failed to fetch restaurant settings:", err);
+      console.error("⚠️  Failed to fetch restaurant settings:", err.message);
+      console.log("📝 Using default restaurant info");
     }
 
+    console.log("🖨️  Formatting receipt...");
     const receiptText = printService.formatReceipt({
       ...orderData,
       restaurantInfo,
     });
 
+    console.log("🖨️  Sending to printer...");
     await printService.print(receiptText, orderData.copies || 1);
+    console.log("✅ Print successful!");
+
     return { success: true };
   } catch (error) {
-    console.error("Print error:", error);
+    console.error("❌ Print error:", error.message);
+    console.error("Stack trace:", error.stack);
     return { success: false, error: error.message };
   }
 });

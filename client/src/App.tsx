@@ -44,7 +44,14 @@ function App() {
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "super_admin",
+                  "restaurant_admin",
+                ]}
+              >
                 <AdminDashboardPage />
               </ProtectedRoute>
             }
@@ -52,7 +59,14 @@ function App() {
           <Route
             path="/admin/menu"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "super_admin",
+                  "restaurant_admin",
+                ]}
+              >
                 <AdminMenuPage />
               </ProtectedRoute>
             }
@@ -60,7 +74,14 @@ function App() {
           <Route
             path="/admin/reports"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager", "super_admin", "restaurant_admin"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "super_admin",
+                  "restaurant_admin",
+                ]}
+              >
                 <AdminReportsPage />
               </ProtectedRoute>
             }
@@ -68,7 +89,9 @@ function App() {
           <Route
             path="/admin/settings"
             element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin", "restaurant_admin"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "super_admin", "restaurant_admin"]}
+              >
                 <AdminSettingsPage />
               </ProtectedRoute>
             }
@@ -76,7 +99,9 @@ function App() {
           <Route
             path="/admin/users"
             element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin", "restaurant_admin"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "super_admin", "restaurant_admin"]}
+              >
                 <AdminUsersPage />
               </ProtectedRoute>
             }

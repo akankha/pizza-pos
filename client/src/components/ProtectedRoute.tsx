@@ -10,8 +10,10 @@ export default function ProtectedRoute({
   allowedRoles,
 }: ProtectedRouteProps) {
   // Check for both staff and admin tokens
-  const token = localStorage.getItem("token") || localStorage.getItem("authToken");
-  const userStr = localStorage.getItem("user") || localStorage.getItem("adminUser");
+  const token =
+    localStorage.getItem("token") || localStorage.getItem("authToken");
+  const userStr =
+    localStorage.getItem("user") || localStorage.getItem("adminUser");
 
   // For now, allow access without login (optional login)
   // This prevents breaking the existing flow

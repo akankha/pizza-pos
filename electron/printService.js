@@ -18,35 +18,47 @@ class LocalPrintService {
    */
   async connect() {
     try {
+      console.log("🔍 Searching for USB printers...");
       const devices = USB.findPrinter();
 
       if (!devices || devices.length === 0) {
-        console.log("No USB printers detected");
+        console.log("❌ No USB printers detected");
         return false;
       }
+
+      console.log(`✅ Found ${devices.length} USB device(s)`);
 
       // Find MUNBYN or compatible printer
       this.device =
         devices.find((d) => {
-          const name = (d.deviceDescriptor?.iProduct || "").toLowerCase();
-          return (
-            name.includes("munbyn") ||
-            name.includes("itpp") ||
-            name.includes("pos")
+          const vid = d.deviceDescriptor?.idVendor;
+          const pid = d.deviceDescriptor?.idProduct;
+          console.log(
+            `  Checking device - VID: 0x${vid?.toString(
+              16
+            )}, PID: 0x${pid?.toString(16)}`
           );
-        }) || devices[0];
+
+          // MUNBYN vendor IDs
+          return (
+            vid === 0x0483 || // MUNBYN ITPP072
+            vid === 0x0519 || // Common thermal printer
+            vid === 0x04b8 // Epson-compatible
+          );
+        }) || devices[0]; // Fallback to first device
 
       if (!this.device) {
-        console.log("No thermal printer found");
+        console.log("❌ No thermal printer found");
         return false;
       }
 
       this.printer = new escpos.Printer(this.device);
       this.isConnected = true;
-      console.log("✅ MUNBYN printer connected");
+      console.log("✅ MUNBYN printer connected successfully");
       return true;
     } catch (error) {
-      console.error("Failed to connect to printer:", error);
+      console.error("❌ Failed to connect to printer:", error.message);
+      this.isConnected = false;
       return false;
     }
   }
@@ -63,30 +75,27 @@ class LocalPrintService {
     }
 
     return new Promise((resolve, reject) => {
-      this.device.open((error) => {
-        if (error) {
-          reject(new Error(`Failed to open printer: ${error.message}`));
-          return;
+      try {
+        // Print each copy
+        for (let i = 0; i < copies; i++) {
+          this.printer
+            .font("a")
+            .align("ct")
+            .style("normal")
+            .size(1, 1)
+            .text(receiptText)
+            .cut();
         }
 
-        try {
-          for (let i = 0; i < copies; i++) {
-            this.printer
-              .font("a")
-              .align("ct")
-              .style("normal")
-              .size(1, 1)
-              .text(receiptText)
-              .cut()
-              .close();
-          }
-
+        // Flush and close
+        this.printer.close(() => {
           console.log(`✅ Printed ${copies} receipt(s)`);
           resolve();
-        } catch (err) {
-          reject(err);
-        }
-      });
+        });
+      } catch (err) {
+        console.error("Print error:", err);
+        reject(err);
+      }
     });
   }
 

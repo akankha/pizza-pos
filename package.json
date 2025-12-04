@@ -20,9 +20,10 @@
     "preview": "npm run build && npm run start",
     "electron:dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:build": "electron-builder",
+    "electron:build:full": "npm install && cd client && npm install && npm run build && cd .. && electron-builder",
     "clean": "rm -rf client/dist server/dist client/node_modules server/node_modules node_modules",
     "deploy:vercel": "git push origin master",
-    "deploy:electron": "npm run electron:build",
+    "deploy:electron": "npm run electron:build:full",
     "deploy:hostinger": "npm run build:client"
   },
   "devDependencies": {
