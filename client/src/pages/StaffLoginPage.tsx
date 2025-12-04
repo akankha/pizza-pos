@@ -50,26 +50,26 @@ export default function StaffLoginPage() {
   };
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-2xl p-12 w-full max-w-md">
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-red-50 to-orange-100">
+      <div className="bg-white rounded-2xl p-12 w-full max-w-md border-2 border-gray-300 shadow-xl">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="bg-[#FF6B35] p-6 rounded-full shadow-lg">
-            <Pizza size={64} className="text-white" />
+          <div className="bg-gradient-to-br from-[#FF6B35] to-[#E85D2A] p-6 rounded-full shadow-lg">
+            <Pizza size={64} className="text-white" strokeWidth={2} />
           </div>
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-2">
+        <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
           Staff Login
         </h1>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-600 mb-8 font-medium">
           Sign in to access the POS system
         </p>
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-50 border-2 border-red-400 text-red-800 px-4 py-3 rounded-lg mb-6 font-semibold">
             {error}
           </div>
         )}

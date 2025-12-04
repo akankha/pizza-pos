@@ -1,33 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMenu } from '../contexts/MenuContext';
-import TouchButton from '../components/TouchButton';
-import { ArrowLeft, Plus, Edit, Trash2, Save, X } from 'lucide-react';
-import { authFetch, isAuthenticated } from '../utils/auth';
+import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import TouchButton from "../components/TouchButton";
+import { useMenu } from "../contexts/MenuContext";
+import { authFetch, isAuthenticated } from "../utils/auth";
 
-type MenuItemType = 'size' | 'crust' | 'topping' | 'side' | 'drink';
+type MenuItemType = "size" | "crust" | "topping" | "side" | "drink" | "combo";
 
 export default function AdminMenuPage() {
   const navigate = useNavigate();
   const { menuData, loading, refetch } = useMenu();
-  const [activeTab, setActiveTab] = useState<MenuItemType>('size');
+  const [activeTab, setActiveTab] = useState<MenuItemType>("size");
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      navigate('/admin/login');
+      navigate("/admin/login");
     }
   }, [navigate]);
 
   const handleSave = async (item: any) => {
     try {
-      const endpoint = editingItem?.id ? `/api/admin/menu/${activeTab}/${editingItem.id}` : `/api/admin/menu/${activeTab}`;
-      const method = editingItem?.id ? 'PUT' : 'POST';
+      const endpoint = editingItem?.id
+        ? `/api/admin/menu/${activeTab}/${editingItem.id}`
+        : `/api/admin/menu/${activeTab}`;
+      const method = editingItem?.id ? "PUT" : "POST";
 
       const response = await authFetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
       });
 
@@ -38,17 +40,17 @@ export default function AdminMenuPage() {
         refetch();
       }
     } catch (error) {
-      console.error('Failed to save item:', error);
-      alert('Failed to save item');
+      console.error("Failed to save item:", error);
+      alert("Failed to save item");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+    if (!confirm("Are you sure you want to delete this item?")) return;
 
     try {
       const response = await authFetch(`/api/admin/menu/${activeTab}/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       const result = await response.json();
@@ -56,8 +58,8 @@ export default function AdminMenuPage() {
         refetch();
       }
     } catch (error) {
-      console.error('Failed to delete item:', error);
-      alert('Failed to delete item');
+      console.error("Failed to delete item:", error);
+      alert("Failed to delete item");
     }
   };
 
@@ -70,21 +72,30 @@ export default function AdminMenuPage() {
   }
 
   const tabs = [
-    { id: 'size' as MenuItemType, label: 'Sizes', icon: '📏' },
-    { id: 'crust' as MenuItemType, label: 'Crusts', icon: '🥖' },
-    { id: 'topping' as MenuItemType, label: 'Toppings', icon: '🧀' },
-    { id: 'side' as MenuItemType, label: 'Sides', icon: '🍟' },
-    { id: 'drink' as MenuItemType, label: 'Drinks', icon: '🥤' },
+    { id: "size" as MenuItemType, label: "Sizes", icon: "📏" },
+    { id: "crust" as MenuItemType, label: "Crusts", icon: "🥖" },
+    { id: "topping" as MenuItemType, label: "Toppings", icon: "🧀" },
+    { id: "side" as MenuItemType, label: "Sides", icon: "🍟" },
+    { id: "drink" as MenuItemType, label: "Drinks", icon: "🥤" },
+    { id: "combo" as MenuItemType, label: "Combos", icon: "🎁" },
   ];
 
   const getItems = () => {
     switch (activeTab) {
-      case 'size': return menuData.sizes;
-      case 'crust': return menuData.crusts;
-      case 'topping': return menuData.toppings;
-      case 'side': return menuData.sides;
-      case 'drink': return menuData.drinks;
-      default: return [];
+      case "size":
+        return menuData.sizes;
+      case "crust":
+        return menuData.crusts;
+      case "topping":
+        return menuData.toppings;
+      case "side":
+        return menuData.sides;
+      case "drink":
+        return menuData.drinks;
+      case "combo":
+        return menuData.combos;
+      default:
+        return [];
     }
   };
 
@@ -94,16 +105,16 @@ export default function AdminMenuPage() {
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6 shadow-2xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
-            onClick={() => navigate('/admin/dashboard')}
+            onClick={() => navigate("/admin/dashboard")}
             variant="outline"
             size="medium"
             className="!bg-white/10 !text-white hover:!bg-white/20 backdrop-blur-sm border-white/20"
           >
             <ArrowLeft size={28} />
           </TouchButton>
-          
+
           <h1 className="text-4xl font-bold">🍕 Menu Management</h1>
-          
+
           <TouchButton
             onClick={() => setIsAdding(true)}
             variant="success"
@@ -124,8 +135,8 @@ export default function AdminMenuPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-4 font-semibold text-lg border-b-4 transition-all whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -140,14 +151,24 @@ export default function AdminMenuPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {getItems().map((item: any) => (
-              <div key={item.id} className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-orange-300 transition-all">
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-orange-300 transition-all"
+              >
                 <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
+                  <div>
                     <h3 className="text-xl font-bold text-gray-800">
                       {item.displayName || item.name}
                     </h3>
                     {item.description && (
-                      <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {item.description}
+                      </p>
+                    )}
+                    {item.items && (
+                      <p className="text-sm text-orange-600 mt-1 font-medium">
+                        📦 {item.items}
+                      </p>
                     )}
                   </div>
                   <div className="flex gap-2">
@@ -169,13 +190,23 @@ export default function AdminMenuPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-semibold">Price:</span>
                     <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      ${(item.basePrice || item.price || item.priceModifier || 0).toFixed(2)}
+                      $
+                      {(
+                        item.basePrice ||
+                        item.price ||
+                        item.priceModifier ||
+                        0
+                      ).toFixed(2)}
                     </span>
                   </div>
                   {item.category && (
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-600 font-semibold">Category:</span>
-                      <span className="text-gray-800 capitalize">{item.category}</span>
+                      <span className="text-gray-600 font-semibold">
+                        Category:
+                      </span>
+                      <span className="text-gray-800 capitalize">
+                        {item.category}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -202,16 +233,19 @@ export default function AdminMenuPage() {
 }
 
 function EditModal({ item, type, onSave, onCancel }: any) {
-  const [formData, setFormData] = useState(item || {
-    name: '',
-    displayName: '',
-    price: 0,
-    basePrice: 0,
-    priceModifier: 0,
-    description: '',
-    category: type === 'topping' ? 'veggie' : '',
-    type: ''
-  });
+  const [formData, setFormData] = useState(
+    item || {
+      name: "",
+      displayName: "",
+      price: 0,
+      basePrice: 0,
+      priceModifier: 0,
+      description: "",
+      category: type === "topping" ? "veggie" : type === "combo" ? "combo" : "",
+      type: "",
+      items: "",
+    }
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,28 +256,36 @@ function EditModal({ item, type, onSave, onCancel }: any) {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">
-          {item ? 'Edit Item' : 'Add New Item'}
+          {item ? "Edit Item" : "Add New Item"}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Name
+            </label>
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
               required
             />
           </div>
 
-          {(type === 'size' || type === 'crust') && (
+          {(type === "size" || type === "crust") && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Display Name</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Display Name
+              </label>
               <input
                 type="text"
                 value={formData.displayName}
-                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
               />
             </div>
@@ -251,39 +293,83 @@ function EditModal({ item, type, onSave, onCancel }: any) {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {type === 'size' ? 'Base Price' : type === 'crust' ? 'Price Modifier' : 'Price'}
+              {type === "size"
+                ? "Base Price"
+                : type === "crust"
+                ? "Price Modifier"
+                : "Price"}
             </label>
             <input
               type="number"
               step="0.01"
-              value={type === 'size' ? formData.basePrice : type === 'crust' ? formData.priceModifier : formData.price}
+              value={
+                type === "size"
+                  ? formData.basePrice
+                  : type === "crust"
+                  ? formData.priceModifier
+                  : formData.price
+              }
               onChange={(e) => {
-                const field = type === 'size' ? 'basePrice' : type === 'crust' ? 'priceModifier' : 'price';
-                setFormData({ ...formData, [field]: parseFloat(e.target.value) });
+                const field =
+                  type === "size"
+                    ? "basePrice"
+                    : type === "crust"
+                    ? "priceModifier"
+                    : "price";
+                setFormData({
+                  ...formData,
+                  [field]: parseFloat(e.target.value),
+                });
               }}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
               required
             />
           </div>
 
-          {(type === 'side' || type === 'drink') && (
+          {(type === "side" || type === "drink" || type === "combo") && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Description
+              </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
                 rows={3}
               />
             </div>
           )}
 
-          {type === 'topping' && (
+          {type === "combo" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Items Included
+              </label>
+              <textarea
+                value={formData.items}
+                onChange={(e) =>
+                  setFormData({ ...formData, items: e.target.value })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                rows={3}
+                placeholder="e.g., 2 Medium Pizzas, 1 Large Fries, 2L Pop"
+                required
+              />
+            </div>
+          )}
+
+          {type === "topping" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Category
+              </label>
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
                 required
               >
@@ -294,13 +380,17 @@ function EditModal({ item, type, onSave, onCancel }: any) {
             </div>
           )}
 
-          {type === 'crust' && (
+          {type === "crust" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Type
+              </label>
               <input
                 type="text"
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, type: e.target.value })
+                }
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
                 placeholder="e.g., thin, thick, etc."
               />

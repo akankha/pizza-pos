@@ -1,7 +1,9 @@
-import express from 'express';
-import db from '../db/database.js';
-import { authenticateToken, requireAdmin, requireRestaurantAdmin, requireSuperAdmin } from '../middleware/auth.js';
-import { validateMenuItem, validateId, handleValidationErrors } from '../middleware/validation.js';
+import express from "express";
+import db from "../db/database.js";
+import {
+  authenticateToken,
+  requireRestaurantAdmin,
+} from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -9,15 +11,15 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Get statistics (Restaurant Admin and above)
-router.get('/stats', requireRestaurantAdmin, async (req, res) => {
+router.get("/stats", requireRestaurantAdmin, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split("T")[0];
 
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekAgoStr = weekAgo.toISOString().split('T')[0];
+    const weekAgoStr = weekAgo.toISOString().split("T")[0];
 
     // Today's stats
     const [todayStats] = await db.query(
@@ -57,39 +59,41 @@ router.get('/stats', requireRestaurantAdmin, async (req, res) => {
         todayOrders: (todayStats as any)[0].orderCount || 0,
         weekSales: (weekStats as any)[0].totalSales || 0,
         weekOrders: (weekStats as any)[0].orderCount || 0,
-        topItems: topItems || []
-      }
+        topItems: topItems || [],
+      },
     });
   } catch (error) {
-    console.error('Failed to get stats:', error);
-    res.status(500).json({ success: false, error: 'Failed to get statistics' });
+    console.error("Failed to get stats:", error);
+    res.status(500).json({ success: false, error: "Failed to get statistics" });
   }
 });
 
 // Get reports by period (Restaurant Admin and above)
-router.get('/reports/:period', requireRestaurantAdmin, async (req, res) => {
+router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
   try {
     const { period } = req.params;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     let startDate = new Date(today);
-    
+
     switch (period) {
-      case 'today':
+      case "today":
         // Already set to today
         break;
-      case 'week':
+      case "week":
         startDate.setDate(startDate.getDate() - 7);
         break;
-      case 'month':
+      case "month":
         startDate.setMonth(startDate.getMonth() - 1);
         break;
       default:
-        return res.status(400).json({ success: false, error: 'Invalid period' });
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid period" });
     }
 
-    const startDateStr = startDate.toISOString().split('T')[0];
+    const startDateStr = startDate.toISOString().split("T")[0];
 
     // Overall stats
     const [stats] = await db.query(
@@ -147,9 +151,9 @@ router.get('/reports/:period', requireRestaurantAdmin, async (req, res) => {
     // Get order items for recent orders
     const orderIds = (recentOrders as any[]).map((order: any) => order.id);
     let orderItems: any[] = [];
-    
+
     if (orderIds.length > 0) {
-      const placeholders = orderIds.map(() => '?').join(',');
+      const placeholders = orderIds.map(() => "?").join(",");
       const [items] = await db.query(
         `SELECT 
           order_id as orderId,
@@ -166,7 +170,7 @@ router.get('/reports/:period', requireRestaurantAdmin, async (req, res) => {
     // Group items by order
     const ordersWithItems = (recentOrders as any[]).map((order: any) => ({
       ...order,
-      items: orderItems.filter((item: any) => item.orderId === order.id)
+      items: orderItems.filter((item: any) => item.orderId === order.id),
     }));
 
     // Hourly sales distribution
@@ -186,7 +190,7 @@ router.get('/reports/:period', requireRestaurantAdmin, async (req, res) => {
     (paymentMethods as any[]).forEach((pm: any) => {
       paymentMethodsMap[pm.paymentMethod] = {
         count: pm.count,
-        total: pm.total
+        total: pm.total,
       };
     });
 
@@ -199,134 +203,210 @@ router.get('/reports/:period', requireRestaurantAdmin, async (req, res) => {
         topItems: topItems || [],
         paymentMethods: paymentMethodsMap,
         recentOrders: ordersWithItems || [],
-        hourlySales: hourlySales || []
-      }
+        hourlySales: hourlySales || [],
+      },
     });
   } catch (error) {
-    console.error('Failed to get report:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate report' });
+    console.error("Failed to get report:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to generate report" });
   }
 });
 
 // Menu management routes
 // Add new menu item (Restaurant Admin and above)
-router.post('/menu/:type', requireRestaurantAdmin, async (req, res) => {
+router.post("/menu/:type", requireRestaurantAdmin, async (req, res) => {
   try {
     const { type } = req.params;
     const data = req.body;
 
     // Simple validation
     if (!data.name) {
-      return res.status(400).json({ success: false, error: 'Name is required' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Name is required" });
     }
 
     // Generate a simple ID (in production, use UUID)
     const id = `${type}_${Date.now()}`;
 
-    let query = '';
+    let query = "";
     let values: any[] = [];
 
     switch (type) {
-      case 'size':
-        query = 'INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)';
-        values = [id, data.name, data.displayName || data.name, data.basePrice || 0];
+      case "size":
+        query =
+          "INSERT INTO sizes (id, name, display_name, base_price) VALUES (?, ?, ?, ?)";
+        values = [
+          id,
+          data.name,
+          data.displayName || data.name,
+          data.basePrice || 0,
+        ];
         break;
-      case 'crust':
-        query = 'INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)';
-        values = [id, data.type || data.name, data.displayName || data.name, data.priceModifier || 0];
+      case "crust":
+        query =
+          "INSERT INTO crusts (id, type, display_name, price_modifier) VALUES (?, ?, ?, ?)";
+        values = [
+          id,
+          data.type || data.name,
+          data.displayName || data.name,
+          data.priceModifier || 0,
+        ];
         break;
-      case 'topping':
-        query = 'INSERT INTO toppings (id, name, category, price) VALUES (?, ?, ?, ?)';
-        values = [id, data.name, data.category || 'veggie', data.price || 0];
+      case "topping":
+        query =
+          "INSERT INTO toppings (id, name, category, price) VALUES (?, ?, ?, ?)";
+        values = [id, data.name, data.category || "veggie", data.price || 0];
         break;
-      case 'side':
-        query = 'INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)';
-        values = [id, data.name, 'side', data.price || 0, data.description || ''];
+      case "side":
+        query =
+          "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)";
+        values = [
+          id,
+          data.name,
+          "side",
+          data.price || 0,
+          data.description || "",
+        ];
         break;
-      case 'drink':
-        query = 'INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)';
-        values = [id, data.name, 'drink', data.price || 0, data.description || ''];
+      case "drink":
+        query =
+          "INSERT INTO menu_items (id, name, category, price, description) VALUES (?, ?, ?, ?, ?)";
+        values = [
+          id,
+          data.name,
+          "drink",
+          data.price || 0,
+          data.description || "",
+        ];
+        break;
+      case "combo":
+        query =
+          "INSERT INTO combo_deals (id, name, description, price, items, category) VALUES (?, ?, ?, ?, ?, ?)";
+        values = [
+          id,
+          data.name,
+          data.description || "",
+          data.price || 0,
+          data.items || "",
+          data.category || "combo",
+        ];
         break;
       default:
-        return res.status(400).json({ success: false, error: 'Invalid menu type' });
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid menu type" });
     }
 
     await db.query(query, values);
 
     res.json({ success: true, data: { id, ...data } });
   } catch (error) {
-    console.error('Failed to create menu item:', error);
-    res.status(500).json({ success: false, error: 'Failed to create item' });
+    console.error("Failed to create menu item:", error);
+    res.status(500).json({ success: false, error: "Failed to create item" });
   }
 });
 
 // Update menu item (Restaurant Admin and above)
-router.put('/menu/:type/:id', requireRestaurantAdmin, async (req, res) => {
+router.put("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
   try {
     const { type, id } = req.params;
     const data = req.body;
 
-    let query = '';
+    let query = "";
     let values: any[] = [];
 
     switch (type) {
-      case 'size':
-        query = 'UPDATE sizes SET name=?, display_name=?, base_price=? WHERE id=?';
-        values = [data.name, data.displayName || data.name, data.basePrice || 0, id];
+      case "size":
+        query =
+          "UPDATE sizes SET name=?, display_name=?, base_price=? WHERE id=?";
+        values = [
+          data.name,
+          data.displayName || data.name,
+          data.basePrice || 0,
+          id,
+        ];
         break;
-      case 'crust':
-        query = 'UPDATE crusts SET type=?, display_name=?, price_modifier=? WHERE id=?';
-        values = [data.type || data.name, data.displayName || data.name, data.priceModifier || 0, id];
+      case "crust":
+        query =
+          "UPDATE crusts SET type=?, display_name=?, price_modifier=? WHERE id=?";
+        values = [
+          data.type || data.name,
+          data.displayName || data.name,
+          data.priceModifier || 0,
+          id,
+        ];
         break;
-      case 'topping':
-        query = 'UPDATE toppings SET name=?, category=?, price=? WHERE id=?';
-        values = [data.name, data.category || 'veggie', data.price || 0, id];
+      case "topping":
+        query = "UPDATE toppings SET name=?, category=?, price=? WHERE id=?";
+        values = [data.name, data.category || "veggie", data.price || 0, id];
         break;
-      case 'side':
-        query = 'UPDATE menu_items SET name=?, price=?, description=? WHERE id=?';
-        values = [data.name, data.price || 0, data.description || '', id];
+      case "side":
+        query =
+          "UPDATE menu_items SET name=?, price=?, description=? WHERE id=?";
+        values = [data.name, data.price || 0, data.description || "", id];
         break;
-      case 'drink':
-        query = 'UPDATE menu_items SET name=?, price=?, description=? WHERE id=?';
-        values = [data.name, data.price || 0, data.description || '', id];
+      case "drink":
+        query =
+          "UPDATE menu_items SET name=?, price=?, description=? WHERE id=?";
+        values = [data.name, data.price || 0, data.description || "", id];
+        break;
+      case "combo":
+        query =
+          "UPDATE combo_deals SET name=?, description=?, price=?, items=?, category=? WHERE id=?";
+        values = [
+          data.name,
+          data.description || "",
+          data.price || 0,
+          data.items || "",
+          data.category || "combo",
+          id,
+        ];
         break;
       default:
-        return res.status(400).json({ success: false, error: 'Invalid menu type' });
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid menu type" });
     }
 
     await db.query(query, values);
 
     res.json({ success: true, data: { id, ...data } });
   } catch (error) {
-    console.error('Failed to update menu item:', error);
-    res.status(500).json({ success: false, error: 'Failed to update item' });
+    console.error("Failed to update menu item:", error);
+    res.status(500).json({ success: false, error: "Failed to update item" });
   }
 });
 
 // Delete menu item (Restaurant Admin and above)
-router.delete('/menu/:type/:id', requireRestaurantAdmin, async (req, res) => {
+router.delete("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
   try {
     const { type, id } = req.params;
 
     const tables: any = {
-      size: 'sizes',
-      crust: 'crusts',
-      topping: 'toppings',
-      side: 'menu_items',
-      drink: 'menu_items'
+      size: "sizes",
+      crust: "crusts",
+      topping: "toppings",
+      side: "menu_items",
+      drink: "menu_items",
+      combo: "combo_deals",
     };
 
     const table = tables[type];
     if (!table) {
-      return res.status(400).json({ success: false, error: 'Invalid menu type' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid menu type" });
     }
 
     await db.query(`DELETE FROM ${table} WHERE id = ?`, [id]);
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Failed to delete menu item:', error);
-    res.status(500).json({ success: false, error: 'Failed to delete item' });
+    console.error("Failed to delete menu item:", error);
+    res.status(500).json({ success: false, error: "Failed to delete item" });
   }
 });
 

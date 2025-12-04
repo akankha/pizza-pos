@@ -216,17 +216,19 @@ export default function AdminDashboardPage() {
                   <button
                     key={card.path}
                     onClick={() => navigate(card.path)}
-                    className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-200 hover:scale-105 border-2 border-transparent hover:border-gray-200 text-left"
+                    className="group bg-white rounded-2xl p-8 border-2 border-gray-300 hover:border-orange-500 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] text-left shadow-md"
                   >
                     <div
-                      className={`bg-gradient-to-r ${card.gradient} rounded-2xl w-16 h-16 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                      className={`bg-gradient-to-r ${card.gradient} rounded-xl w-16 h-16 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md`}
                     >
-                      <Icon size={32} className="text-white" />
+                      <Icon size={32} className="text-white" strokeWidth={2} />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-[#FF6B35] transition-colors">
                       {card.title}
                     </h3>
-                    <p className="text-gray-600">{card.description}</p>
+                    <p className="text-gray-700 font-medium">
+                      {card.description}
+                    </p>
                   </button>
                 );
               })}

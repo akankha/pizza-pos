@@ -198,17 +198,18 @@ export default function HomePage() {
                     : navigate(action.path)
                 }
                 aria-label={`${action.title}: ${action.description}`}
-                className="group relative bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-8 shadow-lg hover:shadow-2xl hover:border-[#FF6B35]/50 hover:-translate-y-2 transition-all duration-300 active:scale-[0.98] overflow-hidden"
+                className="group bg-white rounded-2xl border-2 border-gray-300 p-8 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] shadow-md"
               >
-                {/* Glossy overlay effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                <div className="relative flex flex-col items-center text-center gap-5">
-                  {/* Icon with glow effect */}
+                <div className="flex flex-col items-center text-center gap-5">
+                  {/* Icon */}
                   <div
-                    className={`${action.iconBg} p-6 rounded-2xl shadow-md group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
+                    className={`${action.iconBg} p-6 rounded-xl group-hover:scale-110 transition-transform duration-200`}
                   >
-                    <action.icon size={48} className={action.iconColor} />
+                    <action.icon
+                      size={52}
+                      className={action.iconColor}
+                      strokeWidth={2}
+                    />
                   </div>
 
                   {/* Content */}
@@ -216,18 +217,18 @@ export default function HomePage() {
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#FF6B35] transition-colors">
                       {action.title}
                     </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-gray-700 font-medium">
                       {action.description}
                     </p>
                   </div>
 
-                  {/* Visual Indicator with glow */}
-                  <div className="mt-2 pt-4 border-t border-gray-100 w-full">
+                  {/* Visual Indicator */}
+                  <div className="mt-2 pt-3 border-t border-gray-200 w-full">
                     <div
-                      className={`h-1 rounded-full ${action.iconColor.replace(
+                      className={`h-2 rounded-full ${action.iconColor.replace(
                         "text-",
                         "bg-"
-                      )} group-hover:h-2 group-hover:shadow-lg transition-all duration-300`}
+                      )} group-hover:h-2.5 transition-all duration-200`}
                     ></div>
                   </div>
                 </div>
@@ -236,10 +237,10 @@ export default function HomePage() {
           </div>
 
           {/* Quick Stats or Info Banner */}
-          <div className="mt-12 bg-[#FF6B35]/10 rounded-card p-6 border border-[#FF6B35]/20">
+          <div className="mt-8 bg-green-50 rounded-xl p-5 border-2 border-green-400 shadow-sm">
             <div className="flex items-center justify-center gap-3 text-gray-900">
-              <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
-              <p className="text-sm font-medium">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <p className="text-base font-bold">
                 System Ready • All Services Online
               </p>
             </div>

@@ -54,6 +54,9 @@ export default {
         touch: "12px",
         card: "16px",
       },
+      borderWidth: {
+        3: "3px",
+      },
     },
   },
   plugins: [],
