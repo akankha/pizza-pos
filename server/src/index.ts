@@ -72,43 +72,10 @@ const authLimiter = rateLimit({
 });
 app.use("/api/auth/login", authLimiter);
 
-// Middleware
+// Middleware - Simplified CORS for production
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, Postman, curl)
-      if (!origin) return callback(null, true);
-
-      const allowedOrigins =
-        process.env.NODE_ENV === "production"
-          ? [
-              process.env.CLIENT_URL,
-              "https://pos.akankha.com",
-              "http://pos.akankha.com",
-              "https://www.pos.akankha.com",
-            ].filter(Boolean)
-          : [
-              "http://localhost:5173",
-              "http://localhost:5174",
-              "http://localhost:5175",
-              "http://localhost:3000",
-            ];
-
-      // Remove trailing slash from origin for comparison
-      const normalizedOrigin = origin.replace(/\/$/, "");
-      const isAllowed = allowedOrigins.some(
-        (allowed) => allowed?.replace(/\/$/, "") === normalizedOrigin
-      );
-
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        console.log("CORS blocked origin:", origin);
-        console.log("Allowed origins:", allowedOrigins);
-        console.log("CLIENT_URL env:", process.env.CLIENT_URL);
-        callback(null, true); // Allow anyway for now to debug
-      }
-    },
+    origin: true, // Allow all origins
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
