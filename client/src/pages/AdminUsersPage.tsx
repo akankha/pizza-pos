@@ -30,6 +30,8 @@ export default function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     username: "",
@@ -98,26 +100,27 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleToggleActive = async (user: User) => {
-    if (
-      !confirm(
-        `${user.active ? "Deactivate" : "Activate"} user "${user.username}"?`
-      )
-    ) {
-      return;
-    }
+  const initiateToggleActive = (user: User) => {
+    setSelectedUser(user);
+    setShowToggleConfirm(true);
+  };
+
+  const confirmToggleActive = async () => {
+    if (!selectedUser) return;
 
     try {
-      const response = await authFetch(`/api/users/${user.id}`, {
+      const response = await authFetch(`/api/users/${selectedUser.id}`, {
         method: "PUT",
-        body: JSON.stringify({ active: !user.active }),
+        body: JSON.stringify({ active: !selectedUser.active }),
       });
 
       const result = await response.json();
 
       if (result.success) {
         showToast(
-          `User ${user.active ? "deactivated" : "activated"} successfully!`,
+          `User ${
+            selectedUser.active ? "deactivated" : "activated"
+          } successfully!`,
           "success"
         );
         loadData();
@@ -126,6 +129,9 @@ export default function AdminUsersPage() {
       }
     } catch (error: any) {
       showToast("Failed to update user: " + error.message, "error");
+    } finally {
+      setShowToggleConfirm(false);
+      setSelectedUser(null);
     }
   };
 
@@ -158,30 +164,35 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeleteUser = async (user: User) => {
-    if (
-      !confirm(
-        `DELETE user "${user.username}"?\n\nThis action cannot be undone!`
-      )
-    ) {
-      return;
-    }
+  const initiateDeleteUser = (user: User) => {
+    setSelectedUser(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!selectedUser) return;
 
     try {
-      const response = await authFetch(`/api/users/${user.id}`, {
+      const response = await authFetch(`/api/users/${selectedUser.id}`, {
         method: "DELETE",
       });
 
       const result = await response.json();
 
       if (result.success) {
-        showToast(`User "${user.username}" deleted successfully!`, "success");
+        showToast(
+          `User "${selectedUser.username}" deleted successfully!`,
+          "success"
+        );
         loadData();
       } else {
         showToast("Error: " + result.error, "error");
       }
     } catch (error: any) {
       showToast("Failed to delete user: " + error.message, "error");
+    } finally {
+      setShowDeleteConfirm(false);
+      setSelectedUser(null);
     }
   };
 
@@ -337,7 +348,7 @@ export default function AdminUsersPage() {
                     {canManageUser(user) && user.id !== currentUser?.id && (
                       <div className="mt-4 flex gap-2">
                         <button
-                          onClick={() => handleToggleActive(user)}
+                          onClick={() => initiateToggleActive(user)}
                           className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             user.active
                               ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
@@ -358,7 +369,7 @@ export default function AdminUsersPage() {
                         </button>
                         {currentUser?.role === "super_admin" && (
                           <button
-                            onClick={() => handleDeleteUser(user)}
+                            onClick={() => initiateDeleteUser(user)}
                             className="px-3 py-2 rounded-lg text-sm font-semibold bg-red-100 text-red-800 hover:bg-red-200 transition-colors"
                             title="Delete User"
                           >
@@ -566,6 +577,88 @@ export default function AdminUsersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toggle Active Confirmation Modal */}
+      {showToggleConfirm && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+                <UsersIcon className="h-8 w-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                {selectedUser.active ? "Deactivate" : "Activate"} User?
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to{" "}
+                {selectedUser.active ? "deactivate" : "activate"}{" "}
+                <strong>{selectedUser.username}</strong>?
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowToggleConfirm(false);
+                    setSelectedUser(null);
+                  }}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmToggleActive}
+                  className={`px-6 py-3 text-white rounded-lg font-semibold transition-colors shadow-lg ${
+                    selectedUser.active
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  Yes, {selectedUser.active ? "Deactivate" : "Activate"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Confirmation Modal */}
+      {showDeleteConfirm && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Delete User?
+              </h3>
+              <p className="text-gray-600 mb-2">
+                Are you sure you want to delete{" "}
+                <strong>{selectedUser.username}</strong>?
+              </p>
+              <p className="text-red-600 font-semibold mb-6">
+                ⚠️ This action cannot be undone!
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setSelectedUser(null);
+                  }}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteUser}
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors shadow-lg"
+                >
+                  Yes, Delete User
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

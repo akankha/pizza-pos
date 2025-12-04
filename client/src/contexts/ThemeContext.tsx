@@ -20,11 +20,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const fetchDarkModeSetting = async () => {
     try {
-      const response = await fetch(apiUrl("api/settings"));
+      const response = await fetch(apiUrl("/api/settings"));
       const result = await response.json();
+      console.log("Theme settings fetched:", result);
       if (result.success && result.data) {
         const isDark =
           result.data.dark_mode === 1 || result.data.dark_mode === true;
+        console.log("Applying dark mode:", isDark);
         setDarkMode(isDark);
         applyTheme(isDark);
       }

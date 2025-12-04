@@ -71,6 +71,7 @@ interface ToastMessage {
 
 let toastId = 0;
 let addToastCallback: ((toast: ToastMessage) => void) | null = null;
+const pendingToasts: ToastMessage[] = [];
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -79,6 +80,12 @@ export function ToastContainer() {
     addToastCallback = (toast: ToastMessage) => {
       setToasts((prev) => [...prev, toast]);
     };
+
+    // Process any pending toasts that were queued before mount
+    if (pendingToasts.length > 0) {
+      setToasts(pendingToasts.slice());
+      pendingToasts.length = 0;
+    }
 
     return () => {
       addToastCallback = null;
@@ -110,11 +117,16 @@ export function ToastContainer() {
 
 // Helper function to show toasts
 export function showToast(message: string, type: ToastType = "info") {
+  const toast = {
+    id: toastId++,
+    message,
+    type,
+  };
+
   if (addToastCallback) {
-    addToastCallback({
-      id: toastId++,
-      message,
-      type,
-    });
+    addToastCallback(toast);
+  } else {
+    // Queue toast if container isn't ready yet
+    pendingToasts.push(toast);
   }
 }
