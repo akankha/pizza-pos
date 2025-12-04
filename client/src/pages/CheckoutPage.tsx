@@ -5,7 +5,7 @@ import type { PaymentMethod } from "../../../shared/types";
 import OrderItemCard from "../components/OrderItemCard";
 import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
-import { authFetch } from "../utils/api";
+import { authFetch, apiUrl } from "../utils/api";
 import { getCurrentUser } from "../utils/auth";
 import { browserPrintService } from "../utils/browserPrintService";
 

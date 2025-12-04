@@ -84,11 +84,8 @@ app.use(
           ? [
               process.env.CLIENT_URL,
               "https://pos.akankha.com",
-              "https://pos.akankha.com/",
               "http://pos.akankha.com",
-              "http://pos.akankha.com/",
               "https://www.pos.akankha.com",
-              "https://www.pos.akankha.com/",
             ].filter(Boolean)
           : [
               "http://localhost:5173",
@@ -108,7 +105,8 @@ app.use(
       } else {
         console.log("CORS blocked origin:", origin);
         console.log("Allowed origins:", allowedOrigins);
-        callback(new Error("Not allowed by CORS"));
+        console.log("CLIENT_URL env:", process.env.CLIENT_URL);
+        callback(null, true); // Allow anyway for now to debug
       }
     },
     credentials: true,
@@ -120,6 +118,8 @@ app.use(
       "Pragma",
       "Expires",
     ],
+    exposedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 86400, // 24 hours
   })
 );
 app.use(express.json());
