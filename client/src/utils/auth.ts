@@ -42,13 +42,12 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
 
 // Check if user is authenticated
 export const isAuthenticated = (): boolean => {
-  return !!(localStorage.getItem("token") || localStorage.getItem("authToken"));
+  return !!localStorage.getItem("token");
 };
 
 // Get current user info
 export const getCurrentUser = () => {
-  const userStr =
-    localStorage.getItem("user") || localStorage.getItem("adminUser");
+  const userStr = localStorage.getItem("user");
   return userStr ? JSON.parse(userStr) : null;
 };
 
@@ -62,7 +61,7 @@ export const logout = () => {
   localStorage.removeItem("adminUser");
 
   // Redirect based on user type
-  if (user?.role === "admin") {
+  if (user?.role === "super_admin" || user?.role === "restaurant_admin") {
     window.location.href = "/admin/login";
   } else {
     window.location.href = "/login";

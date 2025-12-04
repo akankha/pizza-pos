@@ -1,32 +1,32 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TouchButton from '../components/TouchButton';
-import { apiUrl } from '../utils/api';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import TouchButton from "../components/TouchButton";
+import { apiUrl } from "../utils/api";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!username || !password) {
-      setError('Please enter username and password');
+      setError("Please enter username and password");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch(apiUrl('api/auth/login'), {
-        method: 'POST',
+      const response = await fetch(apiUrl("api/auth/login"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include', // Include cookies
+        credentials: "include", // Include cookies
         body: JSON.stringify({ username, password }),
       });
 
@@ -34,17 +34,17 @@ export default function AdminLoginPage() {
 
       if (result.success) {
         // Store token in localStorage as backup
-        localStorage.setItem('authToken', result.data.token);
-        localStorage.setItem('adminAuth', 'true');
-        localStorage.setItem('adminUser', JSON.stringify(result.data.user));
-        navigate('/admin/dashboard');
+        // Use standardized token keys
+        localStorage.setItem("token", result.data.token);
+        localStorage.setItem("user", JSON.stringify(result.data.user));
+        navigate("/admin/dashboard");
       } else {
-        setError(result.error || 'Login failed');
-        setPassword('');
+        setError(result.error || "Login failed");
+        setPassword("");
       }
     } catch (err) {
-      setError('Connection error. Please try again.');
-      console.error('Login error:', err);
+      setError("Connection error. Please try again.");
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
       {/* Back Button */}
       <div className="p-6">
         <TouchButton
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           variant="ghost"
           size="medium"
         >
@@ -68,23 +68,42 @@ export default function AdminLoginPage() {
         <div className="bg-white rounded-card p-12 shadow-hard border-2 border-gray-200 max-w-md w-full">
           <div className="text-center mb-8">
             <div className="bg-brand-primary rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck size={40} className="text-white" aria-hidden="true" />
+              <ShieldCheck
+                size={40}
+                className="text-white"
+                aria-hidden="true"
+              />
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Admin Login</h1>
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Admin Login
+            </h1>
             <p className="text-gray-600">Enter your credentials</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border-2 border-red-500 text-red-700 rounded-xl px-4 py-3 mb-6" role="alert">
+            <div
+              className="bg-red-50 border-2 border-red-500 text-red-700 rounded-xl px-4 py-3 mb-6"
+              role="alert"
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
             {/* Username Input */}
             <div className="mb-6">
-              <label htmlFor="admin-username" className="block text-gray-700 text-sm font-semibold mb-2">Username</label>
+              <label
+                htmlFor="admin-username"
+                className="block text-gray-700 text-sm font-semibold mb-2"
+              >
+                Username
+              </label>
               <input
                 id="admin-username"
                 type="text"
@@ -102,7 +121,12 @@ export default function AdminLoginPage() {
 
             {/* Password Input */}
             <div className="mb-8">
-              <label htmlFor="admin-password" className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+              <label
+                htmlFor="admin-password"
+                className="block text-gray-700 text-sm font-semibold mb-2"
+              >
+                Password
+              </label>
               <input
                 id="admin-password"
                 type="password"
@@ -124,17 +148,17 @@ export default function AdminLoginPage() {
               size="large"
               disabled={loading}
               fullWidth
-              aria-label={loading ? 'Logging in, please wait' : 'Login to admin panel'}
+              aria-label={
+                loading ? "Logging in, please wait" : "Login to admin panel"
+              }
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? "Logging in..." : "Login"}
             </TouchButton>
           </form>
 
           {/* Help Text */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
-              Default: admin / admin123
-            </p>
+            <p className="text-gray-600 text-sm">Default: admin / admin123</p>
           </div>
         </div>
       </div>

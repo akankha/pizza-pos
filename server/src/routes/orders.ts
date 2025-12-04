@@ -1,5 +1,9 @@
 import express from "express";
 import db from "../db/database.js";
+import {
+  authenticateToken,
+  requireRestaurantAdmin,
+} from "../middleware/auth.js";
 import { OrderService } from "../services/OrderService.js";
 import { PrinterService } from "../services/PrinterService.js";
 import { ReceiptService } from "../services/ReceiptService.js";
@@ -7,8 +11,8 @@ import { ReceiptService } from "../services/ReceiptService.js";
 const router = express.Router();
 const orderService = new OrderService();
 
-// Create new order
-router.post("/", async (req, res) => {
+// Create new order - Requires authentication
+router.post("/", authenticateToken, async (req, res) => {
   try {
     const { items, notes, paymentMethod, createdBy, createdByName } = req.body;
 
@@ -19,12 +23,16 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // Use authenticated user info if not provided
+    const userId = createdBy || req.user?.id;
+    const userName = createdByName || req.user?.full_name || req.user?.username;
+
     const order = await orderService.createOrder(
       items,
       notes,
       paymentMethod,
-      createdBy,
-      createdByName
+      userId,
+      userName
     );
     res.status(201).json({ success: true, data: order });
   } catch (error: any) {
@@ -32,8 +40,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all orders
-router.get("/", async (req, res) => {
+// Get all orders - Requires authentication
+router.get("/", authenticateToken, async (req, res) => {
   try {
     const orders = await orderService.getAllOrders();
     res.json({ success: true, data: orders });
@@ -42,8 +50,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get pending orders (for kitchen display)
-router.get("/pending", async (req, res) => {
+// Get pending orders (for kitchen display) - Requires authentication
+router.get("/pending", authenticateToken, async (req, res) => {
   try {
     const orders = await orderService.getPendingOrders();
     res.json({ success: true, data: orders });
@@ -52,8 +60,8 @@ router.get("/pending", async (req, res) => {
   }
 });
 
-// Get specific order
-router.get("/:id", async (req, res) => {
+// Get specific order - Requires authentication
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const order = await orderService.getOrder(req.params.id);
     if (!order) {
@@ -65,8 +73,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update order status
-router.patch("/:id/status", async (req, res) => {
+// Update order status - Requires authentication
+router.patch("/:id/status", authenticateToken, async (req, res) => {
   try {
     const { status } = req.body;
 
@@ -163,17 +171,24 @@ router.post("/:id/pay", async (req, res) => {
 });
 
 // Delete order
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = await orderService.deleteOrder(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ success: false, error: "Order not found" });
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRestaurantAdmin,
+  async (req, res) => {
+    try {
+      const deleted = await orderService.deleteOrder(req.params.id);
+      if (!deleted) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Order not found" });
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
     }
-    res.json({ success: true });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+);
 
 // Get receipt as PDF
 router.get("/:id/receipt/pdf", async (req, res) => {

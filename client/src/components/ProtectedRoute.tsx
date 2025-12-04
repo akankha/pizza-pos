@@ -9,17 +9,17 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  // Check for both staff and admin tokens
-  const token =
-    localStorage.getItem("token") || localStorage.getItem("authToken");
-  const userStr =
-    localStorage.getItem("user") || localStorage.getItem("adminUser");
+  // Check for standardized token
+  const token = localStorage.getItem("token");
+  const userStr = localStorage.getItem("user");
 
-  // For now, allow access without login (optional login)
-  // This prevents breaking the existing flow
+  // SECURITY FIX: Require authentication for protected routes
   if (!token || !userStr) {
-    // Don't force login - allow anonymous access for now
-    return <>{children}</>;
+    // Redirect to appropriate login page
+    if (window.location.pathname.startsWith("/admin")) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    return <Navigate to="/login" replace />;
   }
 
   // Check role if specified and user is logged in
@@ -36,8 +36,8 @@ export default function ProtectedRoute({
       }
     } catch (err) {
       console.error("Error parsing user data:", err);
-      // Allow access on error
-      return <>{children}</>;
+      // On error, redirect to login for security
+      return <Navigate to="/login" replace />;
     }
   }
 

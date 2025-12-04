@@ -21,7 +21,7 @@ console.log("📡 Database config:", {
     DB_USER: !!process.env.DB_USER,
     DB_PASSWORD: !!process.env.DB_PASSWORD,
     DB_NAME: !!process.env.DB_NAME,
-  }
+  },
 });
 
 // Create connection pool
@@ -144,8 +144,11 @@ export async function initDatabase() {
         status VARCHAR(50) NOT NULL DEFAULT 'pending',
         payment_method VARCHAR(50),
         notes TEXT,
+        created_by VARCHAR(255),
+        created_by_name VARCHAR(255),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
 

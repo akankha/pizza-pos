@@ -45,12 +45,7 @@ function App() {
             path="/admin/dashboard"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "admin",
-                  "manager",
-                  "super_admin",
-                  "restaurant_admin",
-                ]}
+                allowedRoles={["super_admin", "restaurant_admin"]}
               >
                 <AdminDashboardPage />
               </ProtectedRoute>
@@ -60,12 +55,7 @@ function App() {
             path="/admin/menu"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "admin",
-                  "manager",
-                  "super_admin",
-                  "restaurant_admin",
-                ]}
+                allowedRoles={["super_admin", "restaurant_admin"]}
               >
                 <AdminMenuPage />
               </ProtectedRoute>
@@ -75,12 +65,7 @@ function App() {
             path="/admin/reports"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "admin",
-                  "manager",
-                  "super_admin",
-                  "restaurant_admin",
-                ]}
+                allowedRoles={["super_admin", "restaurant_admin"]}
               >
                 <AdminReportsPage />
               </ProtectedRoute>
@@ -90,7 +75,7 @@ function App() {
             path="/admin/settings"
             element={
               <ProtectedRoute
-                allowedRoles={["admin", "super_admin", "restaurant_admin"]}
+                allowedRoles={["super_admin", "restaurant_admin"]}
               >
                 <AdminSettingsPage />
               </ProtectedRoute>
@@ -100,7 +85,7 @@ function App() {
             path="/admin/users"
             element={
               <ProtectedRoute
-                allowedRoles={["admin", "super_admin", "restaurant_admin"]}
+                allowedRoles={["super_admin", "restaurant_admin"]}
               >
                 <AdminUsersPage />
               </ProtectedRoute>
