@@ -19,6 +19,7 @@ export async function authFetch(url: string, options: RequestInit = {}) {
   return fetch(apiUrl(url), {
     ...options,
     headers: {
+      "Content-Type": "application/json",
       ...options.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },

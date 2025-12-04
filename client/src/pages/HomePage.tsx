@@ -44,17 +44,22 @@ export default function HomePage() {
 
   const handleAdminAccess = () => {
     // Check if user is already logged in as admin
-    console.log("Current user:", currentUser);
-    console.log("User role:", currentUser?.role);
+    const freshUser = getCurrentUser(); // Get fresh user data
+    console.log("Current user from state:", currentUser);
+    console.log("Fresh user from localStorage:", freshUser);
+    console.log("User role from state:", currentUser?.role);
+    console.log("User role from localStorage:", freshUser?.role);
 
+    // Use fresh user data instead of state
     if (
-      currentUser?.role === "super_admin" ||
-      currentUser?.role === "restaurant_admin"
+      freshUser?.role === "super_admin" ||
+      freshUser?.role === "restaurant_admin"
     ) {
       console.log("User is admin, navigating to dashboard");
       navigate("/admin/dashboard");
     } else {
       console.log("User does not have admin access");
+      console.log("Full user object:", freshUser);
       alert("You do not have permission to access the admin panel.");
     }
   };

@@ -1,4 +1,4 @@
-import { ArrowLeft, Building2, Database, Printer, Save } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TouchButton from "../components/TouchButton";
@@ -44,9 +44,6 @@ export default function AdminSettingsPage() {
           pst_rate: parseFloat(result.data.pst_rate) || 0.07,
           tax_label_gst: result.data.tax_label_gst || "GST",
           tax_label_pst: result.data.tax_label_pst || "PST",
-          printer_enabled: result.data.printer_enabled !== 0,
-          auto_print: result.data.auto_print !== 0,
-          print_copies: result.data.print_copies || 1,
         });
       }
     } catch (error) {
@@ -63,29 +60,6 @@ export default function AdminSettingsPage() {
       }
     } catch (error) {
       console.error("Failed to check printer status:", error);
-    }
-  };
-
-  const testPrinter = async () => {
-    setIsTestingPrinter(true);
-    try {
-      const response = await authFetch("/api/settings/printer/test", {
-        method: "POST",
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        alert(
-          "✅ Test receipt sent to printer!\n\nPlease check your Xprinter for the printed receipt."
-        );
-        await checkPrinterStatus();
-      } else {
-        alert("❌ Printer test failed:\n" + (result.error || "Unknown error"));
-      }
-    } catch (error: any) {
-      alert("❌ Error testing printer:\n" + error.message);
-    } finally {
-      setIsTestingPrinter(false);
     }
   };
 
@@ -351,175 +325,7 @@ export default function AdminSettingsPage() {
                 </p>
               </div>
             </div>
-
-            {/* Printer Configuration */}
-            <div className="pt-6 border-t-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Printer size={28} className="text-purple-600" />
-                Thermal Printer Settings
-              </h2>
-
-              {/* Printer Status */}
-              <div className="mb-6 p-4 bg-gray-50 border-2 border-gray-200 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-gray-700">
-                      Printer Status
-                    </p>
-                    {printerStatus ? (
-                      <p
-                        className={`text-sm mt-1 ${
-                          printerStatus.connected
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {printerStatus.connected
-                          ? "✅ Connected"
-                          : "❌ Not Connected"}
-                        {printerStatus.error && ` - ${printerStatus.error}`}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-gray-500 mt-1">Checking...</p>
-                    )}
-                  </div>
-                  <TouchButton
-                    onClick={testPrinter}
-                    disabled={isTestingPrinter}
-                    variant="secondary"
-                    size="medium"
-                  >
-                    {isTestingPrinter ? "Testing..." : "Test Print"}
-                  </TouchButton>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.printer_enabled}
-                      onChange={(e) =>
-                        handleChange("printer_enabled", e.target.checked)
-                      }
-                      className="w-6 h-6 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                    />
-                    <div>
-                      <span className="block text-sm font-semibold text-gray-700">
-                        Enable Thermal Printer
-                      </span>
-                      <span className="block text-xs text-gray-500">
-                        Turn receipt printing on/off
-                      </span>
-                    </div>
-                  </label>
-                </div>
-
-                <div>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.auto_print}
-                      onChange={(e) =>
-                        handleChange("auto_print", e.target.checked)
-                      }
-                      disabled={!settings.printer_enabled}
-                      className="w-6 h-6 rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
-                    />
-                    <div>
-                      <span className="block text-sm font-semibold text-gray-700">
-                        Auto-Print on Order Complete
-                      </span>
-                      <span className="block text-xs text-gray-500">
-                        Print receipts automatically
-                      </span>
-                    </div>
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Number of Copies
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={settings.print_copies}
-                    onChange={(e) =>
-                      handleChange("print_copies", parseInt(e.target.value))
-                    }
-                    disabled={!settings.printer_enabled}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-purple-500 focus:outline-none disabled:opacity-50 disabled:bg-gray-100"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Print 1-5 copies per receipt
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 p-4 bg-purple-50 border-2 border-purple-200 rounded-xl">
-                <p className="text-sm text-purple-800">
-                  <strong>🖨️ Xprinter XP-N160II</strong>
-                </p>
-                <p className="text-xs text-purple-600 mt-1">
-                  80mm thermal printer connected via USB. Receipts will print
-                  automatically when orders are marked as "Ready" or
-                  "Completed".
-                </p>
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <div className="pt-6 border-t-2 border-gray-200">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 px-8 rounded-2xl text-2xl font-bold hover:from-orange-700 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3"
-              >
-                <Save size={32} />
-                <span>{isSaving ? "Saving..." : "Save Settings"}</span>
-              </button>
-            </div>
           </form>
-
-          {/* Database Migration Section */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mt-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Database size={28} className="text-blue-600" />
-              Database Migration
-            </h2>
-
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
-              <p className="text-sm text-blue-800 mb-2">
-                <strong>User Tracking Migration</strong>
-              </p>
-              <p className="text-xs text-blue-600">
-                This migration adds user tracking to orders, allowing the system
-                to record which staff member created each order. It adds{" "}
-                <code className="bg-blue-100 px-1 rounded">created_by</code> and{" "}
-                <code className="bg-blue-100 px-1 rounded">
-                  created_by_name
-                </code>{" "}
-                columns to the orders table.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={runMigration}
-              disabled={isRunningMigration}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3"
-            >
-              <Database size={28} />
-              <span>
-                {isRunningMigration
-                  ? "Running Migration..."
-                  : "Run User Tracking Migration"}
-              </span>
-            </button>
-          </div>
         </div>
       </div>
     </div>

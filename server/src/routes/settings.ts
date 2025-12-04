@@ -3,7 +3,6 @@ import pool from "../db/database.js";
 import {
   authenticateToken,
   requireRestaurantAdmin,
-  requireSuperAdmin,
 } from "../middleware/auth.js";
 import { PrinterService } from "../services/PrinterService.js";
 
@@ -30,8 +29,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update restaurant settings (Super Admin only)
-router.put("/", authenticateToken, requireSuperAdmin, async (req, res) => {
+// Update restaurant settings (Restaurant Admin or Super Admin)
+router.put("/", authenticateToken, requireRestaurantAdmin, async (req, res) => {
   try {
     console.log("Update settings request:", {
       user: req.user,
@@ -132,12 +131,10 @@ router.put("/", authenticateToken, requireSuperAdmin, async (req, res) => {
   } catch (error: any) {
     console.error("Update settings error:", error);
     console.error("Error stack:", error.stack);
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: error.message || "Failed to update settings",
-      });
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to update settings",
+    });
   }
 });
 

@@ -25,9 +25,9 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     // Check authentication
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
 
@@ -41,13 +41,13 @@ export default function AdminDashboardPage() {
       const response = await authFetch("api/auth/verify");
 
       if (!response.ok) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("adminAuth");
-        navigate("/admin/login");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Auth verification failed:", error);
-      navigate("/admin/login");
+      navigate("/login");
     }
   };
 
@@ -77,9 +77,8 @@ export default function AdminDashboardPage() {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("adminAuth");
-      localStorage.removeItem("adminUser");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       navigate("/");
     }
   };
