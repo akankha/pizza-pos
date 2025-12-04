@@ -345,6 +345,13 @@ function EditModal({ item, type, onSave, onCancel }: any) {
 
   const [formData, setFormData] = useState(initializeFormData());
 
+  // Reinitialize form data when item changes
+  useEffect(() => {
+    const newData = initializeFormData();
+    console.log("EditModal - Initializing form data:", { item, type, newData });
+    setFormData(newData);
+  }, [item, type]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -467,11 +474,11 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                   type="number"
                   min="0"
                   max="10"
-                  value={formData.toppings_allowed || 3}
+                  value={formData.toppings_allowed ?? 3}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      toppings_allowed: parseInt(e.target.value) || 3,
+                      toppings_allowed: parseInt(e.target.value) || 0,
                     })
                   }
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
