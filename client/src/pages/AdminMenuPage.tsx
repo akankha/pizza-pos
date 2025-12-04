@@ -5,7 +5,14 @@ import TouchButton from "../components/TouchButton";
 import { useMenu } from "../contexts/MenuContext";
 import { authFetch, isAuthenticated } from "../utils/auth";
 
-type MenuItemType = "size" | "crust" | "topping" | "side" | "drink" | "combo";
+type MenuItemType =
+  | "size"
+  | "crust"
+  | "topping"
+  | "side"
+  | "drink"
+  | "combo"
+  | "specialty";
 
 export default function AdminMenuPage() {
   const navigate = useNavigate();
@@ -78,6 +85,7 @@ export default function AdminMenuPage() {
     { id: "side" as MenuItemType, label: "Sides", icon: "🍟" },
     { id: "drink" as MenuItemType, label: "Drinks", icon: "🥤" },
     { id: "combo" as MenuItemType, label: "Combos", icon: "🎁" },
+    { id: "specialty" as MenuItemType, label: "Specialty Pizzas", icon: "🍕" },
   ];
 
   const getItems = () => {
@@ -94,6 +102,8 @@ export default function AdminMenuPage() {
         return menuData.drinks;
       case "combo":
         return menuData.combos;
+      case "specialty":
+        return menuData.specialtyPizzas;
       default:
         return [];
     }
@@ -170,6 +180,11 @@ export default function AdminMenuPage() {
                         📦 {item.items}
                       </p>
                     )}
+                    {item.toppings && (
+                      <p className="text-sm text-orange-600 mt-1 font-medium">
+                        🍕 {item.toppings}
+                      </p>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -187,18 +202,62 @@ export default function AdminMenuPage() {
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 font-semibold">Price:</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      $
-                      {(
-                        item.basePrice ||
-                        item.price ||
-                        item.priceModifier ||
-                        0
-                      ).toFixed(2)}
-                    </span>
-                  </div>
+                  {activeTab === "specialty" ? (
+                    <>
+                      <div className="text-sm text-gray-600 font-semibold mb-2">
+                        Prices:
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Small:</span>
+                          <span className="font-bold text-orange-600">
+                            $
+                            {item.prices?.small?.toFixed(2) ||
+                              item.price_small?.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Medium:</span>
+                          <span className="font-bold text-orange-600">
+                            $
+                            {item.prices?.medium?.toFixed(2) ||
+                              item.price_medium?.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Large:</span>
+                          <span className="font-bold text-orange-600">
+                            $
+                            {item.prices?.large?.toFixed(2) ||
+                              item.price_large?.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">X-Large:</span>
+                          <span className="font-bold text-orange-600">
+                            $
+                            {item.prices?.xlarge?.toFixed(2) ||
+                              item.price_xlarge?.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 font-semibold">
+                        Price:
+                      </span>
+                      <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                        $
+                        {(
+                          item.basePrice ||
+                          item.price ||
+                          item.priceModifier ||
+                          0
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   {item.category && (
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-gray-600 font-semibold">
@@ -241,9 +300,23 @@ function EditModal({ item, type, onSave, onCancel }: any) {
       basePrice: 0,
       priceModifier: 0,
       description: "",
-      category: type === "topping" ? "veggie" : type === "combo" ? "combo" : "",
+      category:
+        type === "topping"
+          ? "veggie"
+          : type === "combo"
+          ? "combo"
+          : type === "specialty"
+          ? "specialty"
+          : "",
       type: "",
       items: "",
+      toppings: "",
+      prices: {
+        small: 0,
+        medium: 0,
+        large: 0,
+        xlarge: 0,
+      },
     }
   );
 
@@ -291,40 +364,42 @@ function EditModal({ item, type, onSave, onCancel }: any) {
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {type === "size"
-                ? "Base Price"
-                : type === "crust"
-                ? "Price Modifier"
-                : "Price"}
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={
-                type === "size"
-                  ? formData.basePrice
+          {type !== "specialty" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {type === "size"
+                  ? "Base Price"
                   : type === "crust"
-                  ? formData.priceModifier
-                  : formData.price
-              }
-              onChange={(e) => {
-                const field =
+                  ? "Price Modifier"
+                  : "Price"}
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={
                   type === "size"
-                    ? "basePrice"
+                    ? formData.basePrice
                     : type === "crust"
-                    ? "priceModifier"
-                    : "price";
-                setFormData({
-                  ...formData,
-                  [field]: parseFloat(e.target.value),
-                });
-              }}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
-              required
-            />
-          </div>
+                    ? formData.priceModifier
+                    : formData.price
+                }
+                onChange={(e) => {
+                  const field =
+                    type === "size"
+                      ? "basePrice"
+                      : type === "crust"
+                      ? "priceModifier"
+                      : "price";
+                  setFormData({
+                    ...formData,
+                    [field]: parseFloat(e.target.value),
+                  });
+                }}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                required
+              />
+            </div>
+          )}
 
           {(type === "side" || type === "drink" || type === "combo") && (
             <div>
@@ -358,6 +433,125 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                 required
               />
             </div>
+          )}
+
+          {type === "specialty" && (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Toppings
+                </label>
+                <textarea
+                  value={formData.toppings}
+                  onChange={(e) =>
+                    setFormData({ ...formData, toppings: e.target.value })
+                  }
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  rows={2}
+                  placeholder="e.g., Pepperoni, Mushrooms, Green Peppers"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Small Price
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.prices?.small || 0}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        prices: {
+                          ...formData.prices,
+                          small: parseFloat(e.target.value),
+                        },
+                      })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Medium Price
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.prices?.medium || 0}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        prices: {
+                          ...formData.prices,
+                          medium: parseFloat(e.target.value),
+                        },
+                      })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Large Price
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.prices?.large || 0}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        prices: {
+                          ...formData.prices,
+                          large: parseFloat(e.target.value),
+                        },
+                      })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    X-Large Price
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.prices?.xlarge || 0}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        prices: {
+                          ...formData.prices,
+                          xlarge: parseFloat(e.target.value),
+                        },
+                      })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           {type === "topping" && (

@@ -294,6 +294,21 @@ router.post("/menu/:type", requireRestaurantAdmin, async (req, res) => {
           data.category || "combo",
         ];
         break;
+      case "specialty":
+        query =
+          "INSERT INTO specialty_pizzas (id, name, description, toppings, price_small, price_medium, price_large, price_xlarge, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        values = [
+          id,
+          data.name,
+          data.description || "",
+          data.toppings || "",
+          data.prices?.small || 0,
+          data.prices?.medium || 0,
+          data.prices?.large || 0,
+          data.prices?.xlarge || 0,
+          data.category || "specialty",
+        ];
+        break;
       default:
         return res
           .status(400)
@@ -365,6 +380,21 @@ router.put("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
           id,
         ];
         break;
+      case "specialty":
+        query =
+          "UPDATE specialty_pizzas SET name=?, description=?, toppings=?, price_small=?, price_medium=?, price_large=?, price_xlarge=?, category=? WHERE id=?";
+        values = [
+          data.name,
+          data.description || "",
+          data.toppings || "",
+          data.prices?.small || 0,
+          data.prices?.medium || 0,
+          data.prices?.large || 0,
+          data.prices?.xlarge || 0,
+          data.category || "specialty",
+          id,
+        ];
+        break;
       default:
         return res
           .status(400)
@@ -392,6 +422,7 @@ router.delete("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
       side: "menu_items",
       drink: "menu_items",
       combo: "combo_deals",
+      specialty: "specialty_pizzas",
     };
 
     const table = tables[type];
