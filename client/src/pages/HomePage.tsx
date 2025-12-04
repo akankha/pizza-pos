@@ -105,30 +105,41 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="h-screen w-screen bg-gray-50 flex flex-col">
+    <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200">
       {/* Modern Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-[#FF6B35] p-3 rounded-xl shadow-md">
-                <Pizza size={32} className="text-white" aria-hidden="true" />
+              <div className="bg-[#FF6B35] p-2 sm:p-3 rounded-xl shadow-md">
+                <Pizza
+                  size={28}
+                  className="sm:w-8 sm:h-8 text-white"
+                  aria-hidden="true"
+                />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pizza POS</h1>
-                <p className="text-sm text-gray-500">Point of Sale System</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  Pizza POS
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Point of Sale System
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 w-full sm:w-auto">
               {/* Current User Display */}
               {currentUser && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
-                  <User size={20} className="text-gray-600" />
-                  <div className="text-sm">
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <User
+                    size={18}
+                    className="sm:w-5 sm:h-5 text-gray-600 dark:text-gray-300"
+                  />
+                  <div className="text-xs sm:text-sm">
                     <p className="font-semibold text-gray-800">
                       {currentUser.full_name || currentUser.username}
                     </p>
-                    <p className="text-gray-600 capitalize">
+                    <p className="text-gray-600 capitalize text-xs">
                       {currentUser.role}
                     </p>
                   </div>
@@ -137,23 +148,23 @@ export default function HomePage() {
 
               <button
                 onClick={handleRefresh}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md"
+                className="flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md text-sm sm:text-base"
                 aria-label="Refresh menu"
               >
-                <RefreshCw size={24} />
-                <span className="font-semibold text-lg">Refresh Menu</span>
+                <RefreshCw size={20} className="sm:w-6 sm:h-6" />
+                <span className="font-semibold">Refresh</span>
               </button>
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-md"
+                className="flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-md text-sm sm:text-base"
                 aria-label="Logout"
               >
-                <LogOut size={24} />
-                <span className="font-semibold text-lg">Logout</span>
+                <LogOut size={20} className="sm:w-6 sm:h-6" />
+                <span className="font-semibold">Logout</span>
               </button>
 
-              <div className="text-right">
+              <div className="text-center sm:text-right hidden sm:block">
                 <p className="text-sm font-medium text-gray-600">
                   {new Date().toLocaleDateString("en-US", {
                     weekday: "long",
@@ -175,20 +186,20 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-8">
-        <div className="max-w-6xl w-full">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-8">
+        <div className="max-w-6xl w-full mx-auto min-h-full flex flex-col justify-center">
           {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 sm:mb-3">
               Welcome Back
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg sm:text-xl text-gray-600">
               Select an option to get started
             </p>
           </div>
 
           {/* Action Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {mainActions.map((action) => (
               <button
                 key={action.path}

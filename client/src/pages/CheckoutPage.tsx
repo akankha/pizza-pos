@@ -192,39 +192,43 @@ export default function CheckoutPage() {
   return (
     <div className="h-screen w-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm p-6">
+      <div className="bg-white border-b border-gray-200 shadow-sm p-3 sm:p-6">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
             onClick={() => navigate("/new-order")}
             variant="ghost"
             size="medium"
+            className="!p-2 sm:!p-3"
           >
-            <ArrowLeft size={28} />
+            <ArrowLeft size={20} className="sm:w-7 sm:h-7" />
           </TouchButton>
 
-          <h1 className="text-4xl font-bold text-gray-800">🛒 Checkout</h1>
+          <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-800">
+            🛒 Checkout
+          </h1>
 
           <TouchButton
             onClick={() => navigate("/")}
             variant="ghost"
             size="medium"
+            className="!p-2 sm:!p-3"
           >
-            <Home size={28} />
+            <Home size={20} className="sm:w-7 sm:h-7" />
           </TouchButton>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="text-9xl mb-6 opacity-30">🛒</div>
-          <h2 className="text-4xl font-bold text-gray-400 mb-8">
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="text-6xl sm:text-9xl mb-4 sm:mb-6 opacity-30">🛒</div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-400 mb-4 sm:mb-8 text-center">
             Your cart is empty
           </h2>
           <TouchButton
             onClick={() => navigate("/new-order")}
             variant="primary"
             size="large"
-            className="text-2xl"
+            className="text-lg sm:text-2xl"
           >
             Start New Order
           </TouchButton>
@@ -232,8 +236,8 @@ export default function CheckoutPage() {
       ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Left: Items list */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 space-y-3 sm:space-y-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
               Order Items ({items.length})
             </h2>
             {items.map((item) => (
@@ -247,14 +251,16 @@ export default function CheckoutPage() {
           </div>
 
           {/* Right: Payment section */}
-          <div className="w-full lg:w-96 bg-white p-4 md:p-6 lg:p-8 shadow-lg border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col max-h-screen lg:max-h-full overflow-y-auto">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Payment</h2>
+          <div className="w-full lg:w-96 bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-lg border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col max-h-screen lg:max-h-full overflow-y-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">
+              Payment
+            </h2>
 
             {/* Order Notes */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <label
                 htmlFor="orderNotes"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2"
               >
                 Order Notes (Optional)
               </label>
@@ -265,7 +271,7 @@ export default function CheckoutPage() {
                 placeholder="Any special instructions..."
                 maxLength={500}
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none text-base resize-none transition-colors"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none text-sm sm:text-base resize-none transition-colors"
               />
               <div className="text-xs text-gray-500 mt-1 text-right">
                 {orderNotes.length}/500

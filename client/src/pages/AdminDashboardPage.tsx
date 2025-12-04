@@ -1,7 +1,8 @@
 import {
-  ArrowLeft,
   BarChart3,
   Calendar,
+  Home,
+  LogOut,
   Pizza,
   Settings,
   ShoppingBag,
@@ -121,17 +122,24 @@ export default function AdminDashboardPage() {
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6 shadow-2xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
-            onClick={handleLogout}
+            onClick={() => navigate("/")}
             variant="outline"
             size="medium"
             className="!bg-white/10 !text-white hover:!bg-white/20 backdrop-blur-sm border-white/20"
           >
-            <ArrowLeft size={28} />
+            <Home size={28} />
           </TouchButton>
 
           <h1 className="text-4xl font-bold">🔐 Admin Dashboard</h1>
 
-          <div className="w-24"></div>
+          <TouchButton
+            onClick={handleLogout}
+            variant="outline"
+            size="medium"
+            className="!bg-red-500/80 !text-white hover:!bg-red-600 backdrop-blur-sm border-white/20"
+          >
+            <LogOut size={28} />
+          </TouchButton>
         </div>
       </div>
 

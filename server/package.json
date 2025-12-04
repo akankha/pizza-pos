@@ -9,6 +9,7 @@
     "migrate:rbac": "tsx src/db/migrate-rbac.ts",
     "migrate:orders": "tsx src/db/migrate-order-schema.ts",
     "migrate:combo-toppings": "tsx src/db/add-combo-toppings.ts",
+    "migrate:dark-mode": "tsx src/db/add-dark-mode.ts",
     "import:menu": "tsx src/db/import-menu.ts"
   },
   "dependencies": {

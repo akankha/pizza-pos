@@ -64,35 +64,39 @@ export default function NewOrderPage() {
     <div className="h-screen w-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <TouchButton
               onClick={() => navigate("/")}
               variant="ghost"
               size="medium"
-              className="!text-gray-700"
+              className="!text-gray-700 !p-2 sm:!p-3"
             >
               <div className="flex items-center gap-2">
-                <ArrowLeft size={24} />
+                <ArrowLeft size={20} className="sm:w-6 sm:h-6" />
                 <span className="hidden sm:inline">Back</span>
               </div>
             </TouchButton>
 
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">New Order</h1>
-              <p className="text-sm text-gray-500">Select a category</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                New Order
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Select a category
+              </p>
             </div>
 
             <TouchButton
               onClick={() => navigate("/checkout")}
               variant="ghost"
               size="medium"
-              className="relative !text-gray-700"
+              className="relative !text-gray-700 !p-2 sm:!p-3"
               aria-label={`Shopping cart with ${cartItems.length} ${
                 cartItems.length === 1 ? "item" : "items"
               }`}
             >
-              <ShoppingCart size={24} />
+              <ShoppingCart size={20} className="sm:w-6 sm:h-6" />
               {cartItems.length > 0 && (
                 <>
                   <span
@@ -117,34 +121,34 @@ export default function NewOrderPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6 md:p-12">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-12">
         <div className="w-full max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {categories.map((category) => (
               <button
                 key={category.title}
                 onClick={category.action}
                 aria-label={`${category.title}: ${category.description}`}
-                className="group bg-white rounded-2xl border-2 border-gray-300 p-10 md:p-12 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] shadow-md"
+                className="group bg-white rounded-2xl border-2 border-gray-300 p-6 sm:p-10 md:p-12 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] shadow-md"
               >
-                <div className="flex flex-col items-center text-center gap-6">
+                <div className="flex flex-col items-center text-center gap-4 sm:gap-6">
                   {/* Icon */}
                   <div
-                    className={`${category.iconBg} p-7 rounded-xl group-hover:scale-110 transition-transform duration-200`}
+                    className={`${category.iconBg} p-5 sm:p-7 rounded-xl group-hover:scale-110 transition-transform duration-200`}
                   >
                     <category.icon
-                      size={60}
-                      className={category.iconColor}
+                      size={48}
+                      className={`sm:w-[60px] sm:h-[60px] ${category.iconColor}`}
                       strokeWidth={2}
                     />
                   </div>
 
                   {/* Content */}
                   <div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 group-hover:text-[#FF6B35] transition-colors">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#FF6B35] transition-colors">
                       {category.title}
                     </h3>
-                    <p className="text-base md:text-lg text-gray-700 font-medium">
+                    <p className="text-sm sm:text-base md:text-lg text-gray-700 font-medium">
                       {category.description}
                     </p>
                   </div>

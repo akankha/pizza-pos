@@ -17,6 +17,7 @@ export default function AdminSettingsPage() {
     pst_rate: 0.07,
     tax_label_gst: "GST",
     tax_label_pst: "PST",
+    dark_mode: false,
   });
 
   useEffect(() => {
@@ -37,6 +38,8 @@ export default function AdminSettingsPage() {
           pst_rate: parseFloat(result.data.pst_rate) || 0.07,
           tax_label_gst: result.data.tax_label_gst || "GST",
           tax_label_pst: result.data.tax_label_pst || "PST",
+          dark_mode:
+            result.data.dark_mode === 1 || result.data.dark_mode === true,
         });
       }
     } catch (error) {
@@ -52,9 +55,17 @@ export default function AdminSettingsPage() {
     try {
       console.log("Submitting settings:", settings);
 
+      // Convert dark_mode boolean to number for database
+      const settingsToSend = {
+        ...settings,
+        dark_mode: settings.dark_mode ? 1 : 0,
+      };
+
+      console.log("Settings to send:", settingsToSend);
+
       const response = await authFetch("/api/settings", {
         method: "PUT",
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settingsToSend),
       });
 
       const result = await response.json();
@@ -62,6 +73,14 @@ export default function AdminSettingsPage() {
 
       if (result.success) {
         setSuccessMessage("Settings saved successfully!");
+
+        // Apply dark mode immediately
+        if (settings.dark_mode) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+
         setTimeout(() => setSuccessMessage(""), 3000);
       } else {
         throw new Error(result.error || "Failed to save settings");
@@ -278,6 +297,36 @@ export default function AdminSettingsPage() {
                   {((settings.gst_rate + settings.pst_rate) * 100).toFixed(2)}{" "}
                   tax
                 </p>
+              </div>
+            </div>
+
+            {/* Appearance Settings */}
+            <div className="pt-6 border-t-2 border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span className="text-3xl">🎨</span>
+                Appearance
+              </h2>
+
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                <div>
+                  <label className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                    <span>🌙</span> Dark Mode
+                  </label>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Enable dark theme across the entire system
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.dark_mode}
+                    onChange={(e) =>
+                      handleChange("dark_mode", e.target.checked)
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-orange-500"></div>
+                </label>
               </div>
             </div>
 

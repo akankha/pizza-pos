@@ -49,6 +49,7 @@ router.put("/", authenticateToken, requireRestaurantAdmin, async (req, res) => {
       printer_enabled,
       auto_print,
       print_copies,
+      dark_mode,
     } = req.body;
 
     // Validate required fields
@@ -89,30 +90,66 @@ router.put("/", authenticateToken, requireRestaurantAdmin, async (req, res) => {
 
     console.log("Updating settings in database...");
 
-    await pool.query(
-      `
-      UPDATE restaurant_settings 
-      SET restaurant_name = ?,
-          restaurant_address = ?,
-          restaurant_city = ?,
-          restaurant_phone = ?,
-          gst_rate = ?,
-          pst_rate = ?,
-          tax_label_gst = ?,
-          tax_label_pst = ?
-      WHERE id = 1
-    `,
-      [
-        restaurant_name,
-        restaurant_address,
-        restaurant_city,
-        restaurant_phone,
-        gst_rate ?? 0.05,
-        pst_rate ?? 0.07,
-        tax_label_gst ?? "GST",
-        tax_label_pst ?? "PST",
-      ]
-    );
+    try {
+      // Try to update with dark_mode column
+      await pool.query(
+        `
+        UPDATE restaurant_settings 
+        SET restaurant_name = ?,
+            restaurant_address = ?,
+            restaurant_city = ?,
+            restaurant_phone = ?,
+            gst_rate = ?,
+            pst_rate = ?,
+            tax_label_gst = ?,
+            tax_label_pst = ?,
+            dark_mode = ?
+        WHERE id = 1
+      `,
+        [
+          restaurant_name,
+          restaurant_address,
+          restaurant_city,
+          restaurant_phone,
+          gst_rate ?? 0.05,
+          pst_rate ?? 0.07,
+          tax_label_gst ?? "GST",
+          tax_label_pst ?? "PST",
+          dark_mode ?? 0,
+        ]
+      );
+    } catch (dbError: any) {
+      // If dark_mode column doesn't exist, try without it
+      if (dbError.code === "ER_BAD_FIELD_ERROR") {
+        console.warn("dark_mode column doesn't exist, updating without it");
+        await pool.query(
+          `
+          UPDATE restaurant_settings 
+          SET restaurant_name = ?,
+              restaurant_address = ?,
+              restaurant_city = ?,
+              restaurant_phone = ?,
+              gst_rate = ?,
+              pst_rate = ?,
+              tax_label_gst = ?,
+              tax_label_pst = ?
+          WHERE id = 1
+        `,
+          [
+            restaurant_name,
+            restaurant_address,
+            restaurant_city,
+            restaurant_phone,
+            gst_rate ?? 0.05,
+            pst_rate ?? 0.07,
+            tax_label_gst ?? "GST",
+            tax_label_pst ?? "PST",
+          ]
+        );
+      } else {
+        throw dbError;
+      }
+    }
 
     console.log("Settings updated successfully");
 

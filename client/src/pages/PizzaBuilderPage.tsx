@@ -200,32 +200,33 @@ export default function PizzaBuilderPage() {
   return (
     <div className="h-screen w-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
+      <div className="bg-white border-b border-gray-200 p-3 sm:p-6 shadow-sm">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
             onClick={() => navigate("/new-order")}
             variant="ghost"
             size="medium"
+            className="!p-2 sm:!p-3"
           >
-            <ArrowLeft size={28} />
+            <ArrowLeft size={20} className="sm:w-7 sm:h-7" />
           </TouchButton>
 
-          <h1 className="text-4xl font-bold text-gray-800">
+          <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-800 text-center">
             🍕{" "}
             {specialtyContext?.specialtyBase
               ? `Customize ${specialtyContext.specialtyBase}`
               : "Build Your Pizza"}
           </h1>
 
-          <div className="w-24"></div>
+          <div className="w-8 sm:w-24"></div>
         </div>
         {specialtyContext?.specialtyBase && (
-          <div className="bg-orange-50 border-t border-orange-200 px-6 py-3">
-            <div className="max-w-7xl mx-auto flex items-center gap-2 text-orange-800">
+          <div className="bg-orange-50 border-t border-orange-200 px-3 sm:px-6 py-2 sm:py-3">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-orange-800 text-sm sm:text-base">
               <span className="font-semibold">💰 Special Price:</span>
               <span>
-                Base price ${specialtyContext.basePrice?.toFixed(2)} - Only
-                extra toppings add to cost
+                Base ${specialtyContext.basePrice?.toFixed(2)} - Only extra
+                toppings add to cost
               </span>
             </div>
           </div>
@@ -237,15 +238,15 @@ export default function PizzaBuilderPage() {
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-8">
           {/* Size Selection */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-2xl">📏</span> Select Size
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">📏</span> Select Size
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {menuData.sizes.map((size) => (
                 <button
                   key={size.id}
                   onClick={() => setSize(size.name)}
-                  className={`p-6 rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+                  className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
                     selectedSize === size.name
                       ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-xl"
                       : "bg-white/80 backdrop-blur-sm border-gray-200 text-gray-800 hover:border-[#FF6B35] shadow-lg hover:shadow-xl"
@@ -324,7 +325,7 @@ export default function PizzaBuilderPage() {
                   {category === "veggie" && "🥬"}
                   {category} Toppings
                 </h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                   {menuData.toppings
                     .filter((t) => t.category === category)
                     .map((topping) => {
@@ -333,7 +334,7 @@ export default function PizzaBuilderPage() {
                         <button
                           key={topping.id}
                           onClick={() => toggleTopping(topping.id)}
-                          className={`p-4 rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+                          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
                             isSelected
                               ? "bg-[#10B981] border-[#10B981] text-white shadow-lg"
                               : "bg-white/80 backdrop-blur-sm border-gray-200 text-gray-800 hover:border-[#10B981] shadow-md hover:shadow-lg"
@@ -361,17 +362,19 @@ export default function PizzaBuilderPage() {
         </div>
 
         {/* Right Panel - Order Summary */}
-        <div className="w-full lg:w-96 bg-white/80 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-gray-200 p-4 md:p-8 flex flex-col shadow-lg">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6">Your Pizza</h3>
+        <div className="w-full lg:w-96 bg-white/80 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-gray-200 p-3 sm:p-4 md:p-8 flex flex-col shadow-lg">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">
+            Your Pizza
+          </h3>
 
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+          <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 mb-3 sm:mb-4">
             {/* Size */}
-            <div className="bg-gray-50 rounded-2xl p-4">
-              <div className="text-sm text-gray-600 font-semibold mb-1">
+            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-1">
                 Size
               </div>
-              <div className="text-xl font-bold text-gray-800">
+              <div className="text-lg sm:text-xl font-bold text-gray-800">
                 {selectedSize
                   ? menuData.sizes.find((s) => s.name === selectedSize)
                       ?.displayName
@@ -380,11 +383,11 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Crust */}
-            <div className="bg-gray-50 rounded-2xl p-4">
-              <div className="text-sm text-gray-600 font-semibold mb-1">
+            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-1">
                 Crust
               </div>
-              <div className="text-xl font-bold text-gray-800">
+              <div className="text-lg sm:text-xl font-bold text-gray-800">
                 {selectedCrust
                   ? menuData.crusts.find((c) => c.type === selectedCrust)
                       ?.displayName
@@ -393,13 +396,15 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Toppings - scrollable */}
-            <div className="bg-gray-50 rounded-2xl p-4 max-h-64 overflow-y-auto">
-              <div className="text-sm text-gray-600 font-semibold mb-2">
+            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 max-h-64 overflow-y-auto">
+              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-2">
                 Toppings ({selectedToppings.length})
               </div>
               <div className="flex flex-wrap gap-2">
                 {selectedToppings.length === 0 ? (
-                  <span className="text-gray-400 italic">No toppings</span>
+                  <span className="text-gray-400 italic text-sm">
+                    No toppings
+                  </span>
                 ) : (
                   selectedToppings.map((toppingId) => {
                     const topping = menuData.toppings.find(
@@ -408,7 +413,7 @@ export default function PizzaBuilderPage() {
                     return (
                       <span
                         key={toppingId}
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow"
+                        className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow"
                       >
                         {topping?.name}
                       </span>
