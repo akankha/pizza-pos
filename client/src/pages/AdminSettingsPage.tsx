@@ -7,9 +7,6 @@ import { authFetch } from "../utils/api";
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
-  const [isTestingPrinter, setIsTestingPrinter] = useState(false);
-  const [isRunningMigration, setIsRunningMigration] = useState(false);
-  const [printerStatus, setPrinterStatus] = useState<any>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [settings, setSettings] = useState({
     restaurant_name: "",
@@ -20,14 +17,10 @@ export default function AdminSettingsPage() {
     pst_rate: 0.07,
     tax_label_gst: "GST",
     tax_label_pst: "PST",
-    printer_enabled: true,
-    auto_print: true,
-    print_copies: 1,
   });
 
   useEffect(() => {
     loadSettings();
-    checkPrinterStatus();
   }, []);
 
   const loadSettings = async () => {
@@ -51,30 +44,21 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const checkPrinterStatus = async () => {
-    try {
-      const response = await authFetch("/api/settings/printer/status");
-      const result = await response.json();
-      if (result.success) {
-        setPrinterStatus(result.data);
-      }
-    } catch (error) {
-      console.error("Failed to check printer status:", error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setSuccessMessage("");
 
     try {
+      console.log("Submitting settings:", settings);
+
       const response = await authFetch("/api/settings", {
         method: "PUT",
         body: JSON.stringify(settings),
       });
 
       const result = await response.json();
+      console.log("Settings response:", result);
 
       if (result.success) {
         setSuccessMessage("Settings saved successfully!");
@@ -83,6 +67,7 @@ export default function AdminSettingsPage() {
         throw new Error(result.error || "Failed to save settings");
       }
     } catch (error: any) {
+      console.error("Settings save error:", error);
       alert("Error saving settings: " + error.message);
     } finally {
       setIsSaving(false);
@@ -91,36 +76,6 @@ export default function AdminSettingsPage() {
 
   const handleChange = (field: string, value: string | number | boolean) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const runMigration = async () => {
-    if (
-      !confirm(
-        "Run database migration to add user tracking to orders?\n\nThis will add created_by and created_by_name columns to the orders table."
-      )
-    ) {
-      return;
-    }
-
-    setIsRunningMigration(true);
-    try {
-      const response = await authFetch("/api/migrations/add-created-by", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        alert("✅ Migration completed successfully!\n\n" + result.message);
-      } else {
-        alert("❌ Migration failed:\n" + (result.error || "Unknown error"));
-      }
-    } catch (error: any) {
-      alert("❌ Error running migration:\n" + error.message);
-    } finally {
-      setIsRunningMigration(false);
-    }
   };
 
   return (
@@ -324,6 +279,19 @@ export default function AdminSettingsPage() {
                   tax
                 </p>
               </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-6 border-t-2 border-gray-200">
+              <TouchButton
+                type="submit"
+                variant="primary"
+                size="large"
+                className="w-full !text-2xl !py-6"
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving..." : "💾 Save Settings"}
+              </TouchButton>
             </div>
           </form>
         </div>

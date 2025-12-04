@@ -99,10 +99,7 @@ router.put("/", authenticateToken, requireRestaurantAdmin, async (req, res) => {
           gst_rate = ?,
           pst_rate = ?,
           tax_label_gst = ?,
-          tax_label_pst = ?,
-          printer_enabled = ?,
-          auto_print = ?,
-          print_copies = ?
+          tax_label_pst = ?
       WHERE id = 1
     `,
       [
@@ -114,9 +111,6 @@ router.put("/", authenticateToken, requireRestaurantAdmin, async (req, res) => {
         pst_rate ?? 0.07,
         tax_label_gst ?? "GST",
         tax_label_pst ?? "PST",
-        printer_enabled !== undefined ? (printer_enabled ? 1 : 0) : 1,
-        auto_print !== undefined ? (auto_print ? 1 : 0) : 1,
-        print_copies ?? 1,
       ]
     );
 
