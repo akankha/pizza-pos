@@ -1,6 +1,7 @@
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
 import TouchButton from "../components/TouchButton";
 import { useMenu } from "../contexts/MenuContext";
 import { authFetch, isAuthenticated } from "../utils/auth";
@@ -48,7 +49,7 @@ export default function AdminMenuPage() {
       }
     } catch (error) {
       console.error("Failed to save item:", error);
-      alert("Failed to save item");
+      showToast("Failed to save item", "error");
     }
   };
 
@@ -66,7 +67,7 @@ export default function AdminMenuPage() {
       }
     } catch (error) {
       console.error("Failed to delete item:", error);
-      alert("Failed to delete item");
+      showToast("Failed to delete item", "error");
     }
   };
 

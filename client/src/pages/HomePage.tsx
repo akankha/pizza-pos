@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
 import { useMenu } from "../contexts/MenuContext";
 import { getCurrentUser, logout } from "../utils/auth";
 
@@ -45,22 +46,49 @@ export default function HomePage() {
   const handleAdminAccess = () => {
     // Check if user is already logged in as admin
     const freshUser = getCurrentUser(); // Get fresh user data
-    console.log("Current user from state:", currentUser);
-    console.log("Fresh user from localStorage:", freshUser);
-    console.log("User role from state:", currentUser?.role);
-    console.log("User role from localStorage:", freshUser?.role);
 
     // Use fresh user data instead of state
     if (
       freshUser?.role === "super_admin" ||
       freshUser?.role === "restaurant_admin"
     ) {
-      console.log("User is admin, navigating to dashboard");
       navigate("/admin/dashboard");
     } else {
-      console.log("User does not have admin access");
-      console.log("Full user object:", freshUser);
-      alert("You do not have permission to access the admin panel.");
+      showToast(
+        "You do not have permission to access the admin panel.",
+        "error"
+      );
+    }
+  };
+
+  const handleNavigation = (action: (typeof mainActions)[0]) => {
+    const user = getCurrentUser();
+
+    // Check role-based access
+    if (
+      action.requiresAdmin &&
+      user?.role !== "super_admin" &&
+      user?.role !== "restaurant_admin"
+    ) {
+      showToast("Admin access required", "error");
+      return;
+    }
+
+    if (action.requiresKitchen && user?.role === "reception") {
+      showToast("Kitchen access required", "error");
+      return;
+    }
+
+    if (action.requiresReception && user?.role === "kitchen") {
+      showToast("Reception access required", "error");
+      return;
+    }
+
+    // Navigate if allowed
+    if (action.requiresAdmin) {
+      handleAdminAccess();
+    } else {
+      navigate(action.path);
     }
   };
 
@@ -73,6 +101,7 @@ export default function HomePage() {
       color: "from-[#FF6B35] to-orange-500",
       iconBg: "bg-orange-100",
       iconColor: "text-[#FF6B35]",
+      requiresReception: true,
     },
     {
       title: "Active Orders",
@@ -82,6 +111,7 @@ export default function HomePage() {
       color: "from-[#004E89] to-blue-600",
       iconBg: "bg-blue-100",
       iconColor: "text-[#004E89]",
+      requiresReception: true,
     },
     {
       title: "Kitchen Display",
@@ -91,6 +121,7 @@ export default function HomePage() {
       color: "from-[#10B981] to-emerald-600",
       iconBg: "bg-emerald-100",
       iconColor: "text-[#10B981]",
+      requiresKitchen: true,
     },
     {
       title: "Admin Panel",
@@ -200,51 +231,83 @@ export default function HomePage() {
 
           {/* Action Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {mainActions.map((action) => (
-              <button
-                key={action.path}
-                onClick={() =>
-                  action.requiresAdmin
-                    ? handleAdminAccess()
-                    : navigate(action.path)
-                }
-                aria-label={`${action.title}: ${action.description}`}
-                className="group bg-white rounded-2xl border-2 border-gray-300 p-8 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] shadow-md"
-              >
-                <div className="flex flex-col items-center text-center gap-5">
-                  {/* Icon */}
-                  <div
-                    className={`${action.iconBg} p-6 rounded-xl group-hover:scale-110 transition-transform duration-200`}
-                  >
-                    <action.icon
-                      size={52}
-                      className={action.iconColor}
-                      strokeWidth={2}
-                    />
-                  </div>
+            {mainActions.map((action) => {
+              const user = getCurrentUser();
+              const isDisabled =
+                (action.requiresAdmin &&
+                  user?.role !== "super_admin" &&
+                  user?.role !== "restaurant_admin") ||
+                (action.requiresKitchen && user?.role === "reception") ||
+                (action.requiresReception && user?.role === "kitchen");
 
-                  {/* Content */}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#FF6B35] transition-colors">
-                      {action.title}
-                    </h3>
-                    <p className="text-sm text-gray-700 font-medium">
-                      {action.description}
-                    </p>
-                  </div>
-
-                  {/* Visual Indicator */}
-                  <div className="mt-2 pt-3 border-t border-gray-200 w-full">
+              return (
+                <button
+                  key={action.path}
+                  onClick={() => handleNavigation(action)}
+                  disabled={isDisabled}
+                  aria-label={`${action.title}: ${action.description}`}
+                  className={`group bg-white dark:bg-gray-800 rounded-2xl border-2 p-8 transition-all duration-200 shadow-md ${
+                    isDisabled
+                      ? "border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed"
+                      : "border-gray-300 dark:border-gray-600 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
+                  }`}
+                >
+                  <div className="flex flex-col items-center text-center gap-5">
+                    {/* Icon */}
                     <div
-                      className={`h-2 rounded-full ${action.iconColor.replace(
-                        "text-",
-                        "bg-"
-                      )} group-hover:h-2.5 transition-all duration-200`}
-                    ></div>
+                      className={`${
+                        action.iconBg
+                      } p-6 rounded-xl transition-transform duration-200 ${
+                        !isDisabled && "group-hover:scale-110"
+                      }`}
+                    >
+                      <action.icon
+                        size={52}
+                        className={action.iconColor}
+                        strokeWidth={2}
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                      <h3
+                        className={`text-xl font-bold mb-2 transition-colors ${
+                          isDisabled
+                            ? "text-gray-400 dark:text-gray-500"
+                            : "text-gray-900 dark:text-white group-hover:text-[#FF6B35]"
+                        }`}
+                      >
+                        {action.title}
+                      </h3>
+                      <p
+                        className={`text-sm font-medium ${
+                          isDisabled
+                            ? "text-gray-400 dark:text-gray-600"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {action.description}
+                      </p>
+                      {isDisabled && (
+                        <p className="text-xs text-red-500 mt-2 font-semibold">
+                          🔒 Access Restricted
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Visual Indicator */}
+                    <div className="mt-2 pt-3 border-t border-gray-200 w-full">
+                      <div
+                        className={`h-2 rounded-full ${action.iconColor.replace(
+                          "text-",
+                          "bg-"
+                        )} group-hover:h-2.5 transition-all duration-200`}
+                      ></div>
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           {/* Quick Stats or Info Banner */}

@@ -1,6 +1,7 @@
 import { ArrowLeft, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
 import TouchButton from "../components/TouchButton";
 import { authFetch } from "../utils/api";
 
@@ -87,7 +88,7 @@ export default function AdminSettingsPage() {
       }
     } catch (error: any) {
       console.error("Settings save error:", error);
-      alert("Error saving settings: " + error.message);
+      showToast("Error saving settings: " + error.message, "error");
     } finally {
       setIsSaving(false);
     }

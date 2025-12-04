@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastContainer } from "./components/Toast";
 import { MenuProvider } from "./contexts/MenuContext";
 import ActiveOrdersPage from "./pages/ActiveOrdersPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
@@ -22,6 +23,7 @@ function App() {
   return (
     <BrowserRouter>
       <MenuProvider>
+        <ToastContainer />
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<StaffLoginPage />} />

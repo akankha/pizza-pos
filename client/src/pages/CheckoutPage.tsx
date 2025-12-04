@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PaymentMethod } from "../../../shared/types";
 import OrderItemCard from "../components/OrderItemCard";
+import { showToast } from "../components/Toast";
 import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
 import { apiUrl, authFetch } from "../utils/api";
@@ -138,7 +139,7 @@ export default function CheckoutPage() {
       }, 5000);
     } catch (error) {
       console.error("Payment error:", error);
-      alert("Payment failed. Please try again.");
+      showToast("Payment failed. Please try again.", "error");
     } finally {
       setIsProcessing(false);
     }

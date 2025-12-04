@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TouchButton from '../components/TouchButton';
-import { ArrowLeft, UserPlus, Users as UsersIcon, Shield, Trash2, Key } from 'lucide-react';
-import { authFetch } from '../utils/auth';
-import type { User, UserRole } from '../../../shared/types';
+import {
+  ArrowLeft,
+  Key,
+  Shield,
+  Trash2,
+  UserPlus,
+  Users as UsersIcon,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { User, UserRole } from "../../../shared/types";
+import { showToast } from "../components/Toast";
+import TouchButton from "../components/TouchButton";
+import { authFetch } from "../utils/auth";
 
 interface RolePermissions {
   label: string;
@@ -16,18 +24,20 @@ export default function AdminUsersPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [rolePermissions, setRolePermissions] = useState<Record<UserRole, RolePermissions>>({} as any);
+  const [rolePermissions, setRolePermissions] = useState<
+    Record<UserRole, RolePermissions>
+  >({} as any);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    full_name: '',
-    role: 'reception' as UserRole
+    username: "",
+    password: "",
+    full_name: "",
+    role: "reception" as UserRole,
   });
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     loadData();
@@ -37,9 +47,9 @@ export default function AdminUsersPage() {
     try {
       setIsLoading(true);
       const [usersRes, currentUserRes, permissionsRes] = await Promise.all([
-        authFetch('/api/users'),
-        authFetch('/api/users/me'),
-        authFetch('/api/users/roles/permissions')
+        authFetch("/api/users"),
+        authFetch("/api/users/me"),
+        authFetch("/api/users/roles/permissions"),
       ]);
 
       const usersData = await usersRes.json();
@@ -50,7 +60,7 @@ export default function AdminUsersPage() {
       if (currentUserData.success) setCurrentUser(currentUserData.data);
       if (permissionsData.success) setRolePermissions(permissionsData.data);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -60,47 +70,62 @@ export default function AdminUsersPage() {
     e.preventDefault();
 
     try {
-      const response = await authFetch('/api/users', {
-        method: 'POST',
-        body: JSON.stringify(formData)
+      const response = await authFetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ User "${formData.username}" created successfully!`);
+        showToast(
+          `User "${formData.username}" created successfully!`,
+          "success"
+        );
         setShowCreateModal(false);
-        setFormData({ username: '', password: '', full_name: '', role: 'reception' });
+        setFormData({
+          username: "",
+          password: "",
+          full_name: "",
+          role: "reception",
+        });
         loadData();
       } else {
-        alert('❌ Error: ' + result.error);
+        showToast("Error: " + result.error, "error");
       }
     } catch (error: any) {
-      alert('❌ Failed to create user: ' + error.message);
+      showToast("Failed to create user: " + error.message, "error");
     }
   };
 
   const handleToggleActive = async (user: User) => {
-    if (!confirm(`${user.active ? 'Deactivate' : 'Activate'} user "${user.username}"?`)) {
+    if (
+      !confirm(
+        `${user.active ? "Deactivate" : "Activate"} user "${user.username}"?`
+      )
+    ) {
       return;
     }
 
     try {
       const response = await authFetch(`/api/users/${user.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ active: !user.active })
+        method: "PUT",
+        body: JSON.stringify({ active: !user.active }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ User ${user.active ? 'deactivated' : 'activated'} successfully!`);
+        showToast(
+          `User ${user.active ? "deactivated" : "activated"} successfully!`,
+          "success"
+        );
         loadData();
       } else {
-        alert('❌ Error: ' + result.error);
+        showToast("Error: " + result.error, "error");
       }
     } catch (error: any) {
-      alert('❌ Failed to update user: ' + error.message);
+      showToast("Failed to update user: " + error.message, "error");
     }
   };
 
@@ -111,55 +136,67 @@ export default function AdminUsersPage() {
 
     try {
       const response = await authFetch(`/api/users/${selectedUser.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ password: newPassword })
+        method: "PUT",
+        body: JSON.stringify({ password: newPassword }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ Password reset successfully for "${selectedUser.username}"!`);
+        showToast(
+          `Password reset successfully for "${selectedUser.username}"!`,
+          "success"
+        );
         setShowPasswordModal(false);
         setSelectedUser(null);
-        setNewPassword('');
+        setNewPassword("");
       } else {
-        alert('❌ Error: ' + result.error);
+        showToast("Error: " + result.error, "error");
       }
     } catch (error: any) {
-      alert('❌ Failed to reset password: ' + error.message);
+      showToast("Failed to reset password: " + error.message, "error");
     }
   };
 
   const handleDeleteUser = async (user: User) => {
-    if (!confirm(`⚠️ DELETE user "${user.username}"?\n\nThis action cannot be undone!`)) {
+    if (
+      !confirm(
+        `DELETE user "${user.username}"?\n\nThis action cannot be undone!`
+      )
+    ) {
       return;
     }
 
     try {
       const response = await authFetch(`/api/users/${user.id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ User "${user.username}" deleted successfully!`);
+        showToast(`User "${user.username}" deleted successfully!`, "success");
         loadData();
       } else {
-        alert('❌ Error: ' + result.error);
+        showToast("Error: " + result.error, "error");
       }
     } catch (error: any) {
-      alert('❌ Failed to delete user: ' + error.message);
+      showToast("Failed to delete user: " + error.message, "error");
     }
   };
 
   const getRoleBadgeColor = (role: UserRole): string => {
     switch (role) {
-      case 'super_admin': return 'bg-purple-600 text-white';
-      case 'restaurant_admin': return 'bg-blue-600 text-white';
-      case 'reception': return 'bg-green-600 text-white';
-      case 'kitchen': return 'bg-orange-600 text-white';
-      default: return 'bg-gray-600 text-white';
+      case "super_admin":
+        return "bg-purple-600 text-white";
+      case "restaurant_admin":
+        return "bg-blue-600 text-white";
+      case "reception":
+        return "bg-green-600 text-white";
+      case "kitchen":
+        return "bg-orange-600 text-white";
+      default:
+        return "bg-gray-600 text-white";
     }
   };
 
@@ -171,9 +208,12 @@ export default function AdminUsersPage() {
 
   const canManageUser = (user: User): boolean => {
     if (!currentUser) return false;
-    if (currentUser.role === 'super_admin') return true;
-    if (currentUser.role === 'restaurant_admin') {
-      return user.created_by === currentUser.id && ['reception', 'kitchen'].includes(user.role);
+    if (currentUser.role === "super_admin") return true;
+    if (currentUser.role === "restaurant_admin") {
+      return (
+        user.created_by === currentUser.id &&
+        ["reception", "kitchen"].includes(user.role)
+      );
     }
     return false;
   };
@@ -192,19 +232,19 @@ export default function AdminUsersPage() {
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6 shadow-2xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <TouchButton
-            onClick={() => navigate('/admin/dashboard')}
+            onClick={() => navigate("/admin/dashboard")}
             variant="outline"
             size="medium"
             className="!bg-white/10 !text-white hover:!bg-white/20 backdrop-blur-sm border-white/20"
           >
             <ArrowLeft size={28} />
           </TouchButton>
-          
+
           <h1 className="text-4xl font-bold flex items-center gap-3">
             <UsersIcon size={40} />
             User Management
           </h1>
-          
+
           <TouchButton
             onClick={() => setShowCreateModal(true)}
             variant="primary"
@@ -227,9 +267,16 @@ export default function AdminUsersPage() {
                 <Shield size={32} className="text-[#FF6B35]" />
                 <div>
                   <p className="text-sm text-gray-600">Logged in as</p>
-                  <p className="text-xl font-bold">{currentUser.full_name || currentUser.username}</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getRoleBadgeColor(currentUser.role)}`}>
-                    {rolePermissions[currentUser.role]?.label || currentUser.role}
+                  <p className="text-xl font-bold">
+                    {currentUser.full_name || currentUser.username}
+                  </p>
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getRoleBadgeColor(
+                      currentUser.role
+                    )}`}
+                  >
+                    {rolePermissions[currentUser.role]?.label ||
+                      currentUser.role}
                   </span>
                 </div>
               </div>
@@ -238,8 +285,10 @@ export default function AdminUsersPage() {
 
           {/* Users List */}
           <div className="bg-white rounded-2xl shadow-xl p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">All Users ({users.length})</h2>
-            
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              All Users ({users.length})
+            </h2>
+
             {users.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No users found</p>
             ) : (
@@ -249,13 +298,17 @@ export default function AdminUsersPage() {
                     key={user.id}
                     className={`relative p-4 rounded-xl border-2 transition-all ${
                       user.active
-                        ? 'border-gray-200 bg-white hover:border-[#FF6B35]/50 hover:shadow-lg'
-                        : 'border-gray-300 bg-gray-50 opacity-60'
+                        ? "border-gray-200 bg-white hover:border-[#FF6B35]/50 hover:shadow-lg"
+                        : "border-gray-300 bg-gray-50 opacity-60"
                     }`}
                   >
                     {/* Role Badge */}
                     <div className="absolute top-3 right-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(
+                          user.role
+                        )}`}
+                      >
                         {rolePermissions[user.role]?.label || user.role}
                       </span>
                     </div>
@@ -268,12 +321,14 @@ export default function AdminUsersPage() {
                       <p className="text-sm text-gray-600">@{user.username}</p>
                       {user.created_at && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Created: {new Date(user.created_at).toLocaleDateString()}
+                          Created:{" "}
+                          {new Date(user.created_at).toLocaleDateString()}
                         </p>
                       )}
                       {user.last_login && (
                         <p className="text-xs text-gray-500">
-                          Last login: {new Date(user.last_login).toLocaleDateString()}
+                          Last login:{" "}
+                          {new Date(user.last_login).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -285,11 +340,11 @@ export default function AdminUsersPage() {
                           onClick={() => handleToggleActive(user)}
                           className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             user.active
-                              ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                              : 'bg-green-100 text-green-800 hover:bg-green-200'
+                              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                              : "bg-green-100 text-green-800 hover:bg-green-200"
                           }`}
                         >
-                          {user.active ? 'Deactivate' : 'Activate'}
+                          {user.active ? "Deactivate" : "Activate"}
                         </button>
                         <button
                           onClick={() => {
@@ -301,7 +356,7 @@ export default function AdminUsersPage() {
                         >
                           <Key size={18} />
                         </button>
-                        {currentUser?.role === 'super_admin' && (
+                        {currentUser?.role === "super_admin" && (
                           <button
                             onClick={() => handleDeleteUser(user)}
                             className="px-3 py-2 rounded-lg text-sm font-semibold bg-red-100 text-red-800 hover:bg-red-200 transition-colors"
@@ -349,7 +404,9 @@ export default function AdminUsersPage() {
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
                   required
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#FF6B35] focus:outline-none"
                   placeholder="johndoe"
@@ -363,7 +420,9 @@ export default function AdminUsersPage() {
                 <input
                   type="text"
                   value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, full_name: e.target.value })
+                  }
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#FF6B35] focus:outline-none"
                   placeholder="John Doe"
                 />
@@ -376,7 +435,9 @@ export default function AdminUsersPage() {
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required
                   minLength={6}
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#FF6B35] focus:outline-none"
@@ -390,7 +451,12 @@ export default function AdminUsersPage() {
                 </label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      role: e.target.value as UserRole,
+                    })
+                  }
                   required
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#FF6B35] focus:outline-none"
                 >
@@ -406,11 +472,15 @@ export default function AdminUsersPage() {
                 </select>
                 {formData.role && rolePermissions[formData.role] && (
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-xs font-semibold text-blue-800 mb-1">Permissions:</p>
+                    <p className="text-xs font-semibold text-blue-800 mb-1">
+                      Permissions:
+                    </p>
                     <ul className="text-xs text-blue-700 space-y-1">
-                      {rolePermissions[formData.role].permissions.slice(0, 4).map((perm, idx) => (
-                        <li key={idx}>• {perm}</li>
-                      ))}
+                      {rolePermissions[formData.role].permissions
+                        .slice(0, 4)
+                        .map((perm, idx) => (
+                          <li key={idx}>• {perm}</li>
+                        ))}
                     </ul>
                   </div>
                 )}
@@ -420,7 +490,12 @@ export default function AdminUsersPage() {
                 <TouchButton
                   onClick={() => {
                     setShowCreateModal(false);
-                    setFormData({ username: '', password: '', full_name: '', role: 'reception' });
+                    setFormData({
+                      username: "",
+                      password: "",
+                      full_name: "",
+                      role: "reception",
+                    });
                   }}
                   variant="outline"
                   size="medium"
@@ -450,7 +525,8 @@ export default function AdminUsersPage() {
             </h2>
 
             <p className="text-gray-600 mb-4">
-              Reset password for: <strong>{selectedUser.full_name || selectedUser.username}</strong>
+              Reset password for:{" "}
+              <strong>{selectedUser.full_name || selectedUser.username}</strong>
             </p>
 
             <form onSubmit={handleResetPassword} className="space-y-4">
@@ -469,13 +545,12 @@ export default function AdminUsersPage() {
                 />
               </div>
 
-
               <div className="flex gap-3 pt-4">
                 <TouchButton
                   onClick={() => {
                     setShowPasswordModal(false);
                     setSelectedUser(null);
-                    setNewPassword('');
+                    setNewPassword("");
                   }}
                   variant="outline"
                   size="medium"
