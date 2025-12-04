@@ -33,6 +33,15 @@ export default function HomePage() {
     }
   };
 
+  const handleAdminAccess = () => {
+    // Check if user is already logged in as admin
+    if (currentUser?.role === "super_admin" || currentUser?.role === "restaurant_admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/admin/login");
+    }
+  };
+
   const mainActions = [
     {
       title: "New Order",
@@ -65,10 +74,11 @@ export default function HomePage() {
       title: "Admin Panel",
       description: "Manage menu, reports & settings",
       icon: ShieldCheck,
-      path: "/admin/login",
+      path: "/admin/dashboard",
       color: "from-purple-600 to-indigo-600",
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
+      requiresAdmin: true,
     },
   ];
 
@@ -160,7 +170,7 @@ export default function HomePage() {
             {mainActions.map((action) => (
               <button
                 key={action.path}
-                onClick={() => navigate(action.path)}
+                onClick={() => action.requiresAdmin ? handleAdminAccess() : navigate(action.path)}
                 aria-label={`${action.title}: ${action.description}`}
                 className="group relative bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-8 shadow-lg hover:shadow-2xl hover:border-[#FF6B35]/50 hover:-translate-y-2 transition-all duration-300 active:scale-[0.98] overflow-hidden"
               >
