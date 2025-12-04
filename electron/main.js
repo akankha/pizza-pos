@@ -1,6 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const path = require("path");
 const printService = require("./printService");
+
+// Version info
+const APP_VERSION = "2.0.0";
+const DEVELOPER = "Akankha";
+const DEVELOPER_WEBSITE = "https://akankha.com";
 
 let mainWindow;
 
@@ -119,6 +124,74 @@ ipcMain.handle("check-printer", async () => {
 
 app.whenReady().then(() => {
   createWindow();
+
+  // Create application menu
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "File",
+      submenu: [
+        {
+          label: "Reload",
+          accelerator: "CmdOrCtrl+R",
+          click: () => {
+            if (mainWindow) mainWindow.reload();
+          },
+        },
+        {
+          label: "Exit Kiosk Mode",
+          accelerator: "CmdOrCtrl+Shift+K",
+          click: () => {
+            if (mainWindow) {
+              mainWindow.setKiosk(false);
+              mainWindow.setFullScreen(false);
+            }
+          },
+        },
+        { type: "separator" },
+        { role: "quit" },
+      ],
+    },
+    {
+      label: "View",
+      submenu: [
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+        { type: "separator" },
+        { role: "togglefullscreen" },
+      ],
+    },
+    {
+      label: "Help",
+      submenu: [
+        {
+          label: `Version ${APP_VERSION}`,
+          enabled: false,
+        },
+        {
+          label: `Developed by ${DEVELOPER}`,
+          enabled: false,
+        },
+        { type: "separator" },
+        {
+          label: "Visit Website",
+          click: async () => {
+            const { shell } = require("electron");
+            await shell.openExternal(DEVELOPER_WEBSITE);
+          },
+        },
+        {
+          label: "Toggle Developer Tools",
+          accelerator: "CmdOrCtrl+Shift+I",
+          click: () => {
+            if (mainWindow) mainWindow.webContents.toggleDevTools();
+          },
+        },
+      ],
+    },
+  ]);
+
+  Menu.setApplicationMenu(menu);
 
   // Initialize printer on startup
   printService.connect().catch((err) => {

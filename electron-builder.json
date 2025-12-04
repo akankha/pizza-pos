@@ -1,6 +1,7 @@
 {
-  "appId": "com.pizzashop.pos",
+  "appId": "com.akankha.pizzapos",
   "productName": "Pizza POS",
+  "copyright": "Copyright © 2024-2025 Akankha. All rights reserved.",
   "directories": {
     "output": "dist"
   },
@@ -19,7 +20,10 @@
     "createStartMenuShortcut": true,
     "installerIcon": "client/public/pizza-icon.ico",
     "uninstallerIcon": "client/public/pizza-icon.ico",
-    "shortcutName": "Pizza POS"
+    "shortcutName": "Pizza POS",
+    "displayLanguageSelector": false,
+    "installerHeader": "client/public/pizza-icon.ico",
+    "installerHeaderIcon": "client/public/pizza-icon.ico"
   },
   "forceCodeSigning": false
 }

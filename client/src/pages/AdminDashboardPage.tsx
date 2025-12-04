@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TouchButton from "../components/TouchButton";
+import VersionInfo from "../components/VersionInfo";
 import { authFetch } from "../utils/api";
 
 export default function AdminDashboardPage() {
@@ -230,6 +231,9 @@ export default function AdminDashboardPage() {
                 );
               })}
             </div>
+
+            {/* Version Info */}
+            <VersionInfo className="mt-8" />
           </div>
         </div>
       </div>

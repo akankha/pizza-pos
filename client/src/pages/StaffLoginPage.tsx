@@ -1,6 +1,7 @@
 import { Lock, LogIn, Pizza, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import VersionInfo from "../components/VersionInfo";
 import { apiUrl } from "../utils/api";
 
 export default function StaffLoginPage() {
@@ -131,15 +132,8 @@ export default function StaffLoginPage() {
           </button>
         </form>
 
-        {/* Admin Link */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate("/admin/login")}
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Admin Login →
-          </button>
-        </div>
+        {/* Version Info */}
+        <VersionInfo className="mt-8" />
       </div>
     </div>
   );

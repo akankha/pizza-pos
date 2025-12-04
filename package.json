@@ -1,8 +1,13 @@
 {
   "name": "pizza-pos",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Pizza Shop POS System for Windows Touchscreen Kiosks",
-  "author": "Akankha",
+  "author": {
+    "name": "Akankha",
+    "email": "info@akankha.com",
+    "url": "https://akankha.com"
+  },
+  "license": "MIT",
   "main": "electron/main.js",
   "private": true,
   "scripts": {
@@ -24,7 +29,10 @@
     "clean": "rm -rf client/dist server/dist client/node_modules server/node_modules node_modules",
     "deploy:vercel": "git push origin master",
     "deploy:electron": "npm run electron:build:full",
-    "deploy:hostinger": "npm run build:client"
+    "deploy:hostinger": "npm run build:client",
+    "sync-version": "node scripts/sync-version.js",
+    "version": "npm run sync-version && git add -A",
+    "release": "npm run sync-version && npm run build && npm run electron:build:full"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
