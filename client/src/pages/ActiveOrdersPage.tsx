@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../../../shared/types";
 import TouchButton from "../components/TouchButton";
-import { authFetch, apiUrl } from "../utils/api";
+import { apiUrl, authFetch } from "../utils/api";
 
 export default function ActiveOrdersPage() {
   const navigate = useNavigate();
