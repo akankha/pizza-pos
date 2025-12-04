@@ -47,7 +47,7 @@ async function initializeSocketIO() {
 const PORT = process.env.PORT || 3001;
 
 // Trust proxy for Vercel/production environments
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Security middleware
 app.use(
