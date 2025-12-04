@@ -5,6 +5,7 @@ This document explains how to create a new release of the Pizza POS system.
 ## Version Numbering
 
 We use [Semantic Versioning](https://semver.org/):
+
 - **MAJOR** version (X.0.0) - Incompatible API changes
 - **MINOR** version (1.X.0) - New features, backwards compatible
 - **PATCH** version (1.0.X) - Bug fixes, backwards compatible
@@ -32,6 +33,7 @@ npm run sync-version
 ```
 
 This will automatically update:
+
 - `shared/version.ts` - Shared version constants
 - `client/package.json` - Client app version
 - `server/package.json` - Server app version
@@ -72,12 +74,15 @@ npm run electron:build:full
 ```
 
 The installer will be created in `dist/` folder:
+
 - `Pizza POS Setup 2.1.0.exe` - Windows installer
 
 ### 7. Deploy Web App
 
 #### Deploy Client to Hostinger
+
 1. Build the client:
+
    ```bash
    cd client
    npm run build
@@ -86,7 +91,9 @@ The installer will be created in `dist/` folder:
 2. Upload `client/dist/*` to Hostinger via FTP/File Manager
 
 #### Deploy Server to Vercel
+
 Server deploys automatically when you push to master:
+
 ```bash
 git push origin master
 ```
@@ -114,6 +121,7 @@ npm run release
 ## Version History
 
 - **v2.0.0** (2025-01-04)
+
   - Unified authentication system
   - Fixed CORS issues
   - Added version tracking
@@ -135,6 +143,7 @@ npm run release
 ## Support
 
 For issues or questions:
+
 1. Check documentation in `/docs` folder
 2. Email: info@akankha.com
 3. Visit: https://akankha.com

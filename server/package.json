@@ -1,7 +1,7 @@
 {
   "name": "pizza-pos-server",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -40,5 +40,10 @@
     "@types/uuid": "^9.0.7",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
+  },
+  "author": {
+    "name": "Akankha",
+    "email": "info@akankha.com",
+    "url": "https://akankha.com"
   }
 }
