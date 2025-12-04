@@ -54,14 +54,14 @@ export const getCurrentUser = () => {
 // Logout function
 export const logout = () => {
   const user = getCurrentUser();
-  
+
   // Clear all authentication data
   localStorage.removeItem("token");
   localStorage.removeItem("authToken");
   localStorage.removeItem("user");
   localStorage.removeItem("adminAuth");
   localStorage.removeItem("adminUser");
-  
+
   // Clear any session storage too
   sessionStorage.clear();
 

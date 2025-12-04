@@ -20,6 +20,15 @@ export default function HomePage() {
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
+
+    // Reload user when window regains focus (in case they logged in another tab)
+    const handleFocus = () => {
+      const updatedUser = getCurrentUser();
+      setCurrentUser(updatedUser);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const handleRefresh = () => {
@@ -35,9 +44,17 @@ export default function HomePage() {
 
   const handleAdminAccess = () => {
     // Check if user is already logged in as admin
-    if (currentUser?.role === "super_admin" || currentUser?.role === "restaurant_admin") {
+    console.log('Current user:', currentUser);
+    console.log('User role:', currentUser?.role);
+    
+    if (
+      currentUser?.role === "super_admin" ||
+      currentUser?.role === "restaurant_admin"
+    ) {
+      console.log('User is admin, navigating to dashboard');
       navigate("/admin/dashboard");
     } else {
+      console.log('User is not admin, navigating to login');
       navigate("/admin/login");
     }
   };
@@ -170,7 +187,11 @@ export default function HomePage() {
             {mainActions.map((action) => (
               <button
                 key={action.path}
-                onClick={() => action.requiresAdmin ? handleAdminAccess() : navigate(action.path)}
+                onClick={() =>
+                  action.requiresAdmin
+                    ? handleAdminAccess()
+                    : navigate(action.path)
+                }
                 aria-label={`${action.title}: ${action.description}`}
                 className="group relative bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-8 shadow-lg hover:shadow-2xl hover:border-[#FF6B35]/50 hover:-translate-y-2 transition-all duration-300 active:scale-[0.98] overflow-hidden"
               >

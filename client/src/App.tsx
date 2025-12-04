@@ -28,17 +28,17 @@ function App() {
           <Route path="/login" element={<StaffLoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          {/* Main Routes - No login required for basic POS functionality */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/new-order" element={<NewOrderPage />} />
-          <Route path="/pizza-builder" element={<PizzaBuilderPage />} />
-          <Route path="/specialty-pizzas" element={<SpecialtyPizzasPage />} />
-          <Route path="/combos" element={<ComboDealPage />} />
-          <Route path="/combo-customize" element={<ComboCustomizePage />} />
-          <Route path="/sides-drinks" element={<SidesAndDrinksPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/active-orders" element={<ActiveOrdersPage />} />
-          <Route path="/kitchen" element={<KitchenViewPage />} />
+          {/* Main Routes - Require login for staff accountability */}
+          <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} /><HomePage /></ProtectedRoute>} />
+          <Route path="/new-order" element={<ProtectedRoute><NewOrderPage /></ProtectedRoute>} />
+          <Route path="/pizza-builder" element={<ProtectedRoute><PizzaBuilderPage /></ProtectedRoute>} />
+          <Route path="/specialty-pizzas" element={<ProtectedRoute><SpecialtyPizzasPage /></ProtectedRoute>} />
+          <Route path="/combos" element={<ProtectedRoute><ComboDealPage /></ProtectedRoute>} />
+          <Route path="/combo-customize" element={<ProtectedRoute><ComboCustomizePage /></ProtectedRoute>} />
+          <Route path="/sides-drinks" element={<ProtectedRoute><SidesAndDrinksPage /></ProtectedRoute>} />
+          <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+          <Route path="/active-orders" element={<ProtectedRoute><ActiveOrdersPage /></ProtectedRoute>} />
+          <Route path="/kitchen" element={<ProtectedRoute><KitchenViewPage /></ProtectedRoute>} />
 
           {/* Admin Routes - Protected */}
           <Route
