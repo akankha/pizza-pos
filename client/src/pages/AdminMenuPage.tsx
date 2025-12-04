@@ -292,33 +292,51 @@ export default function AdminMenuPage() {
 }
 
 function EditModal({ item, type, onSave, onCancel }: any) {
-  const [formData, setFormData] = useState(
-    item || {
-      name: "",
-      displayName: "",
-      price: 0,
-      basePrice: 0,
-      priceModifier: 0,
-      description: "",
-      category:
-        type === "topping"
-          ? "veggie"
-          : type === "combo"
-          ? "combo"
-          : type === "specialty"
-          ? "specialty"
-          : "",
-      type: "",
-      items: "",
-      toppings: "",
-      prices: {
-        small: 0,
-        medium: 0,
-        large: 0,
-        xlarge: 0,
-      },
+  // Transform specialty pizza data from database format to form format
+  const initializeFormData = () => {
+    if (item && type === "specialty") {
+      return {
+        ...item,
+        prices: {
+          small: item.price_small || item.prices?.small || 0,
+          medium: item.price_medium || item.prices?.medium || 0,
+          large: item.price_large || item.prices?.large || 0,
+          xlarge: item.price_xlarge || item.prices?.xlarge || 0,
+        },
+      };
     }
-  );
+
+    return (
+      item || {
+        name: "",
+        displayName: "",
+        price: 0,
+        basePrice: 0,
+        priceModifier: 0,
+        description: "",
+        category:
+          type === "topping"
+            ? "veggie"
+            : type === "combo"
+            ? "combo"
+            : type === "specialty"
+            ? "specialty"
+            : "",
+        type: "",
+        items: "",
+        toppings: "",
+        toppings_allowed: 3,
+        prices: {
+          small: 0,
+          medium: 0,
+          large: 0,
+          xlarge: 0,
+        },
+      }
+    );
+  };
+
+  const [formData, setFormData] = useState(initializeFormData());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -418,21 +436,45 @@ function EditModal({ item, type, onSave, onCancel }: any) {
           )}
 
           {type === "combo" && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Items Included
-              </label>
-              <textarea
-                value={formData.items}
-                onChange={(e) =>
-                  setFormData({ ...formData, items: e.target.value })
-                }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
-                rows={3}
-                placeholder="e.g., 2 Medium Pizzas, 1 Large Fries, 2L Pop"
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Items Included
+                </label>
+                <textarea
+                  value={formData.items}
+                  onChange={(e) =>
+                    setFormData({ ...formData, items: e.target.value })
+                  }
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  rows={3}
+                  placeholder="e.g., 2 Medium Pizzas, 1 Large Fries, 2L Pop"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Toppings Allowed Per Pizza
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={formData.toppings_allowed || 3}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      toppings_allowed: parseInt(e.target.value) || 3,
+                    })
+                  }
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  placeholder="e.g., 1, 2, 3, 4..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  How many toppings customers can select per pizza in this combo
+                </p>
+              </div>
+            </>
           )}
 
           {type === "specialty" && (

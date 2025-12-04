@@ -54,44 +54,46 @@ export default function KitchenOrderCard({
 
       {/* Items */}
       <div className="space-y-4 mb-6">
-        {order.items.map((item, index) => (
-          <div key={index} className="bg-pizza-cream rounded-xl p-4">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-pizza-brown">
-                  {item.quantity}x {item.name}
-                </h3>
+        {order.items
+          .filter((item) => item.type !== "drink") // Filter out drinks from kitchen display
+          .map((item, index) => (
+            <div key={index} className="bg-pizza-cream rounded-xl p-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-pizza-brown">
+                    {item.quantity}x {item.name}
+                  </h3>
 
-                {item.customPizza && (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-lg font-semibold text-gray-700">
-                      Size: {item.customPizza.size.toUpperCase()} • Crust:{" "}
-                      {item.customPizza.crust.charAt(0).toUpperCase() +
-                        item.customPizza.crust.slice(1)}
+                  {item.customPizza && (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-lg font-semibold text-gray-700">
+                        Size: {item.customPizza.size.toUpperCase()} • Crust:{" "}
+                        {item.customPizza.crust.charAt(0).toUpperCase() +
+                          item.customPizza.crust.slice(1)}
+                      </p>
+
+                      {item.customPizza.toppings.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-md font-semibold text-gray-600">
+                            Toppings:
+                          </p>
+                          <p className="text-lg text-gray-700">
+                            {item.customPizza.toppings.join(", ")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {item.notes && (
+                    <p className="mt-2 text-lg text-red-600 font-semibold">
+                      Note: {item.notes}
                     </p>
-
-                    {item.customPizza.toppings.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-md font-semibold text-gray-600">
-                          Toppings:
-                        </p>
-                        <p className="text-lg text-gray-700">
-                          {item.customPizza.toppings.join(", ")}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {item.notes && (
-                  <p className="mt-2 text-lg text-red-600 font-semibold">
-                    Note: {item.notes}
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Order notes */}

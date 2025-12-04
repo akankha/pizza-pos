@@ -89,6 +89,7 @@ export interface ComboDeal {
   price: number;
   items: string;
   category: string;
+  toppings_allowed?: number;
 }
 
 export interface OrderItem {

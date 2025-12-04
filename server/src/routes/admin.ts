@@ -284,7 +284,7 @@ router.post("/menu/:type", requireRestaurantAdmin, async (req, res) => {
         break;
       case "combo":
         query =
-          "INSERT INTO combo_deals (id, name, description, price, items, category) VALUES (?, ?, ?, ?, ?, ?)";
+          "INSERT INTO combo_deals (id, name, description, price, items, category, toppings_allowed) VALUES (?, ?, ?, ?, ?, ?, ?)";
         values = [
           id,
           data.name,
@@ -292,6 +292,7 @@ router.post("/menu/:type", requireRestaurantAdmin, async (req, res) => {
           data.price || 0,
           data.items || "",
           data.category || "combo",
+          data.toppings_allowed || 3,
         ];
         break;
       case "specialty":
@@ -370,13 +371,14 @@ router.put("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
         break;
       case "combo":
         query =
-          "UPDATE combo_deals SET name=?, description=?, price=?, items=?, category=? WHERE id=?";
+          "UPDATE combo_deals SET name=?, description=?, price=?, items=?, category=?, toppings_allowed=? WHERE id=?";
         values = [
           data.name,
           data.description || "",
           data.price || 0,
           data.items || "",
           data.category || "combo",
+          data.toppings_allowed || 3,
           id,
         ];
         break;

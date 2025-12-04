@@ -1,10 +1,10 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useMenu } from '../contexts/MenuContext';
-import { useCartStore } from '../stores/cartStore';
-import TouchButton from '../components/TouchButton';
-import { ArrowLeft, Plus, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import type { ComboDeal, PizzaSizeName } from '../../../shared/types';
+import { ArrowLeft, Check, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import type { ComboDeal, PizzaSizeName } from "../../../shared/types";
+import TouchButton from "../components/TouchButton";
+import { useMenu } from "../contexts/MenuContext";
+import { useCartStore } from "../stores/cartStore";
 
 interface PizzaCustomization {
   size: PizzaSizeName;
@@ -22,65 +22,101 @@ interface ComboCustomization {
 export default function ComboCustomizePage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { menuData } = useMenu();
+  const { menuData, loading } = useMenu();
   const { addItem } = useCartStore();
-  
+
   const combo = location.state?.combo as ComboDeal | undefined;
-  
+
   const [customization, setCustomization] = useState<ComboCustomization>({
     pizzas: [],
   });
 
   const toppings = menuData?.toppings || [];
-  const wingFlavors = ['Mild', 'Medium', 'Hot', 'Honey Garlic', 'BBQ', 'Salt & Pepper', 'Teriyaki'];
+  const wingFlavors = [
+    "Mild",
+    "Medium",
+    "Hot",
+    "Honey Garlic",
+    "BBQ",
+    "Salt & Pepper",
+    "Teriyaki",
+  ];
 
   useEffect(() => {
     if (!combo) {
-      navigate('/combos');
+      navigate("/combos");
       return;
     }
 
     // Parse combo items to determine pizza count and sizes
-    const pizzaMatches = combo.items.match(/(\d+)\s*(Small|Medium|Large|X-?Large)\s*Pizza/gi) || [];
-    const initialPizzas: PizzaCustomization[] = pizzaMatches.map(match => {
-      const sizeMatch = match.match(/(Small|Medium|Large|X-?Large)/i);
-      let size: PizzaSizeName = 'medium';
-      
-      if (sizeMatch) {
-        const sizeStr = sizeMatch[1].toLowerCase().replace('-', '');
-        if (sizeStr === 'small') size = 'small';
-        else if (sizeStr === 'medium') size = 'medium';
-        else if (sizeStr === 'large') size = 'large';
-        else if (sizeStr === 'xlarge' || sizeStr === 'xlarge') size = 'xlarge';
+    // Expected formats:
+    // "2 Medium Pizzas"
+    // "1 Large Pizza"
+    const pizzaPattern = /(\d+)\s*(Small|Medium|Large|X-?Large)\s*Pizza/gi;
+    const matches = [...combo.items.matchAll(pizzaPattern)];
+
+    const initialPizzas: PizzaCustomization[] = [];
+
+    // Use toppings_allowed from database instead of parsing
+    const maxToppings = combo.toppings_allowed || 3;
+
+    matches.forEach((match) => {
+      const count = parseInt(match[1]); // Number of pizzas
+      const sizeStr = match[2].toLowerCase().replace("-", "");
+
+      let size: PizzaSizeName = "medium";
+      if (sizeStr === "small") size = "small";
+      else if (sizeStr === "medium") size = "medium";
+      else if (sizeStr === "large") size = "large";
+      else if (sizeStr === "xlarge" || sizeStr === "x-large") size = "xlarge";
+
+      // Create pizza entries based on count
+      for (let i = 0; i < count; i++) {
+        initialPizzas.push({
+          size,
+          toppings: [],
+          maxToppings,
+        });
       }
-
-      // Extract max toppings from combo description
-      const toppingMatch = match.match(/\((\d+)\s*topping/i);
-      const maxToppings = toppingMatch ? parseInt(toppingMatch[1]) : 3;
-
-      return {
-        size,
-        toppings: [],
-        maxToppings,
-      };
     });
 
     setCustomization({ pizzas: initialPizzas });
   }, [combo, navigate]);
 
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+        <div className="text-2xl font-bold text-gray-600">Loading menu...</div>
+      </div>
+    );
+  }
+
   if (!combo) return null;
 
   const toggleTopping = (pizzaIndex: number, toppingId: string) => {
-    setCustomization(prev => {
-      const newPizzas = [...prev.pizzas];
-      const pizza = newPizzas[pizzaIndex];
-      
-      if (pizza.toppings.includes(toppingId)) {
-        pizza.toppings = pizza.toppings.filter(id => id !== toppingId);
-      } else if (pizza.toppings.length < pizza.maxToppings) {
-        pizza.toppings.push(toppingId);
-      }
-      
+    setCustomization((prev) => {
+      const newPizzas = prev.pizzas.map((pizza, idx) => {
+        if (idx !== pizzaIndex) return pizza;
+
+        const currentToppings = [...pizza.toppings];
+
+        if (currentToppings.includes(toppingId)) {
+          // Remove topping
+          return {
+            ...pizza,
+            toppings: currentToppings.filter((id) => id !== toppingId),
+          };
+        } else if (currentToppings.length < pizza.maxToppings) {
+          // Add topping
+          return {
+            ...pizza,
+            toppings: [...currentToppings, toppingId],
+          };
+        }
+
+        return pizza;
+      });
+
       return { ...prev, pizzas: newPizzas };
     });
   };
@@ -88,10 +124,12 @@ export default function ComboCustomizePage() {
   const handleAddToCart = () => {
     const pizzaDetails = customization.pizzas.map((pizza, idx) => {
       const selectedToppings = pizza.toppings
-        .map(id => toppings.find(t => t.id === id)?.name)
+        .map((id) => toppings.find((t) => t.id === id)?.name)
         .filter(Boolean);
-      
-      return `Pizza ${idx + 1} (${pizza.size}): ${selectedToppings.join(', ') || 'No toppings'}`;
+
+      return `Pizza ${idx + 1} (${pizza.size}): ${
+        selectedToppings.join(", ") || "No toppings"
+      }`;
     });
 
     const customizationDetails = {
@@ -100,7 +138,7 @@ export default function ComboCustomizePage() {
     };
 
     addItem({
-      type: 'combo_deal',
+      type: "combo_deal",
       name: combo.name,
       price: combo.price,
       quantity: 1,
@@ -114,11 +152,12 @@ export default function ComboCustomizePage() {
       },
     });
 
-    navigate('/checkout');
+    navigate("/checkout");
   };
 
   const allPizzasComplete = customization.pizzas.every(
-    pizza => pizza.toppings.length > 0 && pizza.toppings.length <= pizza.maxToppings
+    (pizza) =>
+      pizza.toppings.length > 0 && pizza.toppings.length <= pizza.maxToppings
   );
 
   return (
@@ -128,7 +167,7 @@ export default function ComboCustomizePage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <TouchButton
-              onClick={() => navigate('/combos')}
+              onClick={() => navigate("/combos")}
               variant="ghost"
               size="medium"
               className="!text-gray-700"
@@ -142,7 +181,9 @@ export default function ComboCustomizePage() {
             </div>
 
             <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900">${combo.price.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                ${combo.price.toFixed(2)}
+              </div>
               <div className="text-sm text-gray-500">Fixed Price</div>
             </div>
           </div>
@@ -160,10 +201,14 @@ export default function ComboCustomizePage() {
 
           {/* Pizza Customizations */}
           {customization.pizzas.map((pizza, pizzaIndex) => (
-            <div key={pizzaIndex} className="bg-white rounded-xl border border-gray-200 p-6">
+            <div
+              key={pizzaIndex}
+              className="bg-white rounded-xl border border-gray-200 p-6"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
-                  Pizza {pizzaIndex + 1} - {pizza.size.charAt(0).toUpperCase() + pizza.size.slice(1)}
+                  Pizza {pizzaIndex + 1} -{" "}
+                  {pizza.size.charAt(0).toUpperCase() + pizza.size.slice(1)}
                 </h3>
                 <div className="text-sm font-medium text-gray-600">
                   {pizza.toppings.length} / {pizza.maxToppings} toppings
@@ -172,33 +217,52 @@ export default function ComboCustomizePage() {
 
               {/* Topping Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {toppings.map((topping) => {
-                  const isSelected = pizza.toppings.includes(topping.id);
-                  const isDisabled = !isSelected && pizza.toppings.length >= pizza.maxToppings;
+                {toppings.length === 0 ? (
+                  <div className="col-span-full p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      No toppings available. Please check menu configuration.
+                    </p>
+                  </div>
+                ) : (
+                  toppings.map((topping) => {
+                    const isSelected = pizza.toppings.includes(topping.id);
+                    const isDisabled =
+                      !isSelected && pizza.toppings.length >= pizza.maxToppings;
 
-                  return (
-                    <button
-                      key={topping.id}
-                      onClick={() => toggleTopping(pizzaIndex, topping.id)}
-                      disabled={isDisabled}
-                      className={`p-3 rounded-lg border-2 text-left transition-all ${
-                        isSelected
-                          ? 'border-[#FF6B35] bg-[#FF6B35] text-white shadow-md'
-                          : isDisabled
-                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{topping.name}</span>
-                        {isSelected && <Check size={16} />}
-                      </div>
-                      <div className={`text-xs mt-1 ${isSelected ? 'text-white' : 'text-gray-500'}`}>
-                        {topping.category}
-                      </div>
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={topping.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleTopping(pizzaIndex, topping.id);
+                        }}
+                        disabled={isDisabled}
+                        className={`p-3 rounded-lg border-2 text-left transition-all touch-target ${
+                          isSelected
+                            ? "border-[#FF6B35] bg-[#FF6B35] text-white shadow-md"
+                            : isDisabled
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 active:scale-95"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            {topping.name}
+                          </span>
+                          {isSelected && <Check size={16} />}
+                        </div>
+                        <div
+                          className={`text-xs mt-1 ${
+                            isSelected ? "text-white" : "text-gray-500"
+                          }`}
+                        >
+                          {topping.category}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
               </div>
 
               {pizza.toppings.length === 0 && (
@@ -212,22 +276,28 @@ export default function ComboCustomizePage() {
           ))}
 
           {/* Wing Flavor Selection (if combo includes wings) */}
-          {combo.items.toLowerCase().includes('wing') && (
+          {combo.items.toLowerCase().includes("wing") && (
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Select Wing Flavor</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                Select Wing Flavor
+              </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {wingFlavors.map((flavor) => {
-                  const isSelected = customization.selectedWingFlavor === flavor;
+                  const isSelected =
+                    customization.selectedWingFlavor === flavor;
                   return (
                     <button
                       key={flavor}
                       onClick={() =>
-                        setCustomization(prev => ({ ...prev, selectedWingFlavor: flavor }))
+                        setCustomization((prev) => ({
+                          ...prev,
+                          selectedWingFlavor: flavor,
+                        }))
                       }
                       className={`p-3 rounded-lg border-2 text-center transition-all ${
                         isSelected
-                          ? 'border-[#FF6B35] bg-[#FF6B35] text-white shadow-md'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                          ? "border-[#FF6B35] bg-[#FF6B35] text-white shadow-md"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                       }`}
                     >
                       <span className="text-sm font-medium">{flavor}</span>
