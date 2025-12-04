@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "./components/Toast";
 import { MenuProvider } from "./contexts/MenuContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import ActiveOrdersPage from "./pages/ActiveOrdersPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminMenuPage from "./pages/AdminMenuPage";
@@ -22,149 +23,151 @@ import StaffLoginPage from "./pages/StaffLoginPage";
 function App() {
   return (
     <BrowserRouter>
-      <MenuProvider>
-        <ToastContainer />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<StaffLoginPage />} />
+      <ThemeProvider>
+        <MenuProvider>
+          <ToastContainer />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<StaffLoginPage />} />
 
-          {/* Main Routes - Require login for staff accountability */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/new-order"
-            element={
-              <ProtectedRoute>
-                <NewOrderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pizza-builder"
-            element={
-              <ProtectedRoute>
-                <PizzaBuilderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/specialty-pizzas"
-            element={
-              <ProtectedRoute>
-                <SpecialtyPizzasPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/combos"
-            element={
-              <ProtectedRoute>
-                <ComboDealPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/combo-customize"
-            element={
-              <ProtectedRoute>
-                <ComboCustomizePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/sides-drinks"
-            element={
-              <ProtectedRoute>
-                <SidesAndDrinksPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute>
-                <CheckoutPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/active-orders"
-            element={
-              <ProtectedRoute>
-                <ActiveOrdersPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/kitchen"
-            element={
-              <ProtectedRoute>
-                <KitchenViewPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Main Routes - Require login for staff accountability */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/new-order"
+              element={
+                <ProtectedRoute>
+                  <NewOrderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pizza-builder"
+              element={
+                <ProtectedRoute>
+                  <PizzaBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/specialty-pizzas"
+              element={
+                <ProtectedRoute>
+                  <SpecialtyPizzasPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/combos"
+              element={
+                <ProtectedRoute>
+                  <ComboDealPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/combo-customize"
+              element={
+                <ProtectedRoute>
+                  <ComboCustomizePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sides-drinks"
+              element={
+                <ProtectedRoute>
+                  <SidesAndDrinksPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/active-orders"
+              element={
+                <ProtectedRoute>
+                  <ActiveOrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kitchen"
+              element={
+                <ProtectedRoute>
+                  <KitchenViewPage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Admin Routes - Protected */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super_admin", "restaurant_admin"]}
-              >
-                <AdminDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/menu"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super_admin", "restaurant_admin"]}
-              >
-                <AdminMenuPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/reports"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super_admin", "restaurant_admin"]}
-              >
-                <AdminReportsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/settings"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super_admin", "restaurant_admin"]}
-              >
-                <AdminSettingsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super_admin", "restaurant_admin"]}
-              >
-                <AdminUsersPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Routes - Protected */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/menu"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminMenuPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reports"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminReportsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </MenuProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </MenuProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

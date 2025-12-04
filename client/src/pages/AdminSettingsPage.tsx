@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../components/Toast";
 import TouchButton from "../components/TouchButton";
+import { useTheme } from "../contexts/ThemeContext";
 import { authFetch } from "../utils/api";
 
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
+  const { toggleDarkMode } = useTheme();
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [settings, setSettings] = useState({
@@ -75,11 +77,11 @@ export default function AdminSettingsPage() {
       if (result.success) {
         setSuccessMessage("Settings saved successfully!");
 
-        // Apply dark mode immediately
-        if (settings.dark_mode) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
+        // Trigger theme update by toggling if needed
+        const currentDarkMode =
+          document.documentElement.classList.contains("dark");
+        if (settings.dark_mode !== currentDarkMode) {
+          toggleDarkMode();
         }
 
         setTimeout(() => setSuccessMessage(""), 3000);
