@@ -54,8 +54,8 @@ export default function HomePage() {
       console.log("User is admin, navigating to dashboard");
       navigate("/admin/dashboard");
     } else {
-      console.log("User is not admin, navigating to login");
-      navigate("/admin/login");
+      console.log("User does not have admin access");
+      alert("You do not have permission to access the admin panel.");
     }
   };
 

@@ -53,8 +53,6 @@ export const getCurrentUser = () => {
 
 // Logout function
 export const logout = () => {
-  const user = getCurrentUser();
-
   // Clear all authentication data
   localStorage.removeItem("token");
   localStorage.removeItem("authToken");
@@ -65,10 +63,6 @@ export const logout = () => {
   // Clear any session storage too
   sessionStorage.clear();
 
-  // Redirect based on user type with forced reload
-  if (user?.role === "super_admin" || user?.role === "restaurant_admin") {
-    window.location.replace("/admin/login");
-  } else {
-    window.location.replace("/");
-  }
+  // Always redirect to unified login page
+  window.location.replace("/login");
 };

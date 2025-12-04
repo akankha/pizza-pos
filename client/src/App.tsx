@@ -3,7 +3,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { MenuProvider } from "./contexts/MenuContext";
 import ActiveOrdersPage from "./pages/ActiveOrdersPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
-import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminMenuPage from "./pages/AdminMenuPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import AdminSettingsPage from "./pages/AdminSettingsPage";
@@ -26,7 +25,6 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<StaffLoginPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* Main Routes - Require login for staff accountability */}
           <Route
