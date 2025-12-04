@@ -25,6 +25,11 @@ router.get('/', async (req, res) => {
 // Update restaurant settings (Super Admin only)
 router.put('/', authenticateToken, requireSuperAdmin, async (req, res) => {
   try {
+    console.log('Update settings request:', {
+      user: req.user,
+      body: req.body
+    });
+
     const {
       restaurant_name,
       restaurant_address,
@@ -70,6 +75,8 @@ router.put('/', authenticateToken, requireSuperAdmin, async (req, res) => {
       });
     }
 
+    console.log('Updating settings in database...');
+
     await pool.query(`
       UPDATE restaurant_settings 
       SET restaurant_name = ?,
@@ -98,13 +105,16 @@ router.put('/', authenticateToken, requireSuperAdmin, async (req, res) => {
       print_copies ?? 1
     ]);
 
+    console.log('Settings updated successfully');
+
     const [rows] = await pool.query('SELECT * FROM restaurant_settings WHERE id = 1');
     const settings = (rows as any[])[0];
 
     res.json({ success: true, data: settings });
   } catch (error: any) {
     console.error('Update settings error:', error);
-    res.status(500).json({ success: false, error: 'Failed to update settings' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ success: false, error: error.message || 'Failed to update settings' });
   }
 });
 
