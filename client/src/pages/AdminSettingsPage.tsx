@@ -2,8 +2,7 @@ import { ArrowLeft, Building2, Database, Printer, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TouchButton from "../components/TouchButton";
-import { apiUrl } from "../utils/api";
-import { authFetch } from "../utils/auth";
+import { authFetch } from "../utils/api";
 
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
@@ -33,7 +32,7 @@ export default function AdminSettingsPage() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch(apiUrl("api/settings"));
+      const response = await authFetch("api/settings");
       const result = await response.json();
       if (result.success && result.data) {
         setSettings({
@@ -131,7 +130,7 @@ export default function AdminSettingsPage() {
 
     setIsRunningMigration(true);
     try {
-      const response = await fetch(apiUrl("/api/migrations/add-created-by"), {
+      const response = await authFetch("/api/migrations/add-created-by", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

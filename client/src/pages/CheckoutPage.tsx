@@ -5,7 +5,7 @@ import type { PaymentMethod } from "../../../shared/types";
 import OrderItemCard from "../components/OrderItemCard";
 import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
-import { apiUrl } from "../utils/api";
+import { authFetch } from "../utils/api";
 import { getCurrentUser } from "../utils/auth";
 import { browserPrintService } from "../utils/browserPrintService";
 
@@ -26,7 +26,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Fetch tax rates from settings
-    fetch(apiUrl("api/settings"))
+    authFetch("api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -51,7 +51,7 @@ export default function CheckoutPage() {
       const currentUser = getCurrentUser();
 
       // Create order with payment method and user info
-      const orderResponse = await fetch(apiUrl("api/orders"), {
+      const orderResponse = await authFetch("api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
       };
 
       try {
-        const settingsRes = await fetch(apiUrl("api/settings"));
+        const settingsRes = await authFetch("api/settings");
         const settingsData = await settingsRes.json();
         if (settingsData.success && settingsData.data) {
           restaurantInfo = {

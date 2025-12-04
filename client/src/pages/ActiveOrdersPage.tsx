@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../../../shared/types";
 import TouchButton from "../components/TouchButton";
-import { apiUrl } from "../utils/api";
+import { authFetch } from "../utils/api";
 
 export default function ActiveOrdersPage() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function ActiveOrdersPage() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch(apiUrl("/api/orders/pending"));
+      const response = await authFetch("/api/orders/pending");
       const result = await response.json();
       if (result.success) {
         setOrders(result.data);

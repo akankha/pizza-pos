@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Order } from "../../../shared/types";
 import KitchenOrderCard from "../components/KitchenOrderCard";
 import TouchButton from "../components/TouchButton";
-import { apiUrl } from "../utils/api";
+import { authFetch } from "../utils/api";
 
 export default function KitchenViewPage() {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ export default function KitchenViewPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(apiUrl("/api/orders/pending"));
+      const response = await authFetch("/api/orders/pending");
       const result = await response.json();
 
       if (result.success) {
@@ -39,7 +39,7 @@ export default function KitchenViewPage() {
 
   const handleCompleteOrder = async (orderId: string) => {
     try {
-      const response = await fetch(apiUrl(`/api/orders/${orderId}/status`), {
+      const response = await authFetch(`/api/orders/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "completed" }),
