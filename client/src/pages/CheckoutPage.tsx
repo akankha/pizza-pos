@@ -7,7 +7,7 @@ import TouchButton from "../components/TouchButton";
 import { useCartStore } from "../stores/cartStore";
 import { apiUrl } from "../utils/api";
 import { getCurrentUser } from "../utils/auth";
-import { qzPrintService } from "../utils/qzPrintService";
+import { browserPrintService } from "../utils/browserPrintService";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -115,20 +115,16 @@ export default function CheckoutPage() {
           restaurantInfo,
         };
 
-        console.log("🖨️  Attempting to print via QZ Tray...");
-        const printResult = await qzPrintService.print(printData);
+        console.log("🖨️  Auto-printing receipt...");
+        const printResult = await browserPrintService.print(printData);
 
         if (printResult.success) {
-          console.log("✅ Receipt printed successfully via QZ Tray");
+          console.log("✅ Print dialog opened");
         } else {
           console.warn("⚠️  Print failed:", printResult.error);
-          console.log(
-            "💡 Make sure QZ Tray is running and printer is connected"
-          );
         }
       } catch (printError) {
         console.error("Print error:", printError);
-        console.log("💡 Install QZ Tray from https://qz.io/download/");
         // Don't block order completion if printing fails
       }
 
