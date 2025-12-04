@@ -377,4 +377,41 @@ router.get("/:id/receipt/thermal", async (req, res) => {
   }
 });
 
+// Soft delete order (mark as deleted) - Requires Restaurant Admin
+router.put(
+  "/:id/soft-delete",
+  authenticateToken,
+  requireRestaurantAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { deleteNote } = req.body;
+
+      if (!deleteNote || !deleteNote.trim()) {
+        return res.status(400).json({
+          success: false,
+          error: "Delete note is required",
+        });
+      }
+
+      const deletedBy = req.user?.full_name || req.user?.username || "Unknown";
+
+      await db.query(
+        `UPDATE orders 
+       SET is_deleted = 1, 
+           deleted_at = NOW(), 
+           deleted_by = ?, 
+           delete_note = ? 
+       WHERE id = ?`,
+        [deletedBy, deleteNote.trim(), id]
+      );
+
+      res.json({ success: true, message: "Order marked as deleted" });
+    } catch (error: any) {
+      console.error("Soft delete error:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 export default router;

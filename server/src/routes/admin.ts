@@ -25,7 +25,7 @@ router.get("/stats", requireRestaurantAdmin, async (req, res) => {
     const [todayStats] = await db.query(
       `SELECT COUNT(*) as orderCount, COALESCE(SUM(total), 0) as totalSales 
        FROM orders 
-       WHERE DATE(created_at) = ?`,
+       WHERE DATE(created_at) = ? AND is_deleted = 0`,
       [todayStr]
     );
 
@@ -33,7 +33,7 @@ router.get("/stats", requireRestaurantAdmin, async (req, res) => {
     const [weekStats] = await db.query(
       `SELECT COUNT(*) as orderCount, COALESCE(SUM(total), 0) as totalSales 
        FROM orders 
-       WHERE DATE(created_at) >= ?`,
+       WHERE DATE(created_at) >= ? AND is_deleted = 0`,
       [weekAgoStr]
     );
 
@@ -102,7 +102,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
         COALESCE(SUM(total), 0) as totalSales,
         COALESCE(AVG(total), 0) as avgOrder
        FROM orders 
-       WHERE DATE(created_at) >= ?`,
+       WHERE DATE(created_at) >= ? AND is_deleted = 0`,
       [startDateStr]
     );
 
@@ -114,7 +114,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
         SUM(oi.price * oi.quantity) as revenue
        FROM order_items oi
        JOIN orders o ON oi.order_id = o.id
-       WHERE DATE(o.created_at) >= ?
+       WHERE DATE(o.created_at) >= ? AND o.is_deleted = 0
        GROUP BY oi.name
        ORDER BY revenue DESC
        LIMIT 20`,
@@ -128,7 +128,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
         COUNT(*) as count,
         COALESCE(SUM(total), 0) as total
        FROM orders 
-       WHERE DATE(created_at) >= ? AND payment_method IS NOT NULL
+       WHERE DATE(created_at) >= ? AND payment_method IS NOT NULL AND is_deleted = 0
        GROUP BY payment_method`,
       [startDateStr]
     );
@@ -138,11 +138,13 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
       `SELECT 
         id,
         total,
+        subtotal,
+        tax,
         status,
         payment_method as paymentMethod,
         created_at as createdAt
        FROM orders 
-       WHERE DATE(created_at) >= ?
+       WHERE DATE(created_at) >= ? AND is_deleted = 0
        ORDER BY created_at DESC
        LIMIT 50`,
       [startDateStr]
@@ -180,7 +182,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
         COUNT(*) as orderCount,
         COALESCE(SUM(total), 0) as sales
        FROM orders 
-       WHERE DATE(created_at) >= ?
+       WHERE DATE(created_at) >= ? AND is_deleted = 0
        GROUP BY HOUR(created_at)
        ORDER BY hour`,
       [startDateStr]
@@ -442,5 +444,65 @@ router.delete("/menu/:type/:id", requireRestaurantAdmin, async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete item" });
   }
 });
+
+// Get deleted orders report (Restaurant Admin and above)
+router.get(
+  "/reports/deleted-orders",
+  requireRestaurantAdmin,
+  async (req, res) => {
+    try {
+      // Get deleted orders with details
+      const [deletedOrders] = await db.query(
+        `SELECT 
+        id,
+        total,
+        subtotal,
+        tax,
+        payment_method as paymentMethod,
+        created_at as createdAt,
+        deleted_at as deletedAt,
+        deleted_by as deletedBy,
+        delete_note as deleteNote
+       FROM orders 
+       WHERE is_deleted = 1
+       ORDER BY deleted_at DESC
+       LIMIT 500`
+      );
+
+      // Get order items for deleted orders
+      const orderIds = (deletedOrders as any[]).map((order: any) => order.id);
+      let orderItems: any[] = [];
+
+      if (orderIds.length > 0) {
+        const placeholders = orderIds.map(() => "?").join(",");
+        const [items] = await db.query(
+          `SELECT 
+          order_id as orderId,
+          name,
+          quantity,
+          price
+         FROM order_items 
+         WHERE order_id IN (${placeholders})`,
+          orderIds
+        );
+        orderItems = items as any[];
+      }
+
+      // Group items by order
+      const ordersWithItems = (deletedOrders as any[]).map((order: any) => ({
+        ...order,
+        items: orderItems.filter((item: any) => item.orderId === order.id),
+      }));
+
+      res.json({
+        success: true,
+        data: ordersWithItems,
+      });
+    } catch (error: any) {
+      console.error("Deleted orders report error:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
 
 export default router;

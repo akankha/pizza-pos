@@ -146,7 +146,7 @@ export class OrderService {
 
   async getAllOrders(): Promise<Order[]> {
     const [orders] = await db.query(
-      "SELECT * FROM orders ORDER BY created_at DESC"
+      "SELECT * FROM orders WHERE is_deleted = 0 ORDER BY created_at DESC"
     );
     const orderPromises = (orders as any[]).map((order) =>
       this.getOrder(order.id)
@@ -157,7 +157,7 @@ export class OrderService {
 
   async getPendingOrders(): Promise<Order[]> {
     const [orders] = await db.query(
-      "SELECT * FROM orders WHERE status IN ('pending', 'preparing') ORDER BY created_at ASC"
+      "SELECT * FROM orders WHERE status IN ('pending', 'preparing') AND is_deleted = 0 ORDER BY created_at ASC"
     );
     const orderPromises = (orders as any[]).map((order) =>
       this.getOrder(order.id)

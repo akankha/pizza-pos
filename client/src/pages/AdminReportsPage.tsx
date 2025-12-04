@@ -3,6 +3,7 @@ import {
   Calendar,
   Download,
   Printer,
+  Trash2,
   TrendingUp,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,6 +18,9 @@ export default function AdminReportsPage() {
   const [period, setPeriod] = useState<"today" | "week" | "month">("today");
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [deleteNote, setDeleteNote] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -162,6 +166,98 @@ export default function AdminReportsPage() {
     }
   };
 
+  const initiateDeleteOrder = (order: any) => {
+    setSelectedOrder(order);
+    setShowDeleteModal(true);
+    setDeleteNote("");
+  };
+
+  const confirmDeleteOrder = async () => {
+    if (!selectedOrder || !deleteNote.trim()) {
+      showToast("Please provide a reason for deleting this order", "warning");
+      return;
+    }
+
+    try {
+      const response = await authFetch(
+        `/api/orders/${selectedOrder.id}/soft-delete`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ deleteNote: deleteNote.trim() }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        showToast("Order marked as deleted", "success");
+        setShowDeleteModal(false);
+        setSelectedOrder(null);
+        setDeleteNote("");
+        loadReport(); // Reload to update the list
+      } else {
+        showToast("Failed to delete order: " + result.error, "error");
+      }
+    } catch (error: any) {
+      showToast("Error deleting order: " + error.message, "error");
+    }
+  };
+
+  const downloadDeletedOrders = async () => {
+    try {
+      showToast("Generating deleted orders report...", "info");
+
+      const response = await authFetch("/api/admin/reports/deleted-orders");
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const csv = generateDeletedOrdersCSV(result.data);
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `deleted-orders-${
+          new Date().toISOString().split("T")[0]
+        }.csv`;
+        a.click();
+        showToast("Deleted orders report downloaded", "success");
+      } else {
+        showToast("No deleted orders found", "info");
+      }
+    } catch (error: any) {
+      showToast("Failed to download report: " + error.message, "error");
+    }
+  };
+
+  const generateDeletedOrdersCSV = (orders: any[]) => {
+    let csv = "Deleted Orders Report\n\n";
+    csv += `Generated: ${new Date().toLocaleString()}\n\n`;
+    csv +=
+      "Order ID,Date,Total,Payment Method,Deleted At,Deleted By,Reason,Items\n";
+
+    orders.forEach((order: any) => {
+      const itemsList =
+        order.items?.map((i: any) => `${i.quantity}x ${i.name}`).join("; ") ||
+        "";
+      const deletedAt = order.deletedAt
+        ? new Date(order.deletedAt).toLocaleString()
+        : "N/A";
+      const deletedBy = order.deletedBy || "Unknown";
+      const reason = (order.deleteNote || "No reason provided").replace(
+        /"/g,
+        '""'
+      );
+
+      csv += `${order.id},${new Date(
+        order.createdAt
+      ).toLocaleString()},$${parseFloat(order.total).toFixed(2)},${
+        order.paymentMethod
+      },${deletedAt},${deletedBy},"${reason}","${itemsList}"\n`;
+    });
+
+    return csv;
+  };
+
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -193,6 +289,15 @@ export default function AdminReportsPage() {
             className="!bg-green-500 hover:!bg-green-600"
           >
             <Download size={28} />
+          </TouchButton>
+          <TouchButton
+            onClick={downloadDeletedOrders}
+            variant="outline"
+            size="medium"
+            className="!border-red-500 !text-red-600 hover:!bg-red-50"
+            title="Download Deleted Orders Report"
+          >
+            <Trash2 size={28} />
           </TouchButton>
         </div>
       </div>
@@ -259,29 +364,31 @@ export default function AdminReportsPage() {
               Top Selling Items
             </h2>
             <div className="space-y-4">
-              {(reportData?.topItems || []).map((item: any, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">
-                      {index + 1}
+              {(reportData?.topItems || [])
+                .slice(0, 5)
+                .map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <div className="font-bold text-lg text-gray-800">
+                          {item.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {item.quantity} sold
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-bold text-lg text-gray-800">
-                        {item.name}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {item.quantity} sold
-                      </div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      ${item.revenue.toFixed(2)}
                     </div>
                   </div>
-                  <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    ${item.revenue.toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -347,6 +454,13 @@ export default function AdminReportsPage() {
                           title="Reprint Receipt"
                         >
                           <Printer size={20} />
+                        </button>
+                        <button
+                          onClick={() => initiateDeleteOrder(order)}
+                          className="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                          title="Delete Order"
+                        >
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </div>
@@ -415,6 +529,63 @@ export default function AdminReportsPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Order Confirmation Modal */}
+      {showDeleteModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                Delete Order?
+              </h3>
+              <p className="text-gray-600 mb-2">
+                Order <strong>#{selectedOrder.id.slice(0, 8)}</strong> - $
+                {parseFloat(selectedOrder.total).toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-500 mb-4">
+                This order will be marked as deleted but kept in the system for
+                records.
+              </p>
+
+              <div className="mb-6 text-left">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Reason for Deletion *
+                </label>
+                <textarea
+                  value={deleteNote}
+                  onChange={(e) => setDeleteNote(e.target.value)}
+                  placeholder="Please provide a reason (e.g., customer cancellation, wrong order, etc.)"
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-red-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setSelectedOrder(null);
+                    setDeleteNote("");
+                  }}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteOrder}
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors shadow-lg"
+                >
+                  Delete Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
