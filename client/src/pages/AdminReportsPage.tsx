@@ -67,6 +67,7 @@ export default function AdminReportsPage() {
               orderCount: parseInt(hour.orderCount) || 0,
               sales: parseFloat(hour.sales) || 0,
             })) || [],
+          recentOrders: data.recentOrders || [],
         });
       }
     } catch (error) {
@@ -357,41 +358,6 @@ export default function AdminReportsPage() {
             </div>
           </div>
 
-          {/* Top Items */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <TrendingUp size={32} className="text-orange-500" />
-              Top Selling Items
-            </h2>
-            <div className="space-y-4">
-              {(reportData?.topItems || [])
-                .slice(0, 5)
-                .map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <div className="font-bold text-lg text-gray-800">
-                          {item.name}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {item.quantity} sold
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      ${item.revenue.toFixed(2)}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-
           {/* Payment Methods */}
           {reportData?.paymentMethods && (
             <div className="bg-white rounded-2xl p-8 shadow-lg">
@@ -486,7 +452,40 @@ export default function AdminReportsPage() {
               </div>
             </div>
           )}
-
+          {/* Top Items */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <TrendingUp size={32} className="text-orange-500" />
+              Top Selling Items
+            </h2>
+            <div className="space-y-4">
+              {(reportData?.topItems || [])
+                .slice(0, 5)
+                .map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <div className="font-bold text-lg text-gray-800">
+                          {item.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {item.quantity} sold
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      ${item.revenue.toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
           {/* Hourly Sales Distribution */}
           {reportData?.hourlySales && reportData.hourlySales.length > 0 && (
             <div className="bg-white rounded-2xl p-8 shadow-lg">
