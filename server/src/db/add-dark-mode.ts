@@ -1,4 +1,4 @@
-import { pool } from "./database";
+import pool from "./database";
 
 async function addDarkModeColumn() {
   const connection = await pool.getConnection();

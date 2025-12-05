@@ -26,154 +26,141 @@ export default function NewOrderPage() {
       description: "Create your perfect custom pizza",
       icon: Pizza,
       action: handleBuildPizza,
-      gradient: "from-[#FF6B35] to-orange-500",
-      iconBg: "bg-orange-100",
+      iconAccent: "from-[#FFE7D7] to-[#FFDCC5]",
       iconColor: "text-[#FF6B35]",
+      indicator: "from-[#FF6B35] to-[#FF935F]",
     },
     {
       title: "Specialty Pizzas",
       description: "Our signature gourmet pizzas",
       icon: Flame,
       action: () => navigate("/specialty-pizzas"),
-      gradient: "from-red-500 to-orange-600",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-500",
+      iconAccent: "from-[#FFE4DD] to-[#FFE1D4]",
+      iconColor: "text-[#F97316]",
+      indicator: "from-[#F97316] to-[#FDA260]",
     },
     {
       title: "Combo Deals",
       description: "Great value family & special combos",
       icon: Gift,
       action: () => navigate("/combos"),
-      gradient: "from-purple-500 to-pink-500",
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-500",
+      iconAccent: "from-[#EFE6FF] to-[#E5E0FF]",
+      iconColor: "text-[#8B5CF6]",
+      indicator: "from-[#8B5CF6] to-[#C084FC]",
     },
     {
       title: "Sides & Drinks",
       description: "Wings, salads, beverages & more",
       icon: Coffee,
       action: () => navigate("/sides-drinks"),
-      gradient: "from-[#004E89] to-blue-600",
-      iconBg: "bg-blue-100",
-      iconColor: "text-[#004E89]",
+      iconAccent: "from-[#E1ECFF] to-[#D5E5FF]",
+      iconColor: "text-[#2563EB]",
+      indicator: "from-[#2563EB] to-[#60A5FA]",
     },
   ];
 
   return (
-    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
-      {/* Header */}
-      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-            >
-              <ArrowLeft size={20} />
-              <span className="font-medium hidden sm:inline">Back</span>
-            </button>
+    <div className="min-h-screen w-screen bg-[#F6F8FC] dark:bg-slate-950 flex flex-col animate-fade-in">
+      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-[#F6F8FC]/90 dark:bg-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-[140px] flex justify-start">
+              <button
+                onClick={() => navigate("/")}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-200 bg-white/80 dark:bg-slate-800/70 hover:bg-white hover:shadow-sm transition-all duration-200"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
 
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
                 New Order
               </h1>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                Select a category
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Select a category to get started
               </p>
             </div>
 
-            <button
-              onClick={() => navigate("/checkout")}
-              className="relative p-3 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-              aria-label={`Shopping cart with ${cartItems.length} items`}
-            >
-              <ShoppingCart size={22} />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#FF6B35] to-[#ff8555] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg">
-                  {cartItems.length}
-                </span>
-              )}
-            </button>
+            <div className="w-[140px] flex justify-end">
+              <button
+                onClick={() => navigate("/checkout")}
+                aria-label={`Shopping cart with ${cartItems.length} items`}
+                className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-100 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <ShoppingCart size={20} strokeWidth={1.6} />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF6B35] px-1 text-xs font-semibold text-white shadow-sm">
+                    {cartItems.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <main className="flex-1 overflow-y-auto px-4 pb-24 pt-8 custom-scrollbar">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {categories.map((category, index) => (
               <button
                 key={category.title}
                 onClick={category.action}
-                style={{ animationDelay: `${index * 0.1}s` }}
-                className="group relative bg-white dark:bg-slate-800/80 rounded-2xl border border-gray-200 dark:border-slate-700 p-8 hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-slate-900/50 hover:-translate-y-1 hover:border-gray-300 dark:hover:border-slate-600 transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${index * 0.08}s` }}
+                className="group flex h-full flex-col items-center justify-start gap-6 rounded-[28px] border border-slate-200/70 dark:border-slate-800/70 bg-white/95 dark:bg-slate-900/70 px-10 py-12 text-center shadow-[0_12px_35px_rgba(15,23,42,0.08)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-[#FF6B35]/20 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)] dark:hover:border-[#FF6B35]/30 animate-slide-up"
               >
-                {/* Gradient glow on hover */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${category.gradient} rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-                ></div>
-
-                <div className="relative flex flex-col items-center text-center gap-5">
-                  {/* Icon */}
-                  <div
-                    className={`${category.iconBg} dark:bg-slate-700 p-6 rounded-2xl group-hover:scale-105 group-hover:shadow-lg transition-all duration-300`}
-                  >
-                    <category.icon
-                      size={40}
-                      className={`${category.iconColor} dark:text-slate-300`}
-                      strokeWidth={1.5}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#FF6B35] transition-colors duration-200">
-                      {category.title}
-                    </h3>
-                    <p className="text-gray-500 dark:text-slate-400">
-                      {category.description}
-                    </p>
-                  </div>
-
-                  {/* Bottom indicator */}
-                  <div
-                    className={`w-16 h-1.5 rounded-full bg-gradient-to-r ${category.gradient} transition-all duration-300 group-hover:w-24`}
-                  ></div>
+                  className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${category.iconAccent} text-base font-semibold ${category.iconColor}`}
+                >
+                  <category.icon size={28} strokeWidth={1.5} />
                 </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                    {category.title}
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    {category.description}
+                  </p>
+                </div>
+
+                <div
+                  className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${category.indicator} transition-all duration-300 group-hover:w-24`}
+                ></div>
               </button>
             ))}
           </div>
-
-          {/* Cart Preview */}
-          {cartItems.length > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-xl glass dark:bg-slate-800/90 rounded-2xl border border-gray-200/50 dark:border-slate-700 p-4 shadow-2xl shadow-gray-400/20 dark:shadow-slate-900/50 animate-slide-up">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-br from-[#FF6B35] to-[#ff8555] rounded-xl shadow-lg shadow-orange-500/20">
-                    <ShoppingCart className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">
-                      {cartItems.length}{" "}
-                      {cartItems.length === 1 ? "item" : "items"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">
-                      Ready to checkout
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => navigate("/checkout")}
-                  className="px-5 py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#ff8555] hover:from-[#e85d2a] hover:to-[#FF6B35] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30"
-                >
-                  View Cart
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </main>
+
+      {cartItems.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 z-20 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 rounded-[28px] border border-slate-200/70 dark:border-slate-800/70 bg-white/95 dark:bg-slate-900/80 px-6 py-4 shadow-[0_20px_45px_rgba(15,23,42,0.12)] dark:shadow-[0_24px_55px_rgba(0,0,0,0.5)] backdrop-blur-md animate-slide-up">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FF8C55] text-white shadow-[0_12px_24px_rgba(255,107,53,0.28)]">
+                <ShoppingCart size={22} strokeWidth={1.4} />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-slate-900 dark:text-white">
+                  {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Ready to checkout
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate("/checkout")}
+              className="inline-flex items-center justify-center rounded-full bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#f2602c] hover:shadow-[0_12px_24px_rgba(255,107,53,0.25)]"
+            >
+              View Cart
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

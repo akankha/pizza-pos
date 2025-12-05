@@ -24,39 +24,45 @@ export default function SidesAndDrinksPage() {
   };
 
   return (
-    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
+    <div className="h-screen w-screen bg-[#F6F8FC] dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800 p-4">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <button
-            onClick={() => navigate("/new-order")}
-            className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-medium hidden sm:inline">Back</span>
-          </button>
+      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-[#F6F8FC]/90 dark:bg-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-[140px] flex justify-start">
+              <button
+                onClick={() => navigate("/new-order")}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-200 bg-white/80 dark:bg-slate-800/70 hover:bg-white hover:shadow-sm transition-all duration-200"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
 
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              Sides & Drinks
-            </h1>
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                Sides & Drinks
+              </h1>
+            </div>
+
+            <div className="w-[140px] flex justify-end">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-100 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <ShoppingCart size={20} strokeWidth={1.6} />
+                {items.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF6B35] px-1 text-xs font-semibold text-white shadow-sm">
+                    {items.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
-
-          <button
-            onClick={() => navigate("/checkout")}
-            className="relative p-3 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-          >
-            <ShoppingCart size={22} />
-            {items.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#FF6B35] to-[#ff8555] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg">
-                {items.length}
-              </span>
-            )}
-          </button>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 pb-10 pt-6 custom-scrollbar">
         <div className="max-w-6xl mx-auto">
           {/* Sides */}
           <section className="mb-8">
@@ -69,7 +75,7 @@ export default function SidesAndDrinksPage() {
                   key={side.id}
                   onClick={() => handleAddItem(side)}
                   style={{ animationDelay: `${index * 0.05}s` }}
-                  className="group bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-slate-700 hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-1 animate-slide-up text-left"
+                  className="group bg-white/95 dark:bg-slate-900/85 rounded-2xl p-5 border-2 border-gray-200 dark:border-slate-700 shadow-[0_18px_45px_rgba(15,23,42,0.1)] dark:shadow-[0_22px_48px_rgba(15,23,42,0.35)] hover:-translate-y-1 hover:border-[#FF6B35]/60 transition-all duration-300 animate-slide-up text-left"
                 >
                   <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
                     🍟
@@ -86,7 +92,7 @@ export default function SidesAndDrinksPage() {
                     <span className="text-lg font-bold text-[#FF6B35]">
                       ${side.price.toFixed(2)}
                     </span>
-                    <div className="bg-[#FF6B35] text-white rounded-lg p-1.5 group-hover:scale-110 transition-transform shadow-md shadow-orange-500/20">
+                    <div className="bg-[#FF6B35] text-white rounded-xl p-1.5 group-hover:scale-110 transition-transform shadow-md shadow-orange-500/25">
                       <Plus size={16} />
                     </div>
                   </div>
@@ -110,7 +116,7 @@ export default function SidesAndDrinksPage() {
                       (index + menuData.sides.length) * 0.05
                     }s`,
                   }}
-                  className="group bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 hover:-translate-y-1 animate-slide-up text-left"
+                  className="group bg-white/95 dark:bg-slate-900/85 rounded-2xl p-5 border-2 border-gray-200 dark:border-slate-700 shadow-[0_18px_45px_rgba(15,23,42,0.1)] dark:shadow-[0_22px_48px_rgba(15,23,42,0.35)] hover:-translate-y-1 hover:border-blue-500/60 transition-all duration-300 animate-slide-up text-left"
                 >
                   <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
                     🥤
@@ -127,7 +133,7 @@ export default function SidesAndDrinksPage() {
                     <span className="text-lg font-bold text-blue-500">
                       ${drink.price.toFixed(2)}
                     </span>
-                    <div className="bg-blue-500 text-white rounded-lg p-1.5 group-hover:scale-110 transition-transform shadow-md shadow-blue-500/20">
+                    <div className="bg-blue-500 text-white rounded-xl p-1.5 group-hover:scale-110 transition-transform shadow-md shadow-blue-500/25">
                       <Plus size={16} />
                     </div>
                   </div>
@@ -138,7 +144,7 @@ export default function SidesAndDrinksPage() {
 
           {/* Cart Preview */}
           {items.length > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-xl glass dark:bg-slate-800/90 rounded-2xl border border-gray-200/50 dark:border-slate-700 p-4 shadow-2xl shadow-gray-400/20 dark:shadow-slate-900/50 animate-slide-up">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-xl bg-white/95 dark:bg-slate-900/90 rounded-2xl border-2 border-gray-200 dark:border-slate-700 p-4 shadow-[0_24px_55px_rgba(15,23,42,0.25)] dark:shadow-[0_24px_55px_rgba(15,23,42,0.45)] backdrop-blur-lg animate-slide-up">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-gradient-to-br from-[#FF6B35] to-[#ff8555] rounded-xl shadow-lg shadow-orange-500/20">

@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingScreen from "../components/LoadingScreen";
@@ -11,6 +11,7 @@ export default function PizzaBuilderPage() {
   const location = useLocation();
   const { menuData, loading } = useMenu();
   const addItem = useCartStore((state) => state.addItem);
+  const cartItems = useCartStore((state) => state.items);
 
   // Get specialty pizza context from navigation state
   const specialtyContext = location.state as {
@@ -195,31 +196,48 @@ export default function PizzaBuilderPage() {
   const canAddToCart = selectedSize && selectedCrust;
 
   return (
-    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
+    <div className="h-screen w-screen bg-[#F6F8FC] dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800 p-4">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <button
-            onClick={() => navigate("/new-order")}
-            className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-medium hidden sm:inline">Back</span>
-          </button>
+      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-[#F6F8FC]/90 dark:bg-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-[140px] flex justify-start">
+              <button
+                onClick={() => navigate("/new-order")}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-200 bg-white/80 dark:bg-slate-800/70 hover:bg-white hover:shadow-sm transition-all duration-200"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
 
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {specialtyContext?.specialtyBase
-                ? `Customize ${specialtyContext.specialtyBase}`
-                : "Build Your Pizza"}
-            </h1>
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                {specialtyContext?.specialtyBase
+                  ? `Customize ${specialtyContext.specialtyBase}`
+                  : "Build Your Pizza"}
+              </h1>
+            </div>
+
+            <div className="w-[140px] flex justify-end">
+              <button
+                onClick={() => navigate("/checkout")}
+                aria-label={`Shopping cart with ${cartItems.length} items`}
+                className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-100 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <ShoppingCart size={20} strokeWidth={1.6} />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF6B35] px-1 text-xs font-semibold text-white shadow-sm">
+                    {cartItems.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
-
-          <div className="w-20"></div>
         </div>
         {specialtyContext?.specialtyBase && (
-          <div className="bg-orange-50 dark:bg-orange-900/20 border-t border-orange-200/50 dark:border-orange-800/50 px-4 py-2 mt-2 rounded-xl mx-4">
-            <div className="flex items-center gap-2 text-orange-700 dark:text-orange-300 text-sm">
+          <div className="mx-4 mt-2 rounded-2xl border border-orange-200/60 dark:border-orange-800/50 bg-white/90 dark:bg-slate-900/70 px-4 py-3 text-sm text-orange-700 dark:text-orange-200 shadow-[0_12px_28px_rgba(255,107,53,0.12)]">
+            <div className="flex items-center gap-2">
               <span className="font-semibold">💰</span>
               <span>
                 Base ${specialtyContext.basePrice?.toFixed(2)} - Only extra
@@ -243,10 +261,10 @@ export default function PizzaBuilderPage() {
                 <button
                   key={size.id}
                   onClick={() => setSize(size.name)}
-                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)] ${
                     selectedSize === size.name
-                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-lg shadow-orange-500/20"
-                      : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35]"
+                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-orange-500/30"
+                      : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="text-center">
@@ -278,10 +296,10 @@ export default function PizzaBuilderPage() {
                 <button
                   key={crust.id}
                   onClick={() => setCrust(crust.type)}
-                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)] ${
                     selectedCrust === crust.type
-                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-lg shadow-orange-500/20"
-                      : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35]"
+                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-orange-500/30"
+                      : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="text-center">
@@ -314,7 +332,7 @@ export default function PizzaBuilderPage() {
               </span>
             </h2>
 
-            {["meat", "cheese", "veggie"].map((category, catIndex) => (
+            {["meat", "cheese", "veggie"].map((category) => (
               <div key={category} className="mb-5">
                 <h3 className="text-xs font-medium text-gray-400 dark:text-slate-500 mb-2 capitalize flex items-center gap-2">
                   {category === "meat" && "🥩"}
@@ -325,16 +343,16 @@ export default function PizzaBuilderPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {menuData.toppings
                     .filter((t) => t.category === category)
-                    .map((topping, index) => {
+                    .map((topping) => {
                       const isSelected = selectedToppings.includes(topping.id);
                       return (
                         <button
                           key={topping.id}
                           onClick={() => toggleTopping(topping.id)}
-                          className={`p-3 rounded-xl border-2 transition-all duration-200 ${
+                          className={`p-3 rounded-xl border-2 transition-all duration-200 shadow-[0_12px_28px_rgba(15,23,42,0.08)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.4)] ${
                             isSelected
-                              ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                              : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500"
+                              ? "bg-emerald-500 border-emerald-500 text-white shadow-emerald-500/30"
+                              : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500 hover:-translate-y-0.5"
                           }`}
                         >
                           <div className="text-center">
@@ -361,15 +379,15 @@ export default function PizzaBuilderPage() {
         </div>
 
         {/* Right Panel - Order Summary */}
-        <div className="w-full lg:w-80 glass dark:bg-slate-900/80 border-t lg:border-t-0 lg:border-l border-gray-200/50 dark:border-slate-800 p-4 flex flex-col">
+        <div className="w-full lg:w-96 bg-white/95 dark:bg-slate-900/85 border-t lg:border-t-0 lg:border-l border-gray-200/60 dark:border-slate-800 px-4 py-6 flex flex-col shadow-[0_30px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
           <h3 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-4 uppercase tracking-wide">
             Your Pizza
           </h3>
 
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto space-y-3 mb-4 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto space-y-3 mb-5 custom-scrollbar">
             {/* Size */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
+            <div className="bg-white/95 dark:bg-slate-900/80 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
               <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                 Size
               </div>
@@ -382,7 +400,7 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Crust */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
+            <div className="bg-white/95 dark:bg-slate-900/80 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
               <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                 Crust
               </div>
@@ -395,7 +413,7 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Toppings - scrollable */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700 max-h-40 overflow-y-auto">
+            <div className="bg-white/95 dark:bg-slate-900/80 rounded-xl p-3 border border-gray-200 dark:border-slate-700 max-h-40 overflow-y-auto">
               <div className="text-xs text-gray-500 dark:text-slate-400 mb-2">
                 Toppings ({selectedToppings.length})
               </div>
@@ -424,7 +442,7 @@ export default function PizzaBuilderPage() {
           </div>
 
           {/* Total - Always visible at bottom */}
-          <div className="bg-gradient-to-r from-[#FF6B35] to-orange-500 rounded-xl p-4 text-white mb-4">
+          <div className="bg-gradient-to-r from-[#FF6B35] to-orange-500 rounded-2xl p-4 text-white mb-4 shadow-[0_18px_40px_rgba(255,107,53,0.18)]">
             <div className="text-sm font-medium mb-1 text-white/80">
               Total Price
             </div>
@@ -437,10 +455,10 @@ export default function PizzaBuilderPage() {
           <button
             onClick={handleAddToCart}
             disabled={!canAddToCart}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
+            className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold transition-all duration-300 ${
               canAddToCart
                 ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white shadow-lg shadow-emerald-500/20"
-                : "bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed"
+                : "bg-gray-200/80 dark:bg-slate-800 text-gray-400 dark:text-slate-500 cursor-not-allowed"
             }`}
           >
             <Plus size={22} />

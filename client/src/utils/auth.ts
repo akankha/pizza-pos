@@ -1,5 +1,27 @@
 import { apiUrl } from "./api";
 
+const isElectron = () => {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent?.toLowerCase() || "";
+  return ua.includes("electron");
+};
+
+const clientNavigate = (path: string) => {
+  if (typeof window === "undefined") return;
+  const targetPath = path.startsWith("/") ? path : `/${path}`;
+
+  try {
+    window.history.replaceState({}, "", targetPath);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  } catch (error) {
+    if (isElectron()) {
+      window.location.reload();
+    } else {
+      window.location.href = targetPath;
+    }
+  }
+};
+
 // Helper function to make authenticated API requests
 export const authFetch = async (url: string, options: RequestInit = {}) => {
   const token =
@@ -30,9 +52,9 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
 
     // Redirect based on user type
     if (user?.role === "admin") {
-      window.location.href = "/admin/login";
+      clientNavigate("/admin/login");
     } else {
-      window.location.href = "/login";
+      clientNavigate("/login");
     }
     throw new Error("Unauthorized");
   }
@@ -64,5 +86,5 @@ export const logout = () => {
   sessionStorage.clear();
 
   // Always redirect to unified login page
-  window.location.replace("/login");
+  clientNavigate("/login");
 };

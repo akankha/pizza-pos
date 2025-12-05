@@ -44,11 +44,11 @@ export default function ActiveOrdersPage() {
   return (
     <div className="h-screen w-screen bg-slate-100 dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-6 py-4">
+      <header className="bg-white/95 dark:bg-slate-900/90 border-b border-gray-200 dark:border-slate-800 px-6 py-4 shadow-sm backdrop-blur">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800/90 text-gray-700 dark:text-slate-200 rounded-xl border border-gray-200 dark:border-slate-700 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 hover:-translate-y-0.5"
           >
             <ArrowLeft size={20} />
             <span className="font-medium">Back</span>
@@ -65,13 +65,14 @@ export default function ActiveOrdersPage() {
 
           <button
             onClick={loadOrders}
-            className="flex items-center gap-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800/90 text-gray-600 dark:text-slate-300 rounded-xl border border-gray-200 dark:border-slate-700 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 hover:-translate-y-0.5"
           >
             <RefreshCw
               size={18}
               className="animate-spin"
               style={{ animationDuration: "3s" }}
             />
+            <span className="hidden sm:inline font-medium">Refresh</span>
           </button>
         </div>
       </header>
@@ -81,16 +82,16 @@ export default function ActiveOrdersPage() {
         <div className="max-w-7xl mx-auto">
           {orders.length === 0 ? (
             <div className="text-center py-20 animate-slide-up">
-              <div className="w-20 h-20 bg-gray-200 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-3xl bg-gradient-to-br from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 shadow-[0_18px_45px_rgba(15,23,42,0.18)]">
                 <FileText
                   size={32}
-                  className="text-gray-400 dark:text-slate-500"
+                  className="text-slate-500 dark:text-slate-400"
                 />
               </div>
-              <h2 className="text-xl font-semibold text-gray-400 dark:text-slate-500">
+              <h2 className="text-2xl font-extrabold text-gray-400 dark:text-slate-500 tracking-tight">
                 No Active Orders
               </h2>
-              <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-slate-500 mt-2">
                 All caught up!
               </p>
             </div>
@@ -100,13 +101,13 @@ export default function ActiveOrdersPage() {
                 <div
                   key={order.id}
                   style={{ animationDelay: `${index * 0.05}s` }}
-                  className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden animate-slide-up hover:shadow-md transition-shadow flex flex-col h-[420px]"
+                  className="bg-white/95 dark:bg-slate-900/90 rounded-2xl border-2 border-gray-200 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.12)] dark:shadow-[0_20px_48px_rgba(15,23,42,0.35)] overflow-hidden animate-slide-up hover:-translate-y-1 transition-all flex flex-col h-[420px]"
                 >
                   {/* Order Header */}
-                  <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800">
+                  <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800 bg-white/85 dark:bg-slate-900/80 backdrop-blur-sm">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
                           Order #{order.id.slice(0, 8)}
                         </h3>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-slate-400">
@@ -122,7 +123,7 @@ export default function ActiveOrdersPage() {
                           )}
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 bg-[#FF6B35]/10 text-[#FF6B35] rounded-full text-xs font-semibold uppercase tracking-wide">
+                      <span className="px-3 py-1 bg-[#FF6B35]/15 text-[#FF6B35] rounded-full text-xs font-semibold uppercase tracking-[0.16em]">
                         {order.status}
                       </span>
                     </div>
@@ -161,9 +162,9 @@ export default function ActiveOrdersPage() {
                   </div>
 
                   {/* Order Footer */}
-                  <div className="px-5 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 mt-auto">
+                  <div className="px-5 py-4 bg-gray-50/80 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-800 mt-auto backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-xl font-bold text-gray-900 dark:text-white">
+                      <span className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                         ${order.total.toFixed(2)}
                       </span>
                       {order.paymentMethod && (
@@ -180,7 +181,7 @@ export default function ActiveOrdersPage() {
                           "_blank"
                         )
                       }
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FF6B35]/10 hover:bg-[#FF6B35]/20 text-[#FF6B35] rounded-xl text-sm font-medium transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#FF8B57] hover:from-[#e85d2a] hover:to-[#FF6B35] text-white rounded-xl text-sm font-semibold transition-all duration-300 shadow-[0_12px_28px_rgba(255,107,53,0.25)]"
                     >
                       <FileText size={16} />
                       <span>View Receipt</span>

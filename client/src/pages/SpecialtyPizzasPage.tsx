@@ -101,39 +101,43 @@ export default function SpecialtyPizzasPage() {
   }
 
   return (
-    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
+    <div className="h-screen w-screen bg-[#F6F8FC] dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => navigate("/new-order")}
-              className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-            >
-              <ArrowLeft size={20} />
-              <span className="font-medium hidden sm:inline">Back</span>
-            </button>
+      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-[#F6F8FC]/90 dark:bg-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-[140px] flex justify-start">
+              <button
+                onClick={() => navigate("/new-order")}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-200 bg-white/80 dark:bg-slate-800/70 hover:bg-white hover:shadow-sm transition-all duration-200"
+              >
+                <ArrowLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
 
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
                 Specialty Pizzas
               </h1>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 {specialtyPizzas.length} signature pizzas
               </p>
             </div>
 
-            <button
-              onClick={() => navigate("/checkout")}
-              className="relative p-3 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
-            >
-              <ShoppingCart size={22} />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#FF6B35] to-[#ff8555] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg">
-                  {cartItems.length}
-                </span>
-              )}
-            </button>
+            <div className="w-[140px] flex justify-end">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200/70 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-100 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <ShoppingCart size={20} strokeWidth={1.6} />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF6B35] px-1 text-xs font-semibold text-white shadow-sm">
+                    {cartItems.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -150,7 +154,7 @@ export default function SpecialtyPizzasPage() {
                 <div
                   key={pizza.id}
                   style={{ animationDelay: `${index * 0.05}s` }}
-                  className="group bg-white dark:bg-slate-800/80 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-slide-up"
+                  className="group bg-white/95 dark:bg-slate-900/85 rounded-2xl border-2 border-gray-200 dark:border-slate-700 shadow-[0_22px_55px_rgba(15,23,42,0.12)] dark:shadow-[0_24px_55px_rgba(15,23,42,0.35)] hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-slide-up"
                 >
                   {/* Pizza Header */}
                   <div className="bg-gradient-to-r from-[#FF6B35] to-orange-500 p-4 text-white">
@@ -205,7 +209,7 @@ export default function SpecialtyPizzasPage() {
                   </div>
 
                   {/* Add to Cart */}
-                  <div className="p-4 bg-gray-50/50 dark:bg-slate-800/50">
+                  <div className="p-4 bg-gray-50/80 dark:bg-slate-800/55 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-500 dark:text-slate-400">
                         Total:
@@ -238,7 +242,7 @@ export default function SpecialtyPizzasPage() {
 
           {/* Cart Preview */}
           {cartItems.length > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-xl glass dark:bg-slate-800/90 rounded-2xl border border-gray-200/50 dark:border-slate-700 p-4 shadow-2xl shadow-gray-400/20 dark:shadow-slate-900/50 animate-slide-up">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-xl bg-white/95 dark:bg-slate-900/90 rounded-2xl border-2 border-gray-200 dark:border-slate-700 p-4 shadow-[0_24px_55px_rgba(15,23,42,0.25)] dark:shadow-[0_24px_55px_rgba(15,23,42,0.45)] backdrop-blur-lg animate-slide-up">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-gradient-to-br from-[#FF6B35] to-[#ff8555] rounded-xl shadow-lg shadow-orange-500/20">

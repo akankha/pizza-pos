@@ -1,4 +1,4 @@
-import { pool } from "./database";
+import pool from "./database";
 
 async function addSoftDeleteColumns() {
   const connection = await pool.getConnection();

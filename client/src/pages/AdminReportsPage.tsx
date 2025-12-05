@@ -13,6 +13,8 @@ import { showToast } from "../components/Toast";
 import { authFetch, isAuthenticated } from "../utils/auth";
 import { browserPrintService } from "../utils/browserPrintService";
 
+type BrowserPrintPayload = Parameters<typeof browserPrintService.print>[0];
+
 export default function AdminReportsPage() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<"today" | "week" | "month">("today");
@@ -132,21 +134,84 @@ export default function AdminReportsPage() {
     try {
       showToast("Printing receipt...", "info");
 
-      const printData = {
-        orderId: order.id,
-        items: order.items.map((item: any) => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          customizations: item.customizations || [],
-        })),
-        subtotal: parseFloat(order.total) * 0.9 || 0,
-        tax: parseFloat(order.total) * 0.1 || 0,
-        total: parseFloat(order.total),
-        paymentMethod: order.paymentMethod,
-        customerName: order.customerName || "Guest",
-        orderType: order.orderType || "dine-in",
-        timestamp: order.createdAt,
+      const toNumber = (value: any): number => {
+        if (value === undefined || value === null) return 0;
+        const parsed =
+          typeof value === "number"
+            ? value
+            : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const roundToTwo = (value: number) => Math.round(value * 100) / 100;
+
+      const deriveOrderNumber = (): number => {
+        const directNumberSources = [
+          order.orderNumber,
+          order.order_number,
+          order.receiptNumber,
+          order.receipt_number,
+          order.ticketNumber,
+          order.ticket_number,
+        ];
+
+        for (const source of directNumberSources) {
+          const candidate = toNumber(source);
+          if (candidate > 0) {
+            return Math.trunc(candidate);
+          }
+        }
+
+        const fromId = parseInt(
+          String(order.id || "")
+            .replace(/\D/g, "")
+            .slice(-6),
+          10
+        );
+        if (Number.isFinite(fromId)) {
+          return fromId;
+        }
+
+        return parseInt(Date.now().toString().slice(-6), 10);
+      };
+
+      const total = toNumber(order.total);
+      const reportedSubtotal = toNumber(order.subtotal ?? order.sub_total);
+      const gstAmount = toNumber(
+        order.gst ?? order.taxDetails?.gst ?? order.tax_breakdown?.gst
+      );
+      const pstAmount = toNumber(
+        order.pst ?? order.taxDetails?.pst ?? order.tax_breakdown?.pst
+      );
+      const taxAmountBase = toNumber(
+        order.tax ?? order.taxTotal ?? order.totalTax ?? order.tax_total
+      );
+      const taxAmount =
+        gstAmount || pstAmount ? gstAmount + pstAmount : taxAmountBase;
+      const subtotal =
+        reportedSubtotal || (total ? Math.max(total - taxAmount, 0) : 0);
+
+      const items = Array.isArray(order.items)
+        ? order.items.map((item: any) => ({
+            name: item.name,
+            quantity: toNumber(item.quantity) || 0,
+            price: roundToTwo(toNumber(item.price)),
+            customPizza: item.customPizza,
+          }))
+        : [];
+
+      const printData: BrowserPrintPayload = {
+        orderId: String(order.id),
+        orderNumber: deriveOrderNumber(),
+        items,
+        subtotal: roundToTwo(subtotal),
+        gst: roundToTwo(gstAmount),
+        pst: roundToTwo(pstAmount),
+        tax: roundToTwo(taxAmount),
+        total: roundToTwo(total),
+        paymentMethod: order.paymentMethod || "unknown",
+        createdByName: order.createdByName || order.createdBy || undefined,
+        notes: order.notes || undefined,
       };
 
       const result = await browserPrintService.print(printData);
