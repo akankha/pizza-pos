@@ -22,45 +22,34 @@ export default function TouchButton({
   type = "button",
 }: TouchButtonProps) {
   const baseClasses =
-    "font-semibold rounded-touch transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none";
+    "relative overflow-hidden font-semibold rounded-xl transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none select-none flex items-center justify-center gap-2";
 
   const variantClasses = {
     primary:
-      "bg-[#FF6B35] hover:bg-[#E85D2A] text-white shadow-md hover:shadow-lg active:shadow-sm",
+      "bg-gradient-to-r from-[#FF6B35] to-[#ff8555] hover:from-[#e85d2a] hover:to-[#FF6B35] text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md",
     secondary:
-      "bg-[#004E89] hover:bg-[#003D6B] text-white shadow-md hover:shadow-lg active:shadow-sm",
+      "bg-gradient-to-r from-[#1e40af] to-[#3b82f6] hover:from-[#1e3a8a] hover:to-[#2563eb] text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md",
     success:
-      "bg-[#10B981] hover:bg-[#059669] text-white shadow-md hover:shadow-lg active:shadow-sm",
+      "bg-gradient-to-r from-[#059669] to-[#10B981] hover:from-[#047857] hover:to-[#059669] text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md",
     outline:
-      "bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-orange-50 shadow-sm",
-    ghost: "bg-transparent hover:bg-gray-100 text-gray-700 shadow-none",
+      "bg-white hover:bg-orange-50 border-2 border-[#FF6B35] text-[#FF6B35] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+    ghost:
+      "bg-transparent hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-300 shadow-none hover:-translate-y-0.5 active:translate-y-0",
   };
 
   const sizeClasses = {
-    small: "px-4 py-2 text-base min-h-touch",
-    medium: "px-6 py-3 text-touch min-h-touch-lg",
-    large: "px-8 py-4 text-touch-lg min-h-touch-xl",
-    xl: "px-10 py-5 text-touch-xl min-h-[80px]",
+    small: "px-4 py-2.5 text-sm min-h-[44px]",
+    medium: "px-5 py-3 text-base min-h-[52px]",
+    large: "px-6 py-3.5 text-lg min-h-[56px]",
+    xl: "px-8 py-4 text-xl min-h-[64px]",
   };
 
   const widthClass = fullWidth ? "w-full" : "";
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!disabled) {
-      e.currentTarget.classList.add("scale-[0.98]");
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.currentTarget.classList.remove("scale-[0.98]");
-  };
 
   return (
     <button
       type={type}
       onClick={onClick}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
       disabled={disabled}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${className}`}
     >

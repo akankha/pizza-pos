@@ -1,17 +1,18 @@
 import {
   BarChart3,
   Calendar,
+  ChevronRight,
   Home,
   LogOut,
   Pizza,
   Settings,
   ShoppingBag,
+  Sparkles,
   TrendingUp,
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TouchButton from "../components/TouchButton";
 import VersionInfo from "../components/VersionInfo";
 import { authFetch } from "../utils/api";
 
@@ -91,7 +92,8 @@ export default function AdminDashboardPage() {
       icon: Pizza,
       description: "Add, edit, or remove menu items",
       path: "/admin/menu",
-      gradient: "from-orange-500 to-red-500",
+      gradient: "from-[#FF6B35] to-orange-500",
+      shadowColor: "shadow-[#FF6B35]/20",
     },
     {
       title: "User Management",
@@ -99,6 +101,7 @@ export default function AdminDashboardPage() {
       description: "Manage staff and user roles",
       path: "/admin/users",
       gradient: "from-blue-500 to-indigo-500",
+      shadowColor: "shadow-blue-500/20",
     },
     {
       title: "Sales Reports",
@@ -106,144 +109,159 @@ export default function AdminDashboardPage() {
       description: "View daily, weekly, monthly reports",
       path: "/admin/reports",
       gradient: "from-purple-500 to-pink-500",
+      shadowColor: "shadow-purple-500/20",
     },
     {
       title: "Restaurant Settings",
       icon: Settings,
       description: "Configure restaurant info and taxes",
       path: "/admin/settings",
-      gradient: "from-gray-600 to-slate-700",
+      gradient: "from-slate-500 to-slate-600",
+      shadowColor: "shadow-slate-500/20",
+    },
+  ];
+
+  const statCards = [
+    {
+      label: "Today's Sales",
+      value: `$${stats.todaySales.toFixed(2)}`,
+      icon: Calendar,
+      gradient: "from-[#FF6B35] to-orange-500",
+      bgGlow: "bg-[#FF6B35]/10",
+    },
+    {
+      label: "Today's Orders",
+      value: stats.todayOrders,
+      icon: ShoppingBag,
+      gradient: "from-emerald-500 to-green-500",
+      bgGlow: "bg-emerald-500/10",
+    },
+    {
+      label: "Week Sales",
+      value: `$${stats.weekSales.toFixed(2)}`,
+      icon: TrendingUp,
+      gradient: "from-blue-500 to-indigo-500",
+      bgGlow: "bg-blue-500/10",
+    },
+    {
+      label: "Week Orders",
+      value: stats.weekOrders,
+      icon: BarChart3,
+      gradient: "from-purple-500 to-pink-500",
+      bgGlow: "bg-purple-500/10",
     },
   ];
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+    <div className="min-h-screen w-screen bg-slate-800 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6 shadow-2xl">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
-            onClick={() => navigate("/")}
-            variant="outline"
-            size="medium"
-            className="!bg-white/10 !text-white hover:!bg-white/20 backdrop-blur-sm border-white/20"
-          >
-            <Home size={28} />
-          </TouchButton>
+      <header className="bg-slate-900 border-b border-slate-700 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all duration-300 shadow-md"
+            >
+              <Home size={20} />
+              <span className="font-medium hidden sm:inline">Home</span>
+            </button>
 
-          <h1 className="text-4xl font-bold">🔐 Admin Dashboard</h1>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#FF6B35] flex items-center justify-center shadow-lg">
+                <Sparkles size={20} className="text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-white hidden sm:block">
+                Admin Dashboard
+              </h1>
+            </div>
 
-          <TouchButton
-            onClick={handleLogout}
-            variant="outline"
-            size="medium"
-            className="!bg-red-500/80 !text-white hover:!bg-red-600 backdrop-blur-sm border-white/20"
-          >
-            <LogOut size={28} />
-          </TouchButton>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 shadow-md"
+            >
+              <LogOut size={20} />
+              <span className="font-medium hidden sm:inline">Logout</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-orange-300 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-4">
-                  <Calendar size={28} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold">
-                    Today's Sales
-                  </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    ${stats.todaySales.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-green-300 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-full p-4">
-                  <ShoppingBag size={28} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold">
-                    Today's Orders
-                  </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    {stats.todayOrders}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-blue-300 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full p-4">
-                  <TrendingUp size={28} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold">
-                    Week Sales
-                  </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    ${stats.weekSales.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-purple-300 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-4">
-                  <BarChart3 size={28} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold">
-                    Week Orders
-                  </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {stats.weekOrders}
-                  </p>
-                </div>
-              </div>
+          <div className="animate-slide-up">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <TrendingUp size={18} className="text-[#FF6B35]" />
+              Performance Overview
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {statCards.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div
+                    key={stat.label}
+                    className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 group animate-slide-up border border-slate-200"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div
+                        className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient}`}
+                      >
+                        <Icon size={20} className="text-white" />
+                      </div>
+                    </div>
+                    <p className="text-slate-600 text-sm font-medium mb-1">
+                      {stat.label}
+                    </p>
+                    <p className="text-2xl lg:text-3xl font-bold text-slate-900">
+                      {stat.value}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* Admin Actions */}
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+          <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <Settings size={18} className="text-[#FF6B35]" />
               Management Tools
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {adminCards.map((card) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {adminCards.map((card, index) => {
                 const Icon = card.icon;
                 return (
                   <button
                     key={card.path}
                     onClick={() => navigate(card.path)}
-                    className="group bg-white rounded-2xl p-8 border-2 border-gray-300 hover:border-orange-500 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] text-left shadow-md"
+                    className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl text-left transition-all duration-300 hover:scale-[1.02] animate-slide-up border border-slate-200"
+                    style={{ animationDelay: `${0.3 + index * 0.05}s` }}
                   >
-                    <div
-                      className={`bg-gradient-to-r ${card.gradient} rounded-xl w-16 h-16 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md`}
-                    >
-                      <Icon size={32} className="text-white" strokeWidth={2} />
+                    <div className="flex items-start justify-between">
+                      <div
+                        className={`p-3 rounded-xl bg-gradient-to-br ${card.gradient} shadow-md group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        <Icon size={24} className="text-white" />
+                      </div>
+                      <ChevronRight
+                        size={20}
+                        className="text-slate-400 group-hover:text-[#FF6B35] group-hover:translate-x-1 transition-all duration-300"
+                      />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-[#FF6B35] transition-colors">
+                    <h3 className="text-xl font-bold text-slate-900 mt-4 mb-2 group-hover:text-[#FF6B35] transition-colors">
                       {card.title}
                     </h3>
-                    <p className="text-gray-700 font-medium">
-                      {card.description}
-                    </p>
+                    <p className="text-slate-600 text-sm">{card.description}</p>
                   </button>
                 );
               })}
             </div>
+          </div>
 
-            {/* Version Info */}
-            <VersionInfo className="mt-8" />
+          {/* Version Info */}
+          <div className="animate-slide-up" style={{ animationDelay: "0.5s" }}>
+            <VersionInfo className="bg-white rounded-2xl shadow-lg border border-slate-200 p-4" />
           </div>
         </div>
       </div>

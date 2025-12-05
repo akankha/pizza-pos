@@ -19,75 +19,87 @@ export default function KitchenOrderCard({
     (Date.now() - new Date(order.createdAt).getTime()) / 60000
   );
 
+  // Determine urgency based on time
+  const isUrgent = timeSince > 10;
+
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 border-4 border-pizza-orange">
+    <div
+      className={`bg-slate-800 rounded-2xl shadow-xl overflow-hidden border-2 ${
+        isUrgent ? "border-red-500/50" : "border-slate-700"
+      }`}
+    >
       {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-3xl font-bold text-pizza-red">
-            Order #{order.id.slice(0, 8).toUpperCase()}
-          </h2>
-          <div className="flex items-center gap-2 mt-2 text-gray-600">
-            <Clock size={20} />
-            <span className="text-lg">
-              {orderTime} • {timeSince} min{timeSince !== 1 ? "s" : ""} ago
-            </span>
-          </div>
-          {order.createdByName && (
-            <div className="mt-2 text-gray-700">
-              <span className="text-md font-semibold">
-                Taken by: {order.createdByName}
+      <div className={`p-4 ${isUrgent ? "bg-red-500/10" : "bg-slate-700/50"}`}>
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-lg font-bold text-white">
+              #{order.id.slice(0, 8).toUpperCase()}
+            </h2>
+            <div className="flex items-center gap-2 mt-1 text-slate-400">
+              <Clock size={14} />
+              <span className="text-sm">
+                {orderTime} •{" "}
+                <span className={isUrgent ? "text-red-400 font-semibold" : ""}>
+                  {timeSince}m ago
+                </span>
               </span>
             </div>
-          )}
-        </div>
-        <div
-          className={`px-4 py-2 rounded-full text-lg font-bold ${
-            order.status === "pending"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-blue-100 text-blue-800"
-          }`}
-        >
-          {order.status.toUpperCase()}
+            {order.createdByName && (
+              <div className="mt-1 text-sm text-slate-500">
+                By: {order.createdByName}
+              </div>
+            )}
+          </div>
+          <div
+            className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${
+              order.status === "pending"
+                ? "bg-amber-500/20 text-amber-400"
+                : "bg-blue-500/20 text-blue-400"
+            }`}
+          >
+            {order.status}
+          </div>
         </div>
       </div>
 
       {/* Items */}
-      <div className="space-y-4 mb-6">
+      <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
         {order.items
-          .filter((item) => item.type !== "drink") // Filter out drinks from kitchen display
+          .filter((item) => item.type !== "drink")
           .map((item, index) => (
-            <div key={index} className="bg-pizza-cream rounded-xl p-4">
+            <div key={index} className="bg-slate-700/50 rounded-xl p-3">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-pizza-brown">
-                    {item.quantity}x {item.name}
+                  <h3 className="font-bold text-white">
+                    <span className="text-[#FF6B35]">{item.quantity}x</span>{" "}
+                    {item.name}
                   </h3>
 
                   {item.customPizza && (
-                    <div className="mt-2 space-y-1">
-                      <p className="text-lg font-semibold text-gray-700">
-                        Size: {item.customPizza.size.toUpperCase()} • Crust:{" "}
-                        {item.customPizza.crust.charAt(0).toUpperCase() +
-                          item.customPizza.crust.slice(1)}
+                    <div className="mt-2 space-y-1 text-sm text-slate-400">
+                      <p>
+                        {item.customPizza.size.toUpperCase()} •{" "}
+                        {item.customPizza.crust}
                       </p>
 
                       {item.customPizza.toppings.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-md font-semibold text-gray-600">
-                            Toppings:
-                          </p>
-                          <p className="text-lg text-gray-700">
-                            {item.customPizza.toppings.join(", ")}
-                          </p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {item.customPizza.toppings.map((topping, i) => (
+                            <span
+                              key={i}
+                              className="bg-slate-600 px-2 py-0.5 rounded text-xs text-slate-300"
+                            >
+                              {topping}
+                            </span>
+                          ))}
                         </div>
                       )}
                     </div>
                   )}
 
                   {item.notes && (
-                    <p className="mt-2 text-lg text-red-600 font-semibold">
-                      Note: {item.notes}
+                    <p className="mt-2 text-sm text-amber-400 font-medium">
+                      ⚠ {item.notes}
                     </p>
                   )}
                 </div>
@@ -98,21 +110,23 @@ export default function KitchenOrderCard({
 
       {/* Order notes */}
       {order.notes && (
-        <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4 mb-6">
-          <p className="text-lg font-semibold text-yellow-900">
-            Order Note: {order.notes}
+        <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+          <p className="text-sm text-amber-400">
+            <span className="font-semibold">Note:</span> {order.notes}
           </p>
         </div>
       )}
 
       {/* Complete button */}
-      <button
-        onClick={() => onComplete(order.id)}
-        className="w-full bg-pizza-green hover:bg-green-600 text-white text-2xl font-bold py-6 rounded-xl shadow-lg flex items-center justify-center gap-3 touch-target-lg active:scale-98 transition-transform"
-      >
-        <Check size={32} />
-        Mark as Completed
-      </button>
+      <div className="p-4 pt-0">
+        <button
+          onClick={() => onComplete(order.id)}
+          className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98]"
+        >
+          <Check size={22} />
+          Complete Order
+        </button>
+      </div>
     </div>
   );
 }

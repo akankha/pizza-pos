@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../../../shared/types";
 import KitchenOrderCard from "../components/KitchenOrderCard";
-import TouchButton from "../components/TouchButton";
+import LoadingScreen from "../components/LoadingScreen";
 import { authFetch } from "../utils/api";
 
 export default function KitchenViewPage() {
@@ -59,67 +59,67 @@ export default function KitchenViewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-        <div className="text-3xl font-bold text-brand-primary">
-          Loading kitchen orders...
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading kitchen orders..." variant="dark" />;
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex flex-col">
+    <div className="h-screen w-screen bg-slate-900 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
+      <header className="bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/50 p-4">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
+          <button
             onClick={() => navigate("/")}
-            variant="ghost"
-            size="medium"
+            className="flex items-center gap-2 px-4 py-2.5 text-slate-300 hover:bg-slate-700 rounded-xl transition-all duration-200"
           >
-            <ArrowLeft size={28} />
-          </TouchButton>
+            <ArrowLeft size={20} />
+            <span className="font-medium hidden sm:inline">Back</span>
+          </button>
 
-          <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-bold text-gray-800">
-              👨‍🍳 Kitchen Display
-            </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold text-white">Kitchen Display</h1>
             <div
-              className="w-4 h-4 rounded-full shadow-lg bg-green-400 animate-pulse"
+              className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50"
               title="Auto-refreshing every 3 seconds"
             />
           </div>
 
-          <TouchButton onClick={fetchOrders} variant="ghost" size="medium">
-            <RefreshCw size={28} />
-          </TouchButton>
+          <button
+            onClick={fetchOrders}
+            className="flex items-center gap-2 px-4 py-2.5 text-slate-300 hover:bg-slate-700 rounded-xl transition-all duration-200"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
-      </div>
+      </header>
 
       {/* Orders grid */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
         <div className="max-w-7xl mx-auto">
           {orders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="bg-white/50 backdrop-blur-sm rounded-full w-48 h-48 flex items-center justify-center mb-6 border-4 border-gray-200">
-                <div className="text-8xl">👨‍🍳</div>
+            <div className="flex flex-col items-center justify-center h-full py-16 animate-slide-up">
+              <div className="w-24 h-24 bg-slate-800 rounded-2xl flex items-center justify-center mb-6">
+                <span className="text-5xl opacity-50">👨‍🍳</span>
               </div>
-              <h2 className="text-5xl font-bold text-gray-400">
+              <h2 className="text-2xl font-bold text-slate-500">
                 No pending orders
               </h2>
-              <p className="text-2xl text-gray-400 mt-4">
+              <p className="text-sm text-slate-500 mt-2">
                 Orders will appear here automatically
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {orders.map((order) => (
-                <KitchenOrderCard
+            <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4 gap-5 space-y-5">
+              {orders.map((order, index) => (
+                <div
                   key={order.id}
-                  order={order}
-                  onComplete={handleCompleteOrder}
-                />
+                  className="break-inside-avoid animate-slide-up"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <KitchenOrderCard
+                    order={order}
+                    onComplete={handleCompleteOrder}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -127,19 +127,24 @@ export default function KitchenViewPage() {
       </div>
 
       {/* Footer */}
-      <div className="bg-white/80 backdrop-blur-lg p-6 shadow-2xl border-t border-gray-200">
-        <div className="flex justify-between items-center text-lg max-w-7xl mx-auto">
-          <span className="font-semibold text-gray-700">
+      <footer className="bg-slate-800/80 backdrop-blur-xl p-4 border-t border-slate-700/50">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <span className="font-medium text-slate-300">
             Active Orders:{" "}
-            <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-3xl font-bold">
+            <span className="text-2xl font-bold text-[#FF6B35]">
               {orders.length}
             </span>
           </span>
-          <span className="text-gray-600 font-medium">
-            🔄 Auto-refresh: Every 3 seconds
+          <span className="text-sm text-slate-500 flex items-center gap-2">
+            <RefreshCw
+              size={14}
+              className="animate-spin"
+              style={{ animationDuration: "3s" }}
+            />
+            Auto-refresh: 3s
           </span>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

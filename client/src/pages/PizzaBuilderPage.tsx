@@ -1,7 +1,7 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import TouchButton from "../components/TouchButton";
+import LoadingScreen from "../components/LoadingScreen";
 import { useMenu } from "../contexts/MenuContext";
 import { useCartStore } from "../stores/cartStore";
 import { usePizzaBuilderStore } from "../stores/pizzaBuilderStore";
@@ -42,12 +42,9 @@ export default function PizzaBuilderPage() {
     }
   }, [specialtyContext, selectedToppings, originalToppings]);
 
+  // Show loading screen while loading
   if (loading || !menuData) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-        <div className="text-3xl font-bold text-[#FF6B35]">Loading menu...</div>
-      </div>
-    );
+    return <LoadingScreen message="Loading pizza builder..." />;
   }
 
   const handleAddToCart = () => {
@@ -198,32 +195,32 @@ export default function PizzaBuilderPage() {
   const canAddToCart = selectedSize && selectedCrust;
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex flex-col">
+    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-3 sm:p-6 shadow-sm">
+      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800 p-4">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
+          <button
             onClick={() => navigate("/new-order")}
-            variant="ghost"
-            size="medium"
-            className="!p-2 sm:!p-3"
+            className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
           >
-            <ArrowLeft size={20} className="sm:w-7 sm:h-7" />
-          </TouchButton>
+            <ArrowLeft size={20} />
+            <span className="font-medium hidden sm:inline">Back</span>
+          </button>
 
-          <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-800 text-center">
-            🍕{" "}
-            {specialtyContext?.specialtyBase
-              ? `Customize ${specialtyContext.specialtyBase}`
-              : "Build Your Pizza"}
-          </h1>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {specialtyContext?.specialtyBase
+                ? `Customize ${specialtyContext.specialtyBase}`
+                : "Build Your Pizza"}
+            </h1>
+          </div>
 
-          <div className="w-8 sm:w-24"></div>
+          <div className="w-20"></div>
         </div>
         {specialtyContext?.specialtyBase && (
-          <div className="bg-orange-50 border-t border-orange-200 px-3 sm:px-6 py-2 sm:py-3">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-orange-800 text-sm sm:text-base">
-              <span className="font-semibold">💰 Special Price:</span>
+          <div className="bg-orange-50 dark:bg-orange-900/20 border-t border-orange-200/50 dark:border-orange-800/50 px-4 py-2 mt-2 rounded-xl mx-4">
+            <div className="flex items-center gap-2 text-orange-700 dark:text-orange-300 text-sm">
+              <span className="font-semibold">💰</span>
               <span>
                 Base ${specialtyContext.basePrice?.toFixed(2)} - Only extra
                 toppings add to cost
@@ -231,35 +228,35 @@ export default function PizzaBuilderPage() {
             </div>
           </div>
         )}
-      </div>
+      </header>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left Panel - Pizza Customization */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar">
           {/* Size Selection */}
-          <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="text-xl sm:text-2xl">📏</span> Select Size
+          <div className="animate-slide-up" style={{ animationDelay: "0s" }}>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-3 uppercase tracking-wide flex items-center gap-2">
+              <span>📏</span> Select Size
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {menuData.sizes.map((size) => (
                 <button
                   key={size.id}
                   onClick={() => setSize(size.name)}
-                  className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedSize === size.name
-                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-xl"
-                      : "bg-white/80 backdrop-blur-sm border-gray-200 text-gray-800 hover:border-[#FF6B35] shadow-lg hover:shadow-xl"
+                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-lg shadow-orange-500/20"
+                      : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35]"
                   }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-xl">
+                  <div className="text-center">
+                    <span className="font-bold text-base block">
                       {size.displayName}
                     </span>
                     <span
-                      className={`font-bold text-lg ${
+                      className={`text-sm font-semibold ${
                         selectedSize === size.name
-                          ? "text-white"
+                          ? "text-white/90"
                           : "text-[#FF6B35]"
                       }`}
                     >
@@ -272,29 +269,29 @@ export default function PizzaBuilderPage() {
           </div>
 
           {/* Crust Selection */}
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-2xl">🥖</span> Select Crust
+          <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-3 uppercase tracking-wide flex items-center gap-2">
+              <span>🥖</span> Select Crust
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {menuData.crusts.map((crust) => (
                 <button
                   key={crust.id}
                   onClick={() => setCrust(crust.type)}
-                  className={`p-6 rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedCrust === crust.type
-                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-xl"
-                      : "bg-white/80 backdrop-blur-sm border-gray-200 text-gray-800 hover:border-[#FF6B35] shadow-lg hover:shadow-xl"
+                      ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-lg shadow-orange-500/20"
+                      : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35]"
                   }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-xl">
+                  <div className="text-center">
+                    <span className="font-bold text-base block">
                       {crust.displayName}
                     </span>
                     <span
-                      className={`font-bold text-lg ${
+                      className={`text-sm font-semibold ${
                         selectedCrust === crust.type
-                          ? "text-white"
+                          ? "text-white/90"
                           : "text-[#FF6B35]"
                       }`}
                     >
@@ -309,44 +306,46 @@ export default function PizzaBuilderPage() {
           </div>
 
           {/* Toppings Selection */}
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-2xl">🧀</span> Add Toppings
-              <span className="text-xl font-normal text-gray-500">
-                ({selectedToppings.length} selected)
+          <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-3 uppercase tracking-wide flex items-center gap-2">
+              <span>🧀</span> Add Toppings
+              <span className="text-xs font-normal bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                {selectedToppings.length} selected
               </span>
             </h2>
 
-            {["meat", "cheese", "veggie"].map((category) => (
-              <div key={category} className="mb-6">
-                <h3 className="text-xl font-bold text-gray-600 mb-3 capitalize flex items-center gap-2">
+            {["meat", "cheese", "veggie"].map((category, catIndex) => (
+              <div key={category} className="mb-5">
+                <h3 className="text-xs font-medium text-gray-400 dark:text-slate-500 mb-2 capitalize flex items-center gap-2">
                   {category === "meat" && "🥩"}
                   {category === "cheese" && "🧀"}
                   {category === "veggie" && "🥬"}
                   {category} Toppings
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {menuData.toppings
                     .filter((t) => t.category === category)
-                    .map((topping) => {
+                    .map((topping, index) => {
                       const isSelected = selectedToppings.includes(topping.id);
                       return (
                         <button
                           key={topping.id}
                           onClick={() => toggleTopping(topping.id)}
-                          className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+                          className={`p-3 rounded-xl border-2 transition-all duration-200 ${
                             isSelected
-                              ? "bg-[#10B981] border-[#10B981] text-white shadow-lg"
-                              : "bg-white/80 backdrop-blur-sm border-gray-200 text-gray-800 hover:border-[#10B981] shadow-md hover:shadow-lg"
+                              ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                              : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500"
                           }`}
                         >
                           <div className="text-center">
-                            <div className="font-semibold mb-1">
+                            <div className="font-medium text-sm">
                               {topping.name}
                             </div>
                             <div
-                              className={`text-sm ${
-                                isSelected ? "text-white" : "text-[#10B981]"
+                              className={`text-xs font-semibold ${
+                                isSelected
+                                  ? "text-white/90"
+                                  : "text-emerald-500"
                               }`}
                             >
                               +${topping.price.toFixed(2)}
@@ -362,19 +361,19 @@ export default function PizzaBuilderPage() {
         </div>
 
         {/* Right Panel - Order Summary */}
-        <div className="w-full lg:w-96 bg-white/80 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-gray-200 p-3 sm:p-4 md:p-8 flex flex-col shadow-lg">
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">
+        <div className="w-full lg:w-80 glass dark:bg-slate-900/80 border-t lg:border-t-0 lg:border-l border-gray-200/50 dark:border-slate-800 p-4 flex flex-col">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-4 uppercase tracking-wide">
             Your Pizza
           </h3>
 
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 mb-3 sm:mb-4">
+          <div className="flex-1 overflow-y-auto space-y-3 mb-4 custom-scrollbar">
             {/* Size */}
-            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
-              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-1">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                 Size
               </div>
-              <div className="text-lg sm:text-xl font-bold text-gray-800">
+              <div className="font-semibold text-gray-800 dark:text-white">
                 {selectedSize
                   ? menuData.sizes.find((s) => s.name === selectedSize)
                       ?.displayName
@@ -383,11 +382,11 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Crust */}
-            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
-              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-1">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                 Crust
               </div>
-              <div className="text-lg sm:text-xl font-bold text-gray-800">
+              <div className="font-semibold text-gray-800 dark:text-white">
                 {selectedCrust
                   ? menuData.crusts.find((c) => c.type === selectedCrust)
                       ?.displayName
@@ -396,13 +395,13 @@ export default function PizzaBuilderPage() {
             </div>
 
             {/* Toppings - scrollable */}
-            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 max-h-64 overflow-y-auto">
-              <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-2">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700 max-h-40 overflow-y-auto">
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-2">
                 Toppings ({selectedToppings.length})
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {selectedToppings.length === 0 ? (
-                  <span className="text-gray-400 italic text-sm">
+                  <span className="text-gray-400 dark:text-slate-500 italic text-sm">
                     No toppings
                   </span>
                 ) : (
@@ -413,7 +412,7 @@ export default function PizzaBuilderPage() {
                     return (
                       <span
                         key={toppingId}
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow"
+                        className="bg-emerald-500 text-white px-2 py-1 rounded-lg text-xs font-medium"
                       >
                         {topping?.name}
                       </span>
@@ -425,33 +424,33 @@ export default function PizzaBuilderPage() {
           </div>
 
           {/* Total - Always visible at bottom */}
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white mb-4">
-            <div className="text-lg font-semibold mb-2">Total Price</div>
-            <div className="text-5xl font-bold">
+          <div className="bg-gradient-to-r from-[#FF6B35] to-orange-500 rounded-xl p-4 text-white mb-4">
+            <div className="text-sm font-medium mb-1 text-white/80">
+              Total Price
+            </div>
+            <div className="text-3xl font-bold">
               ${calculateTotal().toFixed(2)}
             </div>
           </div>
 
           {/* Add to Cart Button - Always visible at bottom */}
-          <div>
-            <TouchButton
-              onClick={handleAddToCart}
-              variant={canAddToCart ? "success" : "outline"}
-              size="large"
-              disabled={!canAddToCart}
-              className="w-full text-lg md:text-2xl !py-4 md:!py-6"
-            >
-              <div className="flex items-center justify-center gap-3">
-                <Plus size={32} />
-                <span>Add to Order</span>
-              </div>
-            </TouchButton>
-            {!canAddToCart && (
-              <p className="text-center text-sm text-gray-500 mt-3">
-                Please select size and crust
-              </p>
-            )}
-          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={!canAddToCart}
+            className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
+              canAddToCart
+                ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white shadow-lg shadow-emerald-500/20"
+                : "bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed"
+            }`}
+          >
+            <Plus size={22} />
+            <span>Add to Order</span>
+          </button>
+          {!canAddToCart && (
+            <p className="text-center text-xs text-gray-400 dark:text-slate-500 mt-2">
+              Please select size and crust
+            </p>
+          )}
         </div>
       </div>
     </div>

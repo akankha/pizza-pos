@@ -50,7 +50,7 @@ export default function StaffLoginPage() {
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-red-50 to-orange-100">
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-red-50 to-orange-100 animate-fade-in">
       <div className="bg-white rounded-2xl p-12 w-full max-w-md border-2 border-gray-300 shadow-xl">
         {/* Logo */}
         <div className="flex justify-center mb-8">

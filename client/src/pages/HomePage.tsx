@@ -144,102 +144,93 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200">
+    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-300 animate-fade-in">
       {/* Modern Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="bg-[#FF6B35] p-2 sm:p-3 rounded-xl shadow-md">
-                <Pizza
-                  size={28}
-                  className="sm:w-8 sm:h-8 text-white"
-                  aria-hidden="true"
-                />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl blur-lg opacity-50"></div>
+                <div className="relative bg-gradient-to-br from-[#FF6B35] to-[#ff8555] p-3 rounded-xl shadow-lg">
+                  <Pizza size={28} className="text-white" aria-hidden="true" />
+                </div>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                   Pizza POS
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">
                   Point of Sale System
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 w-full sm:w-auto">
-              {/* Current User Display */}
+
+            {/* Right side controls */}
+            <div className="flex items-center gap-3">
+              {/* User badge */}
               {currentUser && (
-                <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <User
-                    size={18}
-                    className="sm:w-5 sm:h-5 text-gray-600 dark:text-gray-300"
-                  />
-                  <div className="text-xs sm:text-sm">
-                    <p className="font-semibold text-gray-800">
+                <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-inner">
+                    <User size={18} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white">
                       {currentUser.full_name || currentUser.username}
                     </p>
-                    <p className="text-gray-600 capitalize text-xs">
-                      {currentUser.role}
+                    <p className="text-xs text-gray-500 dark:text-slate-400 capitalize">
+                      {currentUser.role?.replace("_", " ")}
                     </p>
                   </div>
                 </div>
               )}
 
+              {/* Action buttons */}
               <button
                 onClick={handleRefresh}
-                className="flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md text-sm sm:text-base"
+                className="p-3 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
                 aria-label="Refresh menu"
               >
-                <RefreshCw size={20} className="sm:w-6 sm:h-6" />
-                <span className="font-semibold">Refresh</span>
+                <RefreshCw size={20} />
               </button>
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-md text-sm sm:text-base"
+                className="p-3 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-700 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
                 aria-label="Logout"
               >
-                <LogOut size={20} className="sm:w-6 sm:h-6" />
-                <span className="font-semibold">Logout</span>
+                <LogOut size={20} />
               </button>
-
-              <div className="text-center sm:text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-600">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {new Date().toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-8">
-        <div className="max-w-6xl w-full mx-auto min-h-full flex flex-col justify-center">
+      <main className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+        <div className="max-w-5xl w-full mx-auto">
           {/* Welcome Section */}
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 sm:mb-3">
+          <div className="text-center mb-10 animate-fade-in">
+            <p className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-2">
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
               Welcome Back
             </h2>
-            <p className="text-lg sm:text-xl text-gray-600">
-              Select an option to get started
+            <p className="text-lg text-gray-600 dark:text-slate-400">
+              What would you like to do today?
             </p>
           </div>
 
           {/* Action Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {mainActions.map((action) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 animate-slide-up">
+            {mainActions.map((action, index) => {
               const user = getCurrentUser();
               const isDisabled =
                 (action.requiresAdmin &&
@@ -253,77 +244,88 @@ export default function HomePage() {
                   key={action.path}
                   onClick={() => handleNavigation(action)}
                   disabled={isDisabled}
-                  aria-label={`${action.title}: ${action.description}`}
-                  className={`group bg-white dark:bg-gray-800 rounded-2xl border-2 p-8 transition-all duration-200 shadow-md ${
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className={`group relative bg-white dark:bg-slate-800/80 rounded-2xl p-6 transition-all duration-300 border border-gray-200 dark:border-slate-700 ${
                     isDisabled
-                      ? "border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed"
-                      : "border-gray-300 dark:border-gray-600 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-slate-900/50 hover:-translate-y-1 hover:border-gray-300 dark:hover:border-slate-600"
                   }`}
                 >
-                  <div className="flex flex-col items-center text-center gap-5">
+                  {/* Gradient glow on hover */}
+                  {!isDisabled && (
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${action.color} rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                    ></div>
+                  )}
+
+                  <div className="relative flex flex-col items-center text-center gap-4">
                     {/* Icon */}
                     <div
                       className={`${
                         action.iconBg
-                      } p-6 rounded-xl transition-transform duration-200 ${
-                        !isDisabled && "group-hover:scale-110"
+                      } dark:bg-slate-700 p-5 rounded-2xl transition-all duration-300 ${
+                        !isDisabled &&
+                        "group-hover:scale-105 group-hover:shadow-lg"
                       }`}
                     >
                       <action.icon
-                        size={52}
-                        className={action.iconColor}
-                        strokeWidth={2}
+                        size={36}
+                        className={`${action.iconColor} dark:text-slate-300`}
+                        strokeWidth={1.5}
                       />
                     </div>
 
                     {/* Content */}
                     <div>
                       <h3
-                        className={`text-xl font-bold mb-2 transition-colors ${
+                        className={`text-lg font-bold mb-1 transition-colors duration-200 ${
                           isDisabled
-                            ? "text-gray-400 dark:text-gray-500"
+                            ? "text-gray-400 dark:text-slate-500"
                             : "text-gray-900 dark:text-white group-hover:text-[#FF6B35]"
                         }`}
                       >
                         {action.title}
                       </h3>
                       <p
-                        className={`text-sm font-medium ${
+                        className={`text-sm ${
                           isDisabled
-                            ? "text-gray-400 dark:text-gray-600"
-                            : "text-gray-700 dark:text-gray-300"
+                            ? "text-gray-400 dark:text-slate-500"
+                            : "text-gray-500 dark:text-slate-400"
                         }`}
                       >
                         {action.description}
                       </p>
-                      {isDisabled && (
-                        <p className="text-xs text-red-500 mt-2 font-semibold">
-                          🔒 Access Restricted
-                        </p>
-                      )}
                     </div>
 
-                    {/* Visual Indicator */}
-                    <div className="mt-2 pt-3 border-t border-gray-200 w-full">
-                      <div
-                        className={`h-2 rounded-full ${action.iconColor.replace(
-                          "text-",
-                          "bg-"
-                        )} group-hover:h-2.5 transition-all duration-200`}
-                      ></div>
-                    </div>
+                    {/* Bottom indicator */}
+                    <div
+                      className={`w-12 h-1 rounded-full bg-gradient-to-r ${
+                        action.color
+                      } transition-all duration-300 ${
+                        !isDisabled && "group-hover:w-20"
+                      }`}
+                    ></div>
+
+                    {isDisabled && (
+                      <span className="absolute top-3 right-3 text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded-full">
+                        Restricted
+                      </span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Quick Stats or Info Banner */}
-          <div className="mt-8 bg-green-50 rounded-xl p-5 border-2 border-green-400 shadow-sm">
-            <div className="flex items-center justify-center gap-3 text-gray-900">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <p className="text-base font-bold">
-                System Ready • All Services Online
+          {/* Status Banner */}
+          <div className="mt-8 animate-fade-in">
+            <div className="flex items-center justify-center gap-3 py-4 px-6 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-200 dark:border-emerald-500/20">
+              <div className="relative">
+                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                <div className="absolute inset-0 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></div>
+              </div>
+              <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                System Online • All Services Running
               </p>
             </div>
           </div>
@@ -331,41 +333,38 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-4">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-center text-sm text-gray-500">
-            Pizza POS v2.0 • © 2025 All Rights Reserved
-          </p>
-        </div>
+      <footer className="glass dark:bg-slate-900/80 border-t border-gray-200/50 dark:border-slate-800 py-3">
+        <p className="text-center text-sm text-gray-500 dark:text-slate-500">
+          Pizza POS v2.0 • © 2025
+        </p>
       </footer>
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-scale-in border border-gray-200 dark:border-slate-700">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-                <LogOut className="h-8 w-8 text-red-600 dark:text-red-400" />
+              <div className="mx-auto w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                <LogOut className="w-7 h-7 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Confirm Logout
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Are you sure you want to logout? You'll need to login again to
-                access the system.
+              <p className="text-gray-600 dark:text-slate-400 mb-6 text-sm">
+                Are you sure you want to logout? You'll need to login again.
               </p>
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-3">
                 <button
                   onClick={cancelLogout}
-                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg font-semibold transition-colors"
+                  className="flex-1 px-4 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-white rounded-xl font-semibold transition-all duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmLogout}
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors shadow-lg"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg shadow-red-500/25"
                 >
-                  Yes, Logout
+                  Logout
                 </button>
               </div>
             </div>

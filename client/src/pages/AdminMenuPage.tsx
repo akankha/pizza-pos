@@ -1,8 +1,8 @@
 import { ArrowLeft, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from "../components/LoadingScreen";
 import { showToast } from "../components/Toast";
-import TouchButton from "../components/TouchButton";
 import { useMenu } from "../contexts/MenuContext";
 import { authFetch, isAuthenticated } from "../utils/auth";
 
@@ -72,11 +72,7 @@ export default function AdminMenuPage() {
   };
 
   if (loading || !menuData) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-3xl font-bold">Loading...</div>
-      </div>
-    );
+    return <LoadingScreen message="Loading menu..." variant="dark" />;
   }
 
   const tabs = [
@@ -111,131 +107,137 @@ export default function AdminMenuPage() {
   };
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+    <div className="min-h-screen w-screen bg-slate-800 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6 shadow-2xl">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
-            onClick={() => navigate("/admin/dashboard")}
-            variant="outline"
-            size="medium"
-            className="!bg-white/10 !text-white hover:!bg-white/20 backdrop-blur-sm border-white/20"
-          >
-            <ArrowLeft size={28} />
-          </TouchButton>
+      <header className="bg-slate-900 border-b border-slate-700 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all duration-300 shadow-md"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium hidden sm:inline">Back</span>
+            </button>
 
-          <h1 className="text-4xl font-bold">🍕 Menu Management</h1>
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="text-2xl">🍕</span>
+              <span className="hidden sm:inline">Menu Management</span>
+            </h1>
 
-          <TouchButton
-            onClick={() => setIsAdding(true)}
-            variant="success"
-            size="medium"
-            className="!bg-green-500 hover:!bg-green-600"
-          >
-            <Plus size={28} />
-          </TouchButton>
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition-all duration-300"
+            >
+              <Plus size={20} />
+              <span className="font-medium hidden sm:inline">Add New</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-8 flex gap-2 overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-4 font-semibold text-lg border-b-4 transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "border-orange-500 text-orange-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <span className="mr-2">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+      <div className="bg-slate-900 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto custom-scrollbar py-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 font-medium text-sm rounded-xl transition-all whitespace-nowrap flex items-center gap-2 ${
+                  activeTab === tab.id
+                    ? "bg-[#FF6B35] text-white shadow-lg"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white"
+                }`}
+              >
+                <span>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getItems().map((item: any) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {getItems().map((item: any, index: number) => (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-orange-300 transition-all"
+                className="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${index * 0.03}s` }}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900">
                       {item.displayName || item.name}
                     </h3>
                     {item.description && (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                         {item.description}
                       </p>
                     )}
                     {item.items && (
-                      <p className="text-sm text-orange-600 mt-1 font-medium">
+                      <p className="text-sm text-[#FF6B35] mt-1 font-medium">
                         📦 {item.items}
                       </p>
                     )}
                     {item.toppings && (
-                      <p className="text-sm text-orange-600 mt-1 font-medium">
+                      <p className="text-sm text-[#FF6B35] mt-1 font-medium">
                         🍕 {item.toppings}
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 ml-3">
                     <button
                       onClick={() => setEditingItem(item)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-all"
+                      className="p-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-all shadow-md"
                     >
-                      <Edit size={20} />
+                      <Edit size={18} />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all"
+                      className="p-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-all shadow-md"
                     >
-                      <Trash2 size={20} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
+                <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
                   {activeTab === "specialty" ? (
                     <>
-                      <div className="text-sm text-gray-600 font-semibold mb-2">
-                        Prices:
+                      <div className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">
+                        Prices
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Small:</span>
-                          <span className="font-bold text-orange-600">
+                          <span className="text-slate-600">Small:</span>
+                          <span className="font-bold text-[#FF6B35]">
                             $
                             {item.prices?.small?.toFixed(2) ||
                               item.price_small?.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Medium:</span>
-                          <span className="font-bold text-orange-600">
+                          <span className="text-slate-600">Medium:</span>
+                          <span className="font-bold text-[#FF6B35]">
                             $
                             {item.prices?.medium?.toFixed(2) ||
                               item.price_medium?.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Large:</span>
-                          <span className="font-bold text-orange-600">
+                          <span className="text-slate-600">Large:</span>
+                          <span className="font-bold text-[#FF6B35]">
                             $
                             {item.prices?.large?.toFixed(2) ||
                               item.price_large?.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">X-Large:</span>
-                          <span className="font-bold text-orange-600">
+                          <span className="text-slate-600">X-Large:</span>
+                          <span className="font-bold text-[#FF6B35]">
                             $
                             {item.prices?.xlarge?.toFixed(2) ||
                               item.price_xlarge?.toFixed(2)}
@@ -245,10 +247,10 @@ export default function AdminMenuPage() {
                     </>
                   ) : (
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 font-semibold">
-                        Price:
+                      <span className="text-slate-600 text-sm font-medium">
+                        Price
                       </span>
-                      <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      <span className="text-2xl font-bold text-[#FF6B35]">
                         $
                         {(
                           item.basePrice ||
@@ -260,11 +262,9 @@ export default function AdminMenuPage() {
                     </div>
                   )}
                   {item.category && (
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-600 font-semibold">
-                        Category:
-                      </span>
-                      <span className="text-gray-800 capitalize">
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 text-sm">Category</span>
+                      <span className="text-slate-700 capitalize text-sm px-2 py-0.5 bg-slate-200 rounded-lg font-medium">
                         {item.category}
                       </span>
                     </div>
@@ -359,15 +359,15 @@ function EditModal({ item, type, onSave, onCancel }: any) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar animate-scale-in">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
           {item ? "Edit Item" : "Add New Item"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Name
             </label>
             <input
@@ -376,14 +376,14 @@ function EditModal({ item, type, onSave, onCancel }: any) {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
               required
             />
           </div>
 
           {(type === "size" || type === "crust") && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Display Name
               </label>
               <input
@@ -392,14 +392,14 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                 onChange={(e) =>
                   setFormData({ ...formData, displayName: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
               />
             </div>
           )}
 
           {type !== "specialty" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 {type === "size"
                   ? "Base Price"
                   : type === "crust"
@@ -428,7 +428,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                     [field]: parseFloat(e.target.value),
                   });
                 }}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                 required
               />
             </div>
@@ -436,7 +436,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
 
           {(type === "side" || type === "drink" || type === "combo") && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Description
               </label>
               <textarea
@@ -444,7 +444,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all resize-none"
                 rows={3}
               />
             </div>
@@ -453,7 +453,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
           {type === "combo" && (
             <>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Items Included
                 </label>
                 <textarea
@@ -461,14 +461,14 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                   onChange={(e) =>
                     setFormData({ ...formData, items: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all resize-none placeholder:text-slate-400"
                   rows={3}
                   placeholder="e.g., 2 Medium Pizzas, 1 Large Fries, 2L Pop"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Toppings Allowed Per Pizza
                 </label>
                 <input
@@ -482,10 +482,10 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                       toppings_allowed: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                   placeholder="e.g., 1, 2, 3, 4..."
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   How many toppings customers can select per pizza in this combo
                 </p>
               </div>
@@ -495,7 +495,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
           {type === "specialty" && (
             <>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Description
                 </label>
                 <textarea
@@ -503,12 +503,12 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all resize-none"
                   rows={2}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Toppings
                 </label>
                 <textarea
@@ -516,15 +516,15 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                   onChange={(e) =>
                     setFormData({ ...formData, toppings: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all resize-none placeholder:text-slate-400"
                   rows={2}
                   placeholder="e.g., Pepperoni, Mushrooms, Green Peppers"
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Small Price
                   </label>
                   <input
@@ -540,12 +540,12 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                         },
                       })
                     }
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Medium Price
                   </label>
                   <input
@@ -561,12 +561,12 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                         },
                       })
                     }
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Large Price
                   </label>
                   <input
@@ -582,12 +582,12 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                         },
                       })
                     }
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     X-Large Price
                   </label>
                   <input
@@ -603,7 +603,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                         },
                       })
                     }
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                     required
                   />
                 </div>
@@ -613,7 +613,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
 
           {type === "topping" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Category
               </label>
               <select
@@ -621,7 +621,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all"
                 required
               >
                 <option value="veggie">Veggie</option>
@@ -633,7 +633,7 @@ function EditModal({ item, type, onSave, onCancel }: any) {
 
           {type === "crust" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Type
               </label>
               <input
@@ -642,25 +642,26 @@ function EditModal({ item, type, onSave, onCancel }: any) {
                 onChange={(e) =>
                   setFormData({ ...formData, type: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none text-lg"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 transition-all placeholder:text-slate-400"
                 placeholder="e.g., thin, thick, etc."
               />
             </div>
           )}
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-4">
             <button
-              onClick={handleSubmit}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-xl font-bold rounded-2xl py-4 transition-all duration-200 hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+              type="submit"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl py-3.5 transition-all duration-300 shadow-md flex items-center justify-center gap-2"
             >
-              <Save size={24} />
+              <Save size={20} />
               Save
             </button>
             <button
+              type="button"
               onClick={onCancel}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xl font-bold rounded-2xl py-4 transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+              className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3.5 transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <X size={24} />
+              <X size={20} />
               Cancel
             </button>
           </div>

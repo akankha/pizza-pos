@@ -27,6 +27,26 @@ export default {
           green: "#10B981",
           gold: "#F59E0B",
         },
+        // Enhanced dark mode palette
+        dark: {
+          bg: {
+            primary: "#0F172A", // Deep slate background
+            secondary: "#1E293B", // Elevated surfaces
+            tertiary: "#334155", // Cards and components
+            elevated: "#475569", // Hover states
+          },
+          text: {
+            primary: "#F1F5F9", // Main text
+            secondary: "#CBD5E1", // Secondary text
+            tertiary: "#94A3B8", // Muted text
+            disabled: "#64748B", // Disabled text
+          },
+          border: {
+            primary: "#334155", // Primary borders
+            secondary: "#475569", // Hover borders
+            focus: "#FF8A5B", // Focus state (lighter orange)
+          },
+        },
       },
       fontSize: {
         // Touch-optimized typography

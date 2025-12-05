@@ -156,7 +156,7 @@ export default function CheckoutPage() {
 
   if (showSuccess) {
     return (
-      <div className="h-screen w-screen bg-[#10B981] flex flex-col items-center justify-center p-8">
+      <div className="h-screen w-screen bg-[#10B981] dark:bg-green-800 flex flex-col items-center justify-center p-8">
         <div className="text-center text-white">
           <div className="bg-white/20 backdrop-blur-lg rounded-full w-48 h-48 flex items-center justify-center mx-auto mb-8 animate-pulse">
             <div className="text-9xl" aria-hidden="true">
@@ -191,77 +191,81 @@ export default function CheckoutPage() {
   const total = getTotal();
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex flex-col">
+    <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm p-3 sm:p-6">
+      <header className="glass dark:bg-slate-900/80 border-b border-gray-200/50 dark:border-slate-800 p-4">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
+          <button
             onClick={() => navigate("/new-order")}
-            variant="ghost"
-            size="medium"
-            className="!p-2 sm:!p-3"
+            className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
           >
-            <ArrowLeft size={20} className="sm:w-7 sm:h-7" />
-          </TouchButton>
+            <ArrowLeft size={20} />
+            <span className="font-medium hidden sm:inline">Back</span>
+          </button>
 
-          <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-800">
-            🛒 Checkout
-          </h1>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              Checkout
+            </h1>
+          </div>
 
-          <TouchButton
+          <button
             onClick={() => navigate("/")}
-            variant="ghost"
-            size="medium"
-            className="!p-2 sm:!p-3"
+            className="flex items-center gap-2 px-4 py-2.5 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-200"
           >
-            <Home size={20} className="sm:w-7 sm:h-7" />
-          </TouchButton>
+            <Home size={20} />
+          </button>
         </div>
-      </div>
+      </header>
 
       {items.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="text-6xl sm:text-9xl mb-4 sm:mb-6 opacity-30">🛒</div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-400 mb-4 sm:mb-8 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 animate-slide-up">
+          <div className="w-24 h-24 bg-gray-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-6">
+            <div className="text-5xl opacity-40">🛒</div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-400 dark:text-slate-500 mb-6 text-center">
             Your cart is empty
           </h2>
-          <TouchButton
+          <button
             onClick={() => navigate("/new-order")}
-            variant="primary"
-            size="large"
-            className="text-lg sm:text-2xl"
+            className="px-6 py-3 bg-gradient-to-r from-[#FF6B35] to-orange-500 hover:from-[#e85d2a] hover:to-[#FF6B35] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30"
           >
             Start New Order
-          </TouchButton>
+          </button>
         </div>
       ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Left: Items list */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 space-y-3 sm:space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-3 custom-scrollbar">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-3">
               Order Items ({items.length})
             </h2>
-            {items.map((item) => (
-              <OrderItemCard
+            {items.map((item, index) => (
+              <div
                 key={item.id}
-                item={item}
-                onUpdateQuantity={updateQuantity}
-                onRemove={removeItem}
-              />
+                className="animate-slide-up"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <OrderItemCard
+                  item={item}
+                  onUpdateQuantity={updateQuantity}
+                  onRemove={removeItem}
+                />
+              </div>
             ))}
           </div>
 
           {/* Right: Payment section */}
-          <div className="w-full lg:w-96 bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-lg border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col max-h-screen lg:max-h-full overflow-y-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">
+          <div className="w-full lg:w-96 glass dark:bg-slate-900/80 p-4 md:p-6 shadow-xl border-t lg:border-t-0 lg:border-l border-gray-200/50 dark:border-slate-800 flex flex-col max-h-screen lg:max-h-full overflow-y-auto custom-scrollbar">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               Payment
             </h2>
 
             {/* Order Notes */}
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-4">
               <label
                 htmlFor="orderNotes"
-                className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2"
+                className="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-2 uppercase tracking-wide"
               >
                 Order Notes (Optional)
               </label>
@@ -271,46 +275,46 @@ export default function CheckoutPage() {
                 onChange={(e) => setOrderNotes(e.target.value)}
                 placeholder="Any special instructions..."
                 maxLength={500}
-                rows={3}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none text-sm sm:text-base resize-none transition-colors"
+                rows={2}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:border-[#FF6B35] dark:focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 text-sm resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500"
               />
-              <div className="text-xs text-gray-500 mt-1 text-right">
+              <div className="text-xs text-gray-400 dark:text-slate-500 mt-1 text-right">
                 {orderNotes.length}/500
               </div>
             </div>
 
             {/* Total */}
-            <div className="bg-gray-50 rounded-2xl p-4 md:p-6 mb-4 md:mb-8 border-2 border-gray-200">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xl font-semibold text-gray-600">
-                  Subtotal:
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-4 border border-gray-200 dark:border-slate-700 shadow-sm">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500 dark:text-slate-400">
+                  Subtotal
                 </span>
-                <span className="text-xl font-bold text-gray-800">
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">
                   ${total.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xl font-semibold text-gray-600">
-                  {taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%):
+                <span className="text-sm text-gray-500 dark:text-slate-400">
+                  {taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%)
                 </span>
-                <span className="text-xl font-bold text-gray-800">
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">
                   ${(total * taxRates.gst).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xl font-semibold text-gray-600">
-                  {taxRates.pstLabel} ({(taxRates.pst * 100).toFixed(1)}%):
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-gray-500 dark:text-slate-400">
+                  {taxRates.pstLabel} ({(taxRates.pst * 100).toFixed(1)}%)
                 </span>
-                <span className="text-xl font-bold text-gray-800">
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">
                   ${(total * taxRates.pst).toFixed(2)}
                 </span>
               </div>
-              <div className="border-t-2 border-gray-300 mt-4 pt-4">
+              <div className="border-t border-gray-200 dark:border-slate-700 pt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-gray-700">
-                    Total:
+                  <span className="text-base font-bold text-gray-700 dark:text-slate-200">
+                    Total
                   </span>
-                  <span className="text-4xl font-bold text-[#FF6B35]">
+                  <span className="text-2xl font-bold text-[#FF6B35]">
                     ${(total * (1 + taxRates.gst + taxRates.pst)).toFixed(2)}
                   </span>
                 </div>
@@ -318,38 +322,24 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment buttons */}
-            <div className="space-y-4 mt-6">
-              <TouchButton
+            <div className="space-y-3 mt-auto">
+              <button
                 onClick={() => handlePayment("card")}
-                variant="primary"
-                size="large"
                 disabled={isProcessing}
-                fullWidth
-                aria-label="Pay with credit or debit card"
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#FF6B35] to-orange-500 hover:from-[#e85d2a] hover:to-[#FF6B35] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <CreditCard size={24} aria-hidden="true" />
-                  <span>
-                    {isProcessing ? "Processing..." : "Pay with Card"}
-                  </span>
-                </div>
-              </TouchButton>
+                <CreditCard size={22} />
+                <span>{isProcessing ? "Processing..." : "Pay with Card"}</span>
+              </button>
 
-              <TouchButton
+              <button
                 onClick={() => handlePayment("cash")}
-                variant="success"
-                size="large"
                 disabled={isProcessing}
-                fullWidth
-                aria-label="Pay with cash"
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Banknote size={24} aria-hidden="true" />
-                  <span>
-                    {isProcessing ? "Processing..." : "Pay with Cash"}
-                  </span>
-                </div>
-              </TouchButton>
+                <Banknote size={22} />
+                <span>{isProcessing ? "Processing..." : "Pay with Cash"}</span>
+              </button>
             </div>
           </div>
         </div>

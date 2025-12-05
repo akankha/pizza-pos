@@ -1,8 +1,8 @@
-import { ArrowLeft, CheckCircle, Clock, Receipt } from "lucide-react";
+import { ArrowLeft, Clock, FileText, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../../../shared/types";
-import TouchButton from "../components/TouchButton";
+import LoadingScreen from "../components/LoadingScreen";
 import { apiUrl, authFetch } from "../utils/api";
 
 export default function ActiveOrdersPage() {
@@ -30,155 +30,161 @@ export default function ActiveOrdersPage() {
     }
   };
 
+  const formatTime = (date: string) => {
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-        <div className="text-3xl font-bold text-[#FF6B35]">
-          Loading orders...
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading orders..." />;
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex flex-col">
+    <div className="h-screen w-screen bg-slate-100 dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
+      <header className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-6 py-4">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <TouchButton
+          <button
             onClick={() => navigate("/")}
-            variant="ghost"
-            size="medium"
+            className="flex items-center gap-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
-            <ArrowLeft size={28} />
-          </TouchButton>
+            <ArrowLeft size={20} />
+            <span className="font-medium">Back</span>
+          </button>
 
-          <h1 className="text-4xl font-bold text-gray-800">📋 Active Orders</h1>
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              Active Orders
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-slate-400">
+              {orders.length} order{orders.length !== 1 ? "s" : ""} pending
+            </p>
+          </div>
 
-          <div className="w-24"></div>
+          <button
+            onClick={loadOrders}
+            className="flex items-center gap-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 transition-colors"
+          >
+            <RefreshCw
+              size={18}
+              className="animate-spin"
+              style={{ animationDuration: "3s" }}
+            />
+          </button>
         </div>
-      </div>
+      </header>
 
       {/* Orders List */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
         <div className="max-w-7xl mx-auto">
           {orders.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="bg-white/50 backdrop-blur-sm rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6 border-4 border-gray-200">
-                <div className="text-6xl">📋</div>
+            <div className="text-center py-20 animate-slide-up">
+              <div className="w-20 h-20 bg-gray-200 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText
+                  size={32}
+                  className="text-gray-400 dark:text-slate-500"
+                />
               </div>
-              <h2 className="text-4xl font-bold text-gray-400">
+              <h2 className="text-xl font-semibold text-gray-400 dark:text-slate-500">
                 No Active Orders
               </h2>
-              <p className="text-xl text-gray-400 mt-2">All caught up!</p>
+              <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
+                All caught up!
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {orders.map((order) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {orders.map((order, index) => (
                 <div
                   key={order.id}
-                  className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 hover:border-[#FF6B35]/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden animate-slide-up hover:shadow-md transition-shadow flex flex-col h-[420px]"
                 >
-                  {/* Glossy overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                  <div className="relative">
-                    {/* Order Header */}
-                    <div className="flex justify-between items-start mb-4">
+                  {/* Order Header */}
+                  <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800">
+                    <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                           Order #{order.id.slice(0, 8)}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          {new Date(order.createdAt).toLocaleTimeString()}
-                        </p>
-                        {order.createdByName && (
-                          <p className="text-sm text-gray-600 mt-1">
-                            By: {order.createdByName}
-                          </p>
-                        )}
-                      </div>
-                      <div
-                        className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-md ${
-                          order.status === "pending"
-                            ? "bg-[#F59E0B] text-white"
-                            : order.status === "preparing"
-                            ? "bg-[#004E89] text-white"
-                            : "bg-[#10B981] text-white"
-                        }`}
-                      >
-                        {order.status === "pending" && (
-                          <Clock size={16} aria-hidden="true" />
-                        )}
-                        {order.status === "ready" && (
-                          <CheckCircle size={16} aria-hidden="true" />
-                        )}
-                        <span>{order.status.toUpperCase()}</span>
-                      </div>
-                    </div>
-
-                    {/* Order Items */}
-                    <div className="space-y-2 mb-4 bg-gray-50 rounded-xl p-4">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="text-sm">
-                          <div className="flex justify-between">
-                            <span className="font-semibold text-gray-800">
-                              {item.quantity}x {item.name}
-                            </span>
-                            <span className="font-bold text-[#FF6B35]">
-                              ${(item.price * item.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                          {item.customPizza && (
-                            <div className="ml-4 text-xs text-gray-500 mt-1 space-y-0.5">
-                              <div>• Size: {item.customPizza.size}</div>
-                              <div>• Crust: {item.customPizza.crust}</div>
-                              {item.customPizza.toppings.length > 0 && (
-                                <div>
-                                  • Toppings: {item.customPizza.toppings.length}
-                                </div>
-                              )}
-                            </div>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-slate-400">
+                          <Clock size={12} />
+                          <span>{formatTime(order.createdAt)}</span>
+                          {order.createdByName && (
+                            <>
+                              <span className="text-gray-300 dark:text-slate-600">
+                                •
+                              </span>
+                              <span>By: {order.createdByName}</span>
+                            </>
                           )}
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 bg-[#FF6B35]/10 text-[#FF6B35] rounded-full text-xs font-semibold uppercase tracking-wide">
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="px-5 py-3 flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="space-y-2">
+                      {order.items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-start py-1"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm text-gray-700 dark:text-slate-300">
+                              <span className="font-medium text-gray-900 dark:text-white">
+                                {item.quantity}x
+                              </span>{" "}
+                              {item.name}
+                            </span>
+                            {item.customPizza && (
+                              <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5 truncate">
+                                {item.customPizza.size} •{" "}
+                                {item.customPizza.crust}
+                                {item.customPizza.toppings.length > 0 &&
+                                  ` • ${item.customPizza.toppings.length} toppings`}
+                              </p>
+                            )}
+                          </div>
+                          <span className="text-sm font-semibold text-[#FF6B35] ml-3 whitespace-nowrap">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
                         </div>
                       ))}
                     </div>
+                  </div>
 
-                    {/* Order Footer */}
-                    <div className="border-t-2 border-gray-200 pt-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="text-2xl font-bold text-[#FF6B35]">
-                          ${order.total.toFixed(2)}
-                        </div>
-                        {order.paymentMethod && (
-                          <div className="text-sm font-semibold text-gray-600 capitalize bg-gray-100 px-3 py-1 rounded-full">
-                            {order.paymentMethod}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Receipt Button */}
-                      <TouchButton
-                        onClick={() =>
-                          window.open(
-                            apiUrl(`/api/orders/${order.id}/receipt/pdf`),
-                            "_blank"
-                          )
-                        }
-                        variant="secondary"
-                        size="medium"
-                        fullWidth
-                        aria-label={`View receipt for order ${order.id.slice(
-                          0,
-                          8
-                        )}`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <Receipt size={18} aria-hidden="true" />
-                          <span>View Receipt</span>
-                        </div>
-                      </TouchButton>
+                  {/* Order Footer */}
+                  <div className="px-5 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 mt-auto">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xl font-bold text-gray-900 dark:text-white">
+                        ${order.total.toFixed(2)}
+                      </span>
+                      {order.paymentMethod && (
+                        <span className="text-xs text-gray-500 dark:text-slate-400 capitalize">
+                          {order.paymentMethod}
+                        </span>
+                      )}
                     </div>
+
+                    <button
+                      onClick={() =>
+                        window.open(
+                          apiUrl(`/api/orders/${order.id}/receipt/pdf`),
+                          "_blank"
+                        )
+                      }
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FF6B35]/10 hover:bg-[#FF6B35]/20 text-[#FF6B35] rounded-xl text-sm font-medium transition-colors"
+                    >
+                      <FileText size={16} />
+                      <span>View Receipt</span>
+                    </button>
                   </div>
                 </div>
               ))}

@@ -38,11 +38,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const applyTheme = (isDark: boolean) => {
+    console.log("applyTheme called with:", isDark);
+    console.log(
+      "Current HTML classes:",
+      document.documentElement.classList.toString()
+    );
     if (isDark) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
+    console.log(
+      "After applying - HTML classes:",
+      document.documentElement.classList.toString()
+    );
   };
 
   const toggleDarkMode = () => {

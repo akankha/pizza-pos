@@ -1,6 +1,5 @@
-import type { OrderItem } from '../../../shared/types';
-import { Trash2, Plus, Minus } from 'lucide-react';
-import TouchButton from './TouchButton';
+import { Minus, Plus, Trash2 } from "lucide-react";
+import type { OrderItem } from "../../../shared/types";
 
 interface OrderItemCardProps {
   item: OrderItem;
@@ -8,78 +7,83 @@ interface OrderItemCardProps {
   onRemove: (id: string) => void;
 }
 
-export default function OrderItemCard({ item, onUpdateQuantity, onRemove }: OrderItemCardProps) {
+export default function OrderItemCard({
+  item,
+  onUpdateQuantity,
+  onRemove,
+}: OrderItemCardProps) {
   return (
-    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-200 hover:border-[#FF6B35]/30 hover:shadow-xl transition-all duration-200 flex items-center gap-4 overflow-hidden">
-      {/* Glossy overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none"></div>
-      <div className="relative flex-1">
-        <h3 className="font-bold text-lg text-gray-900">{item.name}</h3>
-        
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all duration-200 flex items-center gap-4">
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+          {item.name}
+        </h3>
+
         {item.customPizza && (
-          <div className="mt-1 text-sm text-gray-600">
-            <p className="font-semibold">
-              {item.customPizza.size.charAt(0).toUpperCase() + item.customPizza.size.slice(1)} • {' '}
-              {item.customPizza.crust.charAt(0).toUpperCase() + item.customPizza.crust.slice(1)} Crust
+          <div className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+            <p>
+              {item.customPizza.size.charAt(0).toUpperCase() +
+                item.customPizza.size.slice(1)}{" "}
+              •{" "}
+              {item.customPizza.crust.charAt(0).toUpperCase() +
+                item.customPizza.crust.slice(1)}{" "}
+              Crust
             </p>
             {item.customPizza.toppings.length > 0 && (
-              <p className="text-xs mt-1">
-                {item.customPizza.toppings.length} topping{item.customPizza.toppings.length !== 1 ? 's' : ''}
+              <p className="text-xs mt-0.5">
+                {item.customPizza.toppings.length} topping
+                {item.customPizza.toppings.length !== 1 ? "s" : ""}
               </p>
             )}
           </div>
         )}
-        
+
         {item.notes && (
-          <p className="text-sm text-gray-500 mt-1 italic">{item.notes}</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 italic">
+            {item.notes}
+          </p>
         )}
-        
-        <p className="text-lg font-bold text-[#FF6B35] mt-2">
+
+        <p className="text-base font-bold text-[#FF6B35] mt-1">
           ${item.price.toFixed(2)}
         </p>
       </div>
 
       {/* Quantity controls */}
-      <div className="relative flex items-center gap-3">
-        <TouchButton
+      <div className="flex items-center gap-2">
+        <button
           onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-          variant="ghost"
-          size="small"
+          className="p-2 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
           aria-label="Decrease quantity"
         >
-          <Minus size={20} aria-hidden="true" />
-        </TouchButton>
-        
-        <span className="text-2xl font-bold w-12 text-center" aria-live="polite">
+          <Minus size={18} />
+        </button>
+
+        <span className="text-lg font-bold w-8 text-center text-gray-800 dark:text-white">
           {item.quantity}
         </span>
-        
-        <TouchButton
+
+        <button
           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-          variant="ghost"
-          size="small"
+          className="p-2 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
           aria-label="Increase quantity"
         >
-          <Plus size={20} aria-hidden="true" />
-        </TouchButton>
+          <Plus size={18} />
+        </button>
       </div>
 
       {/* Remove button */}
-      <div className="relative">
-      <TouchButton
+      <button
         onClick={() => {
           if (confirm(`Remove ${item.name} from cart?`)) {
             onRemove(item.id);
           }
         }}
-        variant="ghost"
-        size="small"
-        className="!text-red-500 hover:!bg-red-50"
+        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
         aria-label={`Remove ${item.name} from cart`}
       >
-        <Trash2 size={24} aria-hidden="true" />
-      </TouchButton>
-      </div>
+        <Trash2 size={18} />
+      </button>
     </div>
   );
 }

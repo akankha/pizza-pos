@@ -2,6 +2,7 @@ import { ArrowLeft, Check, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { ComboDeal, PizzaSizeName } from "../../../shared/types";
+import LoadingScreen from "../components/LoadingScreen";
 import TouchButton from "../components/TouchButton";
 import { useMenu } from "../contexts/MenuContext";
 import { useCartStore } from "../stores/cartStore";
@@ -84,11 +85,7 @@ export default function ComboCustomizePage() {
   }, [combo, navigate]);
 
   if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
-        <div className="text-2xl font-bold text-gray-600">Loading menu...</div>
-      </div>
-    );
+    return <LoadingScreen message="Loading menu..." />;
   }
 
   if (!combo) return null;
@@ -161,7 +158,7 @@ export default function ComboCustomizePage() {
   );
 
   return (
-    <div className="h-screen w-screen bg-gray-50 flex flex-col">
+    <div className="h-screen w-screen bg-gray-50 flex flex-col animate-fade-in">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
