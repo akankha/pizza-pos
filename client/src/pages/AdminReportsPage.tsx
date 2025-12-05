@@ -142,8 +142,8 @@ export default function AdminReportsPage() {
           price: item.price,
           customizations: item.customizations || [],
         })),
-        subtotal: parseFloat(order.subtotal) || 0,
-        tax: parseFloat(order.tax) || 0,
+        subtotal: parseFloat(order.total) * 0.9 || 0, // Estimate subtotal as 90% of total
+        tax: parseFloat(order.total) * 0.1 || 0, // Estimate tax as 10% of total
         total: parseFloat(order.total),
         paymentMethod: order.paymentMethod,
         customerName: order.customerName || "Guest",

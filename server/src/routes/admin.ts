@@ -138,8 +138,6 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
       `SELECT 
         id,
         total,
-        subtotal,
-        tax,
         status,
         payment_method as paymentMethod,
         created_at as createdAt
@@ -456,8 +454,6 @@ router.get(
         `SELECT 
         id,
         total,
-        subtotal,
-        tax,
         payment_method as paymentMethod,
         created_at as createdAt,
         deleted_at as deletedAt,
@@ -467,9 +463,7 @@ router.get(
        WHERE is_deleted = 1
        ORDER BY deleted_at DESC
        LIMIT 500`
-      );
-
-      // Get order items for deleted orders
+      ); // Get order items for deleted orders
       const orderIds = (deletedOrders as any[]).map((order: any) => order.id);
       let orderItems: any[] = [];
 
