@@ -57,20 +57,25 @@ app.use(
   })
 );
 
-// Rate limiting
+// Rate limiting - More lenient for POS operations
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "500"), // Increased from 100 to 500
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks and settings
+    return req.path === '/api/health' || req.path === '/api/settings';
+  },
 });
 app.use("/api/", limiter);
 
 // More strict rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts
+  max: 20, // Increased from 5 to 20 attempts
+  skipSuccessfulRequests: true, // Don't count successful logins
   message: "Too many login attempts, please try again later.",
 });
 app.use("/api/auth/login", authLimiter);
