@@ -21,6 +21,20 @@ function createWindow() {
     },
   });
 
+  // Clear authentication on window creation
+  mainWindow.webContents.on("did-finish-load", () => {
+    // Clear any stored authentication
+    mainWindow.webContents
+      .executeJavaScript(
+        `
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.clear();
+    `
+      )
+      .catch((err) => console.error("Failed to clear auth:", err));
+  });
+
   // In development - connect to Vite dev server
   if (process.env.NODE_ENV === "development") {
     mainWindow.loadURL("http://localhost:5173");
@@ -200,8 +214,28 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+  // Clear session data before quitting
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.session
+      .clearStorageData({
+        storages: ["localstorage", "sessionstorage"],
+      })
+      .catch((err) => console.error("Failed to clear storage:", err));
+  }
+
   if (process.platform !== "darwin") {
     app.quit();
+  }
+});
+
+app.on("before-quit", () => {
+  // Clear all session data before app quits
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.session
+      .clearStorageData({
+        storages: ["localstorage", "sessionstorage", "cookies"],
+      })
+      .catch((err) => console.error("Failed to clear storage on quit:", err));
   }
 });
 

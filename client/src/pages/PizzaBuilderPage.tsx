@@ -196,9 +196,9 @@ export default function PizzaBuilderPage() {
   const canAddToCart = selectedSize && selectedCrust;
 
   return (
-    <div className="h-screen w-screen bg-[#F6F8FC] dark:bg-slate-950 flex flex-col animate-fade-in">
+    <div className="h-screen w-screen bg-slate-100 dark:bg-slate-950 flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-[#F6F8FC]/90 dark:bg-slate-950/80 backdrop-blur-sm">
+      <header className="border-b border-slate-200/60 dark:border-slate-800/70 bg-slate-100/90 dark:bg-slate-950/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between gap-4">
             <div className="w-[140px] flex justify-start">
@@ -264,7 +264,7 @@ export default function PizzaBuilderPage() {
                   className={`p-4 rounded-xl border-2 transition-all duration-200 shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)] ${
                     selectedSize === size.name
                       ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-orange-500/30"
-                      : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
+                      : "bg-slate-900 dark:bg-slate-800 border-slate-800 dark:border-slate-700 text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="text-center">
@@ -299,7 +299,7 @@ export default function PizzaBuilderPage() {
                   className={`p-4 rounded-xl border-2 transition-all duration-200 shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.35)] ${
                     selectedCrust === crust.type
                       ? "bg-[#FF6B35] border-[#FF6B35] text-white shadow-orange-500/30"
-                      : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
+                      : "bg-slate-900 dark:bg-slate-800 border-slate-800 dark:border-slate-700 text-white hover:border-[#FF6B35] dark:hover:border-[#FF6B35] hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="text-center">
@@ -352,7 +352,7 @@ export default function PizzaBuilderPage() {
                           className={`p-3 rounded-xl border-2 transition-all duration-200 shadow-[0_12px_28px_rgba(15,23,42,0.08)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.4)] ${
                             isSelected
                               ? "bg-emerald-500 border-emerald-500 text-white shadow-emerald-500/30"
-                              : "bg-white/95 dark:bg-slate-900/80 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500 hover:-translate-y-0.5"
+                              : "bg-slate-900 dark:bg-slate-800 border-slate-800 dark:border-slate-700 text-white hover:border-emerald-500 dark:hover:border-emerald-500 hover:-translate-y-0.5"
                           }`}
                         >
                           <div className="text-center">
@@ -379,7 +379,7 @@ export default function PizzaBuilderPage() {
         </div>
 
         {/* Right Panel - Order Summary */}
-        <div className="w-full lg:w-96 bg-white/95 dark:bg-slate-900/85 border-t lg:border-t-0 lg:border-l border-gray-200/60 dark:border-slate-800 px-4 py-6 flex flex-col shadow-[0_30px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
+        <div className="w-full lg:w-96 bg-white dark:bg-slate-900/85 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 px-4 py-6 flex flex-col shadow-[0_30px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
           <h3 className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-4 uppercase tracking-wide">
             Your Pizza
           </h3>

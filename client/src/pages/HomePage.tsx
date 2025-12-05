@@ -18,10 +18,16 @@ export default function HomePage() {
   const { refetch } = useMenu();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
+
+    // Update clock every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
 
     // Reload user when window regains focus (in case they logged in another tab)
     const handleFocus = () => {
@@ -30,7 +36,10 @@ export default function HomePage() {
     };
 
     window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      clearInterval(timer);
+    };
   }, []);
 
   const handleRefresh = () => {
@@ -233,11 +242,18 @@ export default function HomePage() {
           {/* Welcome Section */}
           <div className="text-center mb-10 animate-fade-in">
             <p className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-2">
-              {new Date().toLocaleDateString("en-US", {
+              {currentTime.toLocaleDateString("en-US", {
                 weekday: "long",
                 month: "long",
                 day: "numeric",
                 year: "numeric",
+              })}
+            </p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white mb-4 tabular-nums">
+              {currentTime.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
               })}
             </p>
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
@@ -267,8 +283,8 @@ export default function HomePage() {
                   style={{ animationDelay: `${index * 0.1}s` }}
                   className={`group relative overflow-hidden rounded-2xl p-7 transition-all duration-300 border-2 backdrop-blur-sm ${
                     isDisabled
-                      ? "bg-white/80 dark:bg-slate-800/60 border-gray-200 dark:border-slate-700 opacity-60 cursor-not-allowed"
-                      : `bg-white/95 dark:bg-slate-800/90 border-gray-200 dark:border-slate-700 shadow-[0_16px_40px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${action.hoverBorder} ${action.hoverShadow}`
+                      ? "bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed"
+                      : `bg-slate-900 dark:bg-slate-800/90 border-slate-800 dark:border-slate-700 shadow-[0_16px_40px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${action.hoverBorder} ${action.hoverShadow}`
                   }`}
                 >
                   {/* Gradient glow on hover */}
@@ -299,8 +315,8 @@ export default function HomePage() {
                       <h3
                         className={`text-xl font-extrabold tracking-tight mb-1 transition-colors duration-200 ${
                           isDisabled
-                            ? "text-gray-400 dark:text-slate-500"
-                            : `text-gray-900 dark:text-white ${action.textHover}`
+                            ? "text-slate-400 dark:text-slate-500"
+                            : `text-white ${action.textHover}`
                         }`}
                       >
                         {action.title}
@@ -308,8 +324,8 @@ export default function HomePage() {
                       <p
                         className={`text-sm font-medium ${
                           isDisabled
-                            ? "text-gray-400 dark:text-slate-500"
-                            : "text-gray-600 dark:text-slate-300"
+                            ? "text-slate-400 dark:text-slate-500"
+                            : "text-slate-400 dark:text-slate-300"
                         }`}
                       >
                         {action.description}

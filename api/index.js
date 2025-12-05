@@ -32,11 +32,28 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Rate limiting - more lenient for POS operations
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 500, // Increased from 100 to 500 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip rate limiting for certain endpoints
+  skip: (req) => {
+    // Don't rate limit health checks
+    return req.path === "/api/health" || req.path === "/";
+  },
+  message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
+
+// Separate, stricter rate limiter for login attempts
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 login attempts per 15 minutes
+  skipSuccessfulRequests: true, // Don't count successful logins
+  message: "Too many login attempts, please try again later.",
+});
 
 // Database initialization endpoint (run this once after deployment)
 app.post("/api/init-db", async (req, res) => {
@@ -58,7 +75,7 @@ const adminRoutes = require("./routes/admin");
 
 app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", loginLimiter, authRoutes); // Apply login rate limiter to auth routes
 app.use("/api/settings", settingsRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/admin", adminRoutes);

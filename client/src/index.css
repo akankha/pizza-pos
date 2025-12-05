@@ -72,25 +72,25 @@
 @layer components {
   /* Modern glass card effect */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(226, 232, 240, 0.8);
   }
 
   .dark .glass {
-    background: rgba(30, 41, 59, 0.7);
+    background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   /* Premium card styles */
   .card-modern {
-    @apply bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-200/50;
+    @apply bg-white rounded-2xl border border-slate-200 shadow-lg shadow-slate-200/50;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-modern:hover {
-    @apply shadow-xl shadow-gray-300/50;
+    @apply shadow-xl shadow-slate-300/50 border-slate-300;
     transform: translateY(-2px);
   }
 

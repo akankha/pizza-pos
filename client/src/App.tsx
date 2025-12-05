@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "./components/Toast";
@@ -19,8 +20,14 @@ import PizzaBuilderPage from "./pages/PizzaBuilderPage";
 import SidesAndDrinksPage from "./pages/SidesAndDrinksPage";
 import SpecialtyPizzasPage from "./pages/SpecialtyPizzasPage";
 import StaffLoginPage from "./pages/StaffLoginPage";
+import { checkAppStartup } from "./utils/auth";
 
 function App() {
+  useEffect(() => {
+    // Check if this is app startup in Electron and force logout
+    checkAppStartup();
+  }, []);
+
   return (
     <BrowserRouter>
       <ThemeProvider>

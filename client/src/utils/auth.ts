@@ -88,3 +88,21 @@ export const logout = () => {
   // Always redirect to unified login page
   clientNavigate("/login");
 };
+
+// Check if app was just opened (for Electron auto-logout)
+export const checkAppStartup = () => {
+  if (isElectron()) {
+    // Check if this is a fresh startup
+    const isStartup = !sessionStorage.getItem("app-initialized");
+
+    if (isStartup) {
+      // Mark app as initialized
+      sessionStorage.setItem("app-initialized", "true");
+
+      // Force logout on startup
+      logout();
+      return true;
+    }
+  }
+  return false;
+};

@@ -2,6 +2,7 @@ import { ArrowLeft, Banknote, CreditCard, Home, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PaymentMethod } from "../../../shared/types";
+import OnScreenKeyboard from "../components/OnScreenKeyboard";
 import OrderItemCard from "../components/OrderItemCard";
 import { showToast } from "../components/Toast";
 import TouchButton from "../components/TouchButton";
@@ -9,6 +10,7 @@ import { useCartStore } from "../stores/cartStore";
 import { apiUrl, authFetch } from "../utils/api";
 import { getCurrentUser } from "../utils/auth";
 import { browserPrintService } from "../utils/browserPrintService";
+import { shouldShowOnScreenKeyboard } from "../utils/deviceDetection";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState("");
+  const [showKeyboard, setShowKeyboard] = useState(false);
   const [taxRates, setTaxRates] = useState({
     gst: 0.05,
     pst: 0.07,
@@ -269,15 +272,28 @@ export default function CheckoutPage() {
               >
                 Order Notes (Optional)
               </label>
-              <textarea
-                id="orderNotes"
-                value={orderNotes}
-                onChange={(e) => setOrderNotes(e.target.value)}
-                placeholder="Any special instructions..."
-                maxLength={500}
-                rows={2}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:border-[#FF6B35] dark:focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 text-sm resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500"
-              />
+              {shouldShowOnScreenKeyboard() ? (
+                <div
+                  onClick={() => setShowKeyboard(true)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus-within:border-[#FF6B35] dark:focus-within:border-[#FF6B35] focus-within:ring-2 focus-within:ring-[#FF6B35]/20 text-sm transition-all cursor-text min-h-[60px]"
+                >
+                  {orderNotes || (
+                    <span className="text-gray-400 dark:text-slate-500">
+                      Any special instructions...
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <textarea
+                  id="orderNotes"
+                  value={orderNotes}
+                  onChange={(e) => setOrderNotes(e.target.value)}
+                  placeholder="Any special instructions..."
+                  maxLength={500}
+                  rows={2}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:border-[#FF6B35] dark:focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 text-sm resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500"
+                />
+              )}
               <div className="text-xs text-gray-400 dark:text-slate-500 mt-1 text-right">
                 {orderNotes.length}/500
               </div>
@@ -343,6 +359,20 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* On-Screen Keyboard */}
+      {showKeyboard && shouldShowOnScreenKeyboard() && (
+        <OnScreenKeyboard
+          currentValue={orderNotes}
+          onInput={(value) => {
+            if (value.length <= 500) {
+              setOrderNotes(value);
+            }
+          }}
+          onClose={() => setShowKeyboard(false)}
+          isNumeric={false}
+        />
       )}
     </div>
   );
