@@ -12,6 +12,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import { showToast } from "../components/Toast";
 import { authFetch, isAuthenticated } from "../utils/auth";
 import { browserPrintService } from "../utils/browserPrintService";
+import * as XLSX from "xlsx";
 
 type BrowserPrintPayload = Parameters<typeof browserPrintService.print>[0];
 
@@ -81,52 +82,151 @@ export default function AdminReportsPage() {
   const exportReport = () => {
     if (!reportData) return;
 
-    const csv = generateCSV(reportData);
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sales-report-${period}-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
-    a.click();
+    // Helper for header style
+    const headerCell = (v: string) => ({
+      v,
+      s: {
+        font: { bold: true },
+        alignment: { horizontal: "center" },
+        border: {
+          top: { style: "thin" },
+          bottom: { style: "thin" },
+          left: { style: "thin" },
+          right: { style: "thin" },
+        },
+      },
+    });
+    const normalCell = (v: string | number) => ({
+      v,
+      s: {
+        border: {
+          top: { style: "thin" },
+          bottom: { style: "thin" },
+          left: { style: "thin" },
+          right: { style: "thin" },
+        },
+      },
+    });
+
+    // Summary sheet
+    const summaryData = [
+      [headerCell("Sales Report")],
+      [headerCell("Period"), normalCell(period)],
+      [headerCell("Generated"), normalCell(new Date().toLocaleString())],
+      [],
+      [
+        headerCell("Total Sales"),
+        normalCell(`$${reportData.totalSales?.toFixed(2) || "0.00"}`),
+      ],
+      [headerCell("Total Orders"), normalCell(reportData.totalOrders || 0)],
+      [headerCell("Average Order"), normalCell(`$${reportData.avgOrder?.toFixed(2) || "0.00"}`)],
+    ];
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    summarySheet["!cols"] = [{ wch: 20 }, { wch: 30 }];
+
+    // Top Items sheet
+    const topItemsData = [
+      [headerCell("Name"), headerCell("Quantity"), headerCell("Revenue")],
+      ...(reportData.topItems?.length
+        ? reportData.topItems.map((item: any) => [
+            normalCell(item.name),
+            normalCell(item.quantity),
+            normalCell(`$${item.revenue.toFixed(2)}`),
+          ])
+        : [[normalCell("No data"), normalCell(""), normalCell("")]]),
+    ];
+    const topItemsSheet = XLSX.utils.aoa_to_sheet(topItemsData);
+    topItemsSheet["!cols"] = [{ wch: 25 }, { wch: 15 }, { wch: 20 }];
+
+    // Payment Methods sheet
+    const paymentMethodsData = [
+      [headerCell("Method"), headerCell("Transactions"), headerCell("Total")],
+      ...((reportData.paymentMethods && Object.keys(reportData.paymentMethods).length)
+        ? Object.entries(reportData.paymentMethods).map(
+            ([method, pmData]: [string, any]) => [
+              normalCell(method),
+              normalCell(pmData.count),
+              normalCell(`$${pmData.total.toFixed(2)}`),
+            ]
+          )
+        : [[normalCell("No data"), normalCell(""), normalCell("")]]),
+    ];
+    const paymentMethodsSheet = XLSX.utils.aoa_to_sheet(paymentMethodsData);
+    paymentMethodsSheet["!cols"] = [{ wch: 25 }, { wch: 15 }, { wch: 20 }];
+
+    // Recent Orders sheet
+    const recentOrdersData = [
+      [headerCell("Order ID"), headerCell("Date"), headerCell("Total"), headerCell("Payment Method"), headerCell("Items")],
+      ...(reportData.recentOrders?.length
+        ? reportData.recentOrders.map((order: any) => [
+            normalCell(order.id),
+            normalCell(new Date(order.createdAt).toLocaleString()),
+            normalCell(`$${parseFloat(order.total).toFixed(2)}`),
+            normalCell(order.paymentMethod),
+            normalCell(order.items.map((i: any) => `${i.quantity}x ${i.name}`).join("; ")),
+          ])
+        : [[normalCell("No data"), normalCell(""), normalCell(""), normalCell(""), normalCell("")]]),
+    ];
+    const recentOrdersSheet = XLSX.utils.aoa_to_sheet(recentOrdersData);
+    recentOrdersSheet["!cols"] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
+
+    // Build workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
+    XLSX.utils.book_append_sheet(wb, topItemsSheet, "Top Items");
+    XLSX.utils.book_append_sheet(wb, paymentMethodsSheet, "Payment Methods");
+    XLSX.utils.book_append_sheet(wb, recentOrdersSheet, "Recent Orders");
+
+    // Download Excel file
+    XLSX.writeFile(wb, `sales-report-${period}-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
   const generateCSV = (data: any) => {
-    let csv = "Sales Report\n\n";
-    csv += `Period: ${period}\n`;
-    csv += `Generated: ${new Date().toLocaleString()}\n\n`;
-    csv += `Total Sales: $${data.totalSales?.toFixed(2) || "0.00"}\n`;
-    csv += `Total Orders: ${data.totalOrders || 0}\n`;
-    csv += `Average Order: $${data.avgOrder?.toFixed(2) || "0.00"}\n\n`;
-
-    csv += "Top Items\n";
-    csv += "Name,Quantity,Revenue\n";
+    let csv = '"Sales Report"\n';
+    csv += `"Period:","${period}"\n`;
+    csv += `"Generated:","${new Date().toLocaleString()}"\n`;
+    csv += '\n';
+    csv += `"Total Sales:","$${data.totalSales?.toFixed(2) || '0.00'}"\n`;
+    csv += `"Total Orders:","${data.totalOrders || 0}"\n`;
+    csv += `"Average Order:","$${data.avgOrder?.toFixed(2) || '0.00'}"\n`;
+    csv += '\n';
+    csv += '====================\n';
+    csv += '"Top Items"\n';
+    csv += '"Name","Quantity","Revenue"\n';
     (data.topItems || []).forEach((item: any) => {
-      csv += `${item.name},${item.quantity},$${item.revenue.toFixed(2)}\n`;
+      csv += `"${item.name}","${item.quantity}","$${item.revenue.toFixed(2)}"\n`;
     });
-
-    csv += "\n\nPayment Methods\n";
-    csv += "Method,Transactions,Total\n";
+    if ((data.topItems || []).length === 0) {
+      csv += '"No data","",""\n';
+    }
+    csv += '\n';
+    csv += '====================\n';
+    csv += '"Payment Methods"\n';
+    csv += '"Method","Transactions","Total"\n';
     Object.entries(data.paymentMethods || {}).forEach(
       ([method, pmData]: [string, any]) => {
-        csv += `${method},${pmData.count},$${pmData.total.toFixed(2)}\n`;
+        csv += `"${method}","${pmData.count}","$${pmData.total.toFixed(2)}"\n`;
       }
     );
-
-    csv += "\n\nRecent Orders\n";
-    csv += "Order ID,Date,Total,Payment Method,Items\n";
+    if (!data.paymentMethods || Object.keys(data.paymentMethods).length === 0) {
+      csv += '"No data","",""\n';
+    }
+    csv += '\n';
+    csv += '====================\n';
+    csv += '"Recent Orders"\n';
+    csv += '"Order ID","Date","Total","Payment Method","Items"\n';
     (data.recentOrders || []).forEach((order: any) => {
       const itemsList = order.items
         .map((i: any) => `${i.quantity}x ${i.name}`)
-        .join("; ");
-      csv += `${order.id},${new Date(
-        order.createdAt
-      ).toLocaleString()},$${parseFloat(order.total).toFixed(2)},${
-        order.paymentMethod
-      },"${itemsList}"\n`;
+        .join('; ');
+      csv += `"${order.id}","${new Date(order.createdAt).toLocaleString()}","$${parseFloat(order.total).toFixed(2)}","${order.paymentMethod}","${itemsList}"\n`;
     });
-
+    if ((data.recentOrders || []).length === 0) {
+      csv += '"No data","","","",""\n';
+    }
+    csv += '\n';
+    csv += '====================\n';
+    csv += '"End of Report"\n';
     return csv;
   };
 
@@ -322,6 +422,28 @@ export default function AdminReportsPage() {
     return csv;
   };
 
+  const downloadStyledExcelReport = async () => {
+    try {
+      showToast("Generating Excel report...", "info");
+      const response = await authFetch(`/api/admin/reports/${period}/excel`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("Failed to download Excel report");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sales-report-${period}-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast("Excel report downloaded", "success");
+    } catch (error: any) {
+      showToast("Failed to download Excel report: " + error.message, "error");
+    }
+  };
+
   if (loading) {
     return <LoadingScreen message="Loading reports..." variant="dark" />;
   }
@@ -358,6 +480,14 @@ export default function AdminReportsPage() {
                 title="Download Deleted Orders"
               >
                 <Trash2 size={20} />
+              </button>
+              <button
+                onClick={downloadStyledExcelReport}
+                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition-all duration-300"
+                title="Download Styled Excel Report"
+              >
+                <Download size={20} />
+                <span className="hidden sm:inline">Excel</span>
               </button>
             </div>
           </div>
