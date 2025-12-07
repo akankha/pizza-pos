@@ -112,7 +112,7 @@ export default function CheckoutPage() {
             price: item.price,
             customPizza: item.customPizza,
           })),
-          subtotal: discountedSubtotal,
+          subtotal: total,
           discountPercent: Number(discountPercent) || 0,
           discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
           gst: gstAmount,
