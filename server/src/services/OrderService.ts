@@ -110,7 +110,18 @@ export class OrderService {
       }
 
       await connection.commit();
-      return (await this.getOrder(orderId))!;
+
+      // Fetch created order and ensure discount fields are present in returned object.
+      const createdOrder = (await this.getOrder(orderId))!;
+
+      // If DB did not persist discount columns, still attach computed discount values
+      if (!hasDiscountColumns) {
+        // Attach computed discount fields for API clients
+        (createdOrder as any).discountPercent = discountPct > 0 ? discountPct : undefined;
+        (createdOrder as any).discountAmount = discountAmount > 0 ? discountAmount : undefined;
+      }
+
+      return createdOrder;
     } catch (error) {
       await connection.rollback();
       console.error("Order creation error:", error);

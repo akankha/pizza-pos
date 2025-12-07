@@ -174,9 +174,12 @@ export class ReceiptService {
     doc.text("Subtotal:", { continued: true });
     doc.text(`$${data.subtotal.toFixed(2)}`, { align: "right" });
 
-    // Show discount if present
+    // Show discount if present (include percent when available)
     if (data.discountAmount && data.discountAmount > 0) {
-      doc.text("Discount:", { continued: true });
+      const label = data.discountPercent
+        ? `Discount (${data.discountPercent}%):`
+        : `Discount:`;
+      doc.text(label, { continued: true });
       doc.text(`-$${data.discountAmount.toFixed(2)}`, { align: "right" });
     }
 
@@ -334,9 +337,10 @@ export class ReceiptService {
 
     receipt += formatLine("Subtotal:", `$${data.subtotal.toFixed(2)}`);
 
-    // Discount line
+    // Discount line (include percent when available)
     if (data.discountAmount && data.discountAmount > 0) {
-      receipt += formatLine("Discount:", `-$${data.discountAmount.toFixed(2)}`);
+      const label = data.discountPercent ? `Discount (${data.discountPercent}%):` : "Discount:";
+      receipt += formatLine(label, `-$${data.discountAmount.toFixed(2)}`);
     }
 
     if (data.gst !== undefined && data.gst > 0) {
@@ -448,7 +452,8 @@ export class ReceiptService {
     receipt += formatLine("Subtotal:", `$${data.subtotal.toFixed(2)}`);
 
     if (data.discountAmount && data.discountAmount > 0) {
-      receipt += formatLine("Discount:", `-$${data.discountAmount.toFixed(2)}`);
+      const label = data.discountPercent ? `Discount (${data.discountPercent}%):` : "Discount:";
+      receipt += formatLine(label, `-$${data.discountAmount.toFixed(2)}`);
     }
 
     if (data.gst !== undefined && data.gst > 0) {
