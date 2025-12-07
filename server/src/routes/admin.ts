@@ -140,6 +140,8 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
       `SELECT 
         id,
         total,
+        discount_percent,
+        discount_amount,
         status,
         payment_method as paymentMethod,
         created_at as createdAt

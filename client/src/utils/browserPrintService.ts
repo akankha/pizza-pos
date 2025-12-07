@@ -14,6 +14,8 @@ interface PrintData {
     customPizza?: any;
   }>;
   subtotal: number;
+  discountPercent?: number;
+  discountAmount?: number;
   gst: number;
   pst: number;
   tax: number;
@@ -38,6 +40,8 @@ class BrowserPrintService {
       orderNumber,
       items,
       subtotal,
+      discountPercent,
+      discountAmount,
       gst,
       pst,
       tax,
@@ -206,6 +210,11 @@ class BrowserPrintService {
           
           <div class="totals">
             <div class="total-line">Subtotal: $${subtotal.toFixed(2)}</div>
+            ${
+              discountAmount && discountAmount > 0
+                ? `<div class="total-line">Discount (${discountPercent || 0}%): -$${discountAmount.toFixed(2)}</div>`
+                : ""
+            }
             ${
               gst
                 ? `<div class="total-line">GST (5%): $${gst.toFixed(2)}</div>`

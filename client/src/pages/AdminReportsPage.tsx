@@ -156,19 +156,21 @@ export default function AdminReportsPage() {
 
     // Recent Orders sheet
     const recentOrdersData = [
-      [headerCell("Order ID"), headerCell("Date"), headerCell("Total"), headerCell("Payment Method"), headerCell("Items")],
+      [headerCell("Order ID"), headerCell("Date"), headerCell("Total"), headerCell("Discount %"), headerCell("Discount Amount"), headerCell("Payment Method"), headerCell("Items")],
       ...(reportData.recentOrders?.length
         ? reportData.recentOrders.map((order: any) => [
             normalCell(order.id),
             normalCell(new Date(order.createdAt).toLocaleString()),
             normalCell(`$${parseFloat(order.total).toFixed(2)}`),
+            normalCell(order.discount_percent ? `${order.discount_percent}%` : "0%"),
+            normalCell(order.discount_amount ? `$${parseFloat(order.discount_amount).toFixed(2)}` : "$0.00"),
             normalCell(order.paymentMethod),
             normalCell(order.items.map((i: any) => `${i.quantity}x ${i.name}`).join("; ")),
           ])
-        : [[normalCell("No data"), normalCell(""), normalCell(""), normalCell(""), normalCell("")]]),
+        : [[normalCell("No data"), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell("")]]),
     ];
     const recentOrdersSheet = XLSX.utils.aoa_to_sheet(recentOrdersData);
-    recentOrdersSheet["!cols"] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
+    recentOrdersSheet["!cols"] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
 
     // Build workbook
     const wb = XLSX.utils.book_new();
@@ -575,6 +577,16 @@ export default function AdminReportsPage() {
                             </span>
                           </div>
                         ))}
+                        {order.discount_percent > 0 && (
+                          <div className="flex justify-between text-sm border-t border-slate-200 pt-2 mt-2">
+                            <span className="text-slate-600">
+                              Discount ({order.discount_percent}%)
+                            </span>
+                            <span className="text-red-600 font-medium">
+                              -${parseFloat(order.discount_amount).toFixed(2)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
