@@ -116,7 +116,7 @@ export default function CheckoutPage() {
             customPizza: item.customPizza,
           })),
           subtotal: total,
-          discountPercent: appliedCoupon ? appliedCoupon.discountValue : (Number(discountPercent) || 0),
+          discountPercent: Number(discountPercent) || 0,
           discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
           gst: gstAmount,
           pst: pstAmount,
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
   const total = getTotal();
 
   // Calculate discounts: coupon first, then manual discount
-  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const couponDiscount = appliedCoupon ? (appliedCoupon.discountAmount || 0) : 0;
   const afterCouponSubtotal = Math.max(0, total - couponDiscount);
   const discountedSubtotal = Math.max(0, afterCouponSubtotal * (1 - Math.min(Math.max(discountPercent, 0), 100) / 100));
 

@@ -61,9 +61,9 @@ router.post('/validate', async (req, res) => {
         code: coupon.code,
         description: coupon.description,
         discountType: coupon.discount_type,
-        discountValue: coupon.discount_value,
+        discountValue: Number(coupon.discount_value),
         discountAmount: discountAmount,
-        maxDiscountAmount: coupon.max_discount_amount
+        maxDiscountAmount: coupon.max_discount_amount ? Number(coupon.max_discount_amount) : null
       }
     });
   } catch (error) {
@@ -79,7 +79,22 @@ router.get('/', async (req, res) => {
       `SELECT * FROM coupons ORDER BY created_at DESC`
     );
 
-    res.json({ success: true, coupons });
+    const transformedCoupons = (coupons as any[]).map(coupon => ({
+      id: coupon.id,
+      code: coupon.code,
+      description: coupon.description,
+      discountType: coupon.discount_type,
+      discountValue: Number(coupon.discount_value),
+      minOrderAmount: Number(coupon.min_order_amount),
+      maxDiscountAmount: coupon.max_discount_amount ? Number(coupon.max_discount_amount) : null,
+      expiryDate: coupon.expiry_date,
+      usageLimit: coupon.usage_limit,
+      usedCount: Number(coupon.used_count),
+      isActive: Boolean(coupon.is_active),
+      createdAt: coupon.created_at
+    }));
+
+    res.json({ success: true, coupons: transformedCoupons });
   } catch (error) {
     console.error('Get coupons error:', error);
     res.status(500).json({ success: false, error: 'Internal server error' });

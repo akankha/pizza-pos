@@ -1,7 +1,9 @@
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import LoadingScreen from "../components/LoadingScreen";
 import { showToast } from "../components/Toast";
-import { authFetch } from "../utils/api";
+import { authFetch, isAuthenticated } from "../utils/auth";
 
 interface Coupon {
   id: string;
@@ -19,6 +21,7 @@ interface Coupon {
 }
 
 export default function AdminCouponsPage() {
+  const navigate = useNavigate();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,8 +39,12 @@ export default function AdminCouponsPage() {
   });
 
   useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/admin/login");
+      return;
+    }
     loadCoupons();
-  }, []);
+  }, [navigate]);
 
   const loadCoupons = async () => {
     try {
@@ -152,159 +159,171 @@ export default function AdminCouponsPage() {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B35] mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading coupons...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading coupons..." variant="dark" />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Coupon Management
+    <div className="h-screen w-screen bg-slate-800 flex flex-col overflow-hidden animate-fade-in">
+      {/* Header */}
+      <header className="flex-shrink-0 bg-slate-900 border-b border-slate-700 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all duration-300 shadow-md"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium hidden sm:inline">Back</span>
+            </button>
+
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="text-2xl">🎫</span>
+              <span className="hidden sm:inline">Coupon Management</span>
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
-              Create and manage discount coupons
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#FF6B35] hover:bg-[#e85d2a] text-white rounded-lg font-medium transition-colors"
-          >
-            <Plus size={20} />
-            Create Coupon
-          </button>
-        </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search coupons..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#FF6B35] focus:border-transparent"
-            />
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#FF6B35] hover:bg-[#e85d2a] text-white rounded-xl shadow-md transition-all duration-300"
+            >
+              <Plus size={20} />
+              <span className="font-medium hidden sm:inline">Create Coupon</span>
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Coupons Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Code
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Discount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Usage
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-                {filteredCoupons.map((coupon) => (
-                  <tr key={coupon.id} className="hover:bg-slate-50 dark:hover:bg-slate-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-mono font-semibold text-slate-900 dark:text-white">
-                        {coupon.code}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-900 dark:text-white">
-                        {coupon.description || "No description"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-slate-900 dark:text-white">
-                        {coupon.discountType === 'percentage'
-                          ? `${coupon.discountValue}%`
-                          : `$${coupon.discountValue.toFixed(2)}`
-                        }
-                        {coupon.maxDiscountAmount && coupon.discountType === 'percentage' && (
-                          <div className="text-xs text-slate-500">
-                            Max: ${coupon.maxDiscountAmount.toFixed(2)}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-slate-900 dark:text-white">
-                        {coupon.usedCount}
-                        {coupon.usageLimit && ` / ${coupon.usageLimit}`}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        coupon.isActive
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      }`}>
-                        {coupon.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(coupon)}
-                        className="text-[#FF6B35] hover:text-[#e85d2a] mr-4"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(coupon)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {filteredCoupons.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-slate-400 dark:text-slate-500 text-lg mb-2">No coupons found</div>
-              <div className="text-slate-300 dark:text-slate-600">
-                {searchQuery ? "Try adjusting your search" : "Create your first coupon"}
-              </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Search */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 animate-slide-up">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search coupons by code or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-500 focus:ring-2 focus:ring-[#FF6B35] focus:border-transparent transition-all"
+              />
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Create/Edit Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+          {/* Coupons Table */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden animate-slide-up" style={{ animationDelay: "0.1s" }}>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Code
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Discount
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Usage
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredCoupons.map((coupon) => (
+                    <tr key={coupon.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-mono font-semibold text-slate-900">
+                          {coupon.code}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-900">
+                          {coupon.description || "No description"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-slate-900">
+                          {coupon.discountType === 'percentage'
+                            ? `${coupon.discountValue || 0}%`
+                            : `$${(coupon.discountValue || 0).toFixed(2)}`
+                          }
+                          {coupon.maxDiscountAmount && coupon.discountType === 'percentage' && (
+                            <div className="text-xs text-slate-500">
+                              Max: ${(coupon.maxDiscountAmount || 0).toFixed(2)}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-slate-900">
+                          {coupon.usedCount}
+                          {coupon.usageLimit && ` / ${coupon.usageLimit}`}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          coupon.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {coupon.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => handleEdit(coupon)}
+                          className="text-[#FF6B35] hover:text-[#e85d2a] mr-4 p-1 rounded transition-colors"
+                          title="Edit coupon"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(coupon)}
+                          className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                          title="Delete coupon"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredCoupons.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-slate-400 text-lg mb-2">🎫</div>
+                <div className="text-slate-600 font-medium mb-1">
+                  {searchQuery ? "No coupons match your search" : "No coupons created yet"}
+                </div>
+                <div className="text-slate-500 text-sm">
+                  {searchQuery ? "Try a different search term" : "Create your first discount coupon"}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Create/Edit Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-slate-900 mb-6">
                 {editingCoupon ? 'Edit Coupon' : 'Create Coupon'}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Coupon Code *
                   </label>
                   <input
@@ -337,6 +356,7 @@ export default function AdminCouponsPage() {
                       value={formData.discountType}
                       onChange={(e) => setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })}
                       className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#FF6B35] focus:border-transparent"
+                      required
                     >
                       <option value="percentage">Percentage</option>
                       <option value="fixed">Fixed Amount</option>
@@ -345,7 +365,7 @@ export default function AdminCouponsPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Value *
+                      Discount Value *
                     </label>
                     <input
                       type="number"
@@ -441,8 +461,8 @@ export default function AdminCouponsPage() {
               </form>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
