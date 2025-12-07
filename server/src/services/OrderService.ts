@@ -60,7 +60,8 @@ export class OrderService {
 
       const existingCols = (columns as any[]).map((c) => c.COLUMN_NAME);
       const hasCreatedByColumn = existingCols.includes("created_by");
-      const hasDiscountColumns = existingCols.includes("discount_percent") && existingCols.includes("discount_amount");
+      const hasDiscountPercent = existingCols.includes("discount_percent");
+      const hasDiscountAmount = existingCols.includes("discount_amount");
 
       // Build insert dynamically depending on which optional columns exist
       const insertCols = ["id", "total", "status", "notes", "payment_method"];
@@ -71,9 +72,14 @@ export class OrderService {
         insertVals.push(createdBy || null, createdByName || null);
       }
 
-      if (hasDiscountColumns) {
-        insertCols.push("discount_percent", "discount_amount");
-        insertVals.push(discountPct, discountAmount);
+      if (hasDiscountPercent) {
+        insertCols.push("discount_percent");
+        insertVals.push(discountPct);
+      }
+
+      if (hasDiscountAmount) {
+        insertCols.push("discount_amount");
+        insertVals.push(discountAmount);
       }
 
       const placeholders = insertCols.map(() => "?").join(", ");
@@ -114,8 +120,8 @@ export class OrderService {
       // Fetch created order and ensure discount fields are present in returned object.
       const createdOrder = (await this.getOrder(orderId))!;
 
-      // If DB did not persist discount columns, still attach computed discount values
-      if (!hasDiscountColumns) {
+      // If DB did not persist discount columns at all, still attach computed discount values
+      if (!hasDiscountPercent && !hasDiscountAmount) {
         // Attach computed discount fields for API clients
         (createdOrder as any).discountPercent = discountPct > 0 ? discountPct : undefined;
         (createdOrder as any).discountAmount = discountAmount > 0 ? discountAmount : undefined;
@@ -158,8 +164,8 @@ export class OrderService {
         notes: item.notes || undefined,
       })),
       total: parseFloat(order.total),
-      discountPercent: order.discount_percent !== undefined ? parseFloat(order.discount_percent) : undefined,
-      discountAmount: order.discount_amount !== undefined ? parseFloat(order.discount_amount) : undefined,
+      discountPercent: order.discount_percent !== undefined && order.discount_percent !== null ? parseFloat(order.discount_percent) : undefined,
+      discountAmount: order.discount_amount !== undefined && order.discount_amount !== null ? parseFloat(order.discount_amount) : undefined,
       status: order.status,
       paymentMethod: order.payment_method || undefined,
       notes: order.notes || undefined,
