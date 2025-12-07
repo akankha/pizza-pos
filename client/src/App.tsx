@@ -5,6 +5,7 @@ import { ToastContainer } from "./components/Toast";
 import { MenuProvider } from "./contexts/MenuContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ActiveOrdersPage from "./pages/ActiveOrdersPage";
+import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminMenuPage from "./pages/AdminMenuPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
@@ -147,6 +148,16 @@ function App() {
                   allowedRoles={["super_admin", "restaurant_admin"]}
                 >
                   <AdminReportsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/coupons"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["super_admin", "restaurant_admin"]}
+                >
+                  <AdminCouponsPage />
                 </ProtectedRoute>
               }
             />

@@ -10,6 +10,7 @@
     "migrate:orders": "tsx src/db/migrate-order-schema.ts",
     "migrate:add-discounts": "tsx src/db/add-discounts.ts",
     "migrate:add-order-number": "tsx src/db/add-order-number.ts",
+    "migrate:create-coupons-table": "tsx src/db/create-coupons-table.ts",
     "migrate:combo-toppings": "tsx src/db/add-combo-toppings.ts",
     "migrate:dark-mode": "tsx src/db/add-dark-mode.ts",
     "import:menu": "tsx src/db/import-menu.ts"

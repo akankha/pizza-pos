@@ -15,7 +15,8 @@ export class OrderService {
     paymentMethod?: PaymentMethod,
     createdBy?: string,
     createdByName?: string,
-    discountPercent?: number
+    discountPercent?: number,
+    couponCode?: string
   ): Promise<Order> {
     const connection = await db.getConnection();
 
@@ -28,10 +29,57 @@ export class OrderService {
         0
       );
 
-      // Sanitize discount percent from caller and clamp 0-100
+      // Handle coupon validation and discount
+      let couponDiscount = 0;
+      let appliedCoupon = null;
+
+      if (couponCode) {
+        const [coupons] = await connection.query(
+          `SELECT * FROM coupons WHERE code = ? AND is_active = 1`,
+          [couponCode.toUpperCase()]
+        );
+
+        if ((coupons as any[]).length > 0) {
+          const coupon = (coupons as any[])[0];
+
+          // Check expiry
+          if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) {
+            throw new Error('Coupon has expired');
+          }
+
+          // Check minimum order amount
+          if (subtotal < coupon.min_order_amount) {
+            throw new Error(`Minimum order amount of $${coupon.min_order_amount} required for this coupon`);
+          }
+
+          // Check usage limit
+          if (coupon.usage_limit && coupon.used_count >= coupon.usage_limit) {
+            throw new Error('Coupon usage limit exceeded');
+          }
+
+          // Calculate coupon discount
+          if (coupon.discount_type === 'percentage') {
+            couponDiscount = (subtotal * coupon.discount_value) / 100;
+            if (coupon.max_discount_amount && couponDiscount > coupon.max_discount_amount) {
+              couponDiscount = coupon.max_discount_amount;
+            }
+          } else {
+            couponDiscount = coupon.discount_value;
+          }
+
+          appliedCoupon = coupon;
+        } else {
+          throw new Error('Invalid coupon code');
+        }
+      }
+
+      // Sanitize manual discount percent from caller and clamp 0-100
       const discountPct = Math.min(Math.max(Number(discountPercent) || 0, 0), 100);
-      const discountAmount = parseFloat((subtotal * (discountPct / 100)).toFixed(2));
-      const discountedSubtotal = parseFloat((subtotal - discountAmount).toFixed(2));
+      const manualDiscountAmount = parseFloat((subtotal * (discountPct / 100)).toFixed(2));
+
+      // Total discount is manual + coupon (coupon applied first)
+      const totalDiscountAmount = parseFloat((couponDiscount + manualDiscountAmount).toFixed(2));
+      const discountedSubtotal = parseFloat((subtotal - totalDiscountAmount).toFixed(2));
 
       // Calculate taxes on discounted subtotal
       const taxes = await ReceiptService.calculateTaxes(discountedSubtotal);
@@ -41,8 +89,11 @@ export class OrderService {
       console.log("Creating order:", {
         orderId,
         subtotal,
+        couponCode,
+        couponDiscount,
         discountPct,
-        discountAmount,
+        manualDiscountAmount,
+        totalDiscountAmount,
         discountedSubtotal,
         taxes,
         total,
@@ -91,7 +142,7 @@ export class OrderService {
 
       if (hasDiscountAmount) {
         insertCols.push("discount_amount");
-        insertVals.push(discountAmount);
+        insertVals.push(totalDiscountAmount);
       }
 
       const placeholders = insertCols.map(() => "?").join(", ");
@@ -129,6 +180,21 @@ export class OrderService {
 
       await connection.commit();
 
+      // Record coupon usage if coupon was applied
+      if (appliedCoupon) {
+        const usageId = uuidv4();
+        await connection.query(
+          `INSERT INTO coupon_usages (id, coupon_id, order_id, discount_applied) VALUES (?, ?, ?, ?)`,
+          [usageId, appliedCoupon.id, orderId, couponDiscount]
+        );
+
+        // Update coupon usage count
+        await connection.query(
+          `UPDATE coupons SET used_count = used_count + 1 WHERE id = ?`,
+          [appliedCoupon.id]
+        );
+      }
+
       // Fetch created order and ensure discount fields are present in returned object.
       const createdOrder = (await this.getOrder(orderId))!;
 
@@ -136,7 +202,13 @@ export class OrderService {
       if (!hasDiscountPercent && !hasDiscountAmount) {
         // Attach computed discount fields for API clients
         (createdOrder as any).discountPercent = discountPct > 0 ? discountPct : undefined;
-        (createdOrder as any).discountAmount = discountAmount > 0 ? discountAmount : undefined;
+        (createdOrder as any).discountAmount = totalDiscountAmount > 0 ? totalDiscountAmount : undefined;
+      }
+
+      // Attach coupon information
+      if (appliedCoupon) {
+        (createdOrder as any).couponCode = appliedCoupon.code;
+        (createdOrder as any).couponDiscount = couponDiscount;
       }
 
       return createdOrder;

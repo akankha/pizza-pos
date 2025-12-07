@@ -14,7 +14,7 @@ const orderService = new OrderService();
 // Create new order - Requires authentication
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    const { items, notes, paymentMethod, createdBy, createdByName, discountPercent } = req.body;
+    const { items, notes, paymentMethod, createdBy, createdByName, discountPercent, couponCode } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -33,7 +33,8 @@ router.post("/", authenticateToken, async (req, res) => {
       paymentMethod,
       userId,
       userName,
-      discountPercent
+      discountPercent,
+      couponCode
     );
     res.status(201).json({ success: true, data: order });
   } catch (error: any) {

@@ -21,6 +21,9 @@ export default function CheckoutPage() {
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState("");
   const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [taxRates, setTaxRates] = useState({
     gst: 0.05,
@@ -67,7 +70,7 @@ export default function CheckoutPage() {
           createdByName: currentUser?.full_name || currentUser?.username,
           // Discount fields
           discountPercent: Number(discountPercent) || 0,
-          discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         }),
       });
 
@@ -113,7 +116,7 @@ export default function CheckoutPage() {
             customPizza: item.customPizza,
           })),
           subtotal: total,
-          discountPercent: Number(discountPercent) || 0,
+          discountPercent: appliedCoupon ? appliedCoupon.discountValue : (Number(discountPercent) || 0),
           discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
           gst: gstAmount,
           pst: pstAmount,
@@ -197,8 +200,48 @@ export default function CheckoutPage() {
     );
   }
 
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    try {
+      const response = await authFetch(`/api/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode.trim(), orderAmount: getTotal() })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setAppliedCoupon(result.coupon);
+        setCouponError("");
+        showToast("Coupon applied successfully!", "success");
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(result.error);
+      }
+    } catch (error) {
+      setCouponError("Failed to validate coupon");
+      console.error("Coupon validation error:", error);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
+
   const total = getTotal();
-  const discountedSubtotal = Math.max(0, total * (1 - Math.min(Math.max(discountPercent, 0), 100) / 100));
+
+  // Calculate discounts: coupon first, then manual discount
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const afterCouponSubtotal = Math.max(0, total - couponDiscount);
+  const discountedSubtotal = Math.max(0, afterCouponSubtotal * (1 - Math.min(Math.max(discountPercent, 0), 100) / 100));
+
   const gstAmount = discountedSubtotal * taxRates.gst;
   const pstAmount = discountedSubtotal * taxRates.pst;
   const grandTotal = discountedSubtotal * (1 + taxRates.gst + taxRates.pst);
@@ -309,6 +352,48 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Coupon */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
+                Coupon Code
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="Enter coupon code"
+                  className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 text-sm"
+                  disabled={!!appliedCoupon}
+                />
+                {!appliedCoupon ? (
+                  <button
+                    onClick={validateCoupon}
+                    className="px-4 py-2 bg-[#FF6B35] hover:bg-[#e85d2a] text-white rounded-xl font-medium transition-all duration-200 text-sm"
+                  >
+                    Apply
+                  </button>
+                ) : (
+                  <button
+                    onClick={removeCoupon}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-all duration-200 text-sm"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              {appliedCoupon && (
+                <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                  ✓ {appliedCoupon.description || `${appliedCoupon.discountValue}${appliedCoupon.discountType === 'percentage' ? '%' : '$'} off`}
+                </div>
+              )}
+              {couponError && (
+                <div className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  ✗ {couponError}
+                </div>
+              )}
+            </div>
+
             {/* Discount */}
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
@@ -333,10 +418,32 @@ export default function CheckoutPage() {
                 <span className="text-sm text-gray-500 dark:text-slate-400">Subtotal</span>
                 <span className="text-sm font-semibold text-gray-800 dark:text-white">${total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500 dark:text-slate-400">Discount</span>
-                <span className="text-sm font-semibold text-gray-800 dark:text-white">-${(total - discountedSubtotal).toFixed(2)}</span>
-              </div>
+              {appliedCoupon && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-500 dark:text-slate-400">
+                    Coupon ({appliedCoupon.code})
+                  </span>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                    -${couponDiscount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {discountPercent > 0 && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-500 dark:text-slate-400">
+                    Discount ({discountPercent}%)
+                  </span>
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                    -${(afterCouponSubtotal - discountedSubtotal).toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {(appliedCoupon || discountPercent > 0) && (
+                <div className="flex justify-between items-center mb-2 pt-2 border-t border-gray-200 dark:border-slate-600">
+                  <span className="text-sm text-gray-500 dark:text-slate-400">Subtotal after discount</span>
+                  <span className="text-sm font-semibold text-gray-800 dark:text-white">${discountedSubtotal.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-500 dark:text-slate-400">
                   {taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%)

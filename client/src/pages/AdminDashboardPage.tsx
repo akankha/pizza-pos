@@ -8,6 +8,7 @@ import {
   Settings,
   ShoppingBag,
   Sparkles,
+  Ticket,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -110,6 +111,14 @@ export default function AdminDashboardPage() {
       path: "/admin/reports",
       gradient: "from-purple-500 to-pink-500",
       shadowColor: "shadow-purple-500/20",
+    },
+    {
+      title: "Coupon Management",
+      icon: Ticket,
+      description: "Create and manage discount coupons",
+      path: "/admin/coupons",
+      gradient: "from-green-500 to-emerald-500",
+      shadowColor: "shadow-green-500/20",
     },
     {
       title: "Restaurant Settings",
