@@ -139,6 +139,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
     const [recentOrders] = await db.query(
       `SELECT 
         id,
+        order_number,
         total,
         discount_percent,
         discount_amount,

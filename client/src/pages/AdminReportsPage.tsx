@@ -24,6 +24,7 @@ export default function AdminReportsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [deleteNote, setDeleteNote] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -156,10 +157,11 @@ export default function AdminReportsPage() {
 
     // Recent Orders sheet
     const recentOrdersData = [
-      [headerCell("Order ID"), headerCell("Date"), headerCell("Total"), headerCell("Discount %"), headerCell("Discount Amount"), headerCell("Payment Method"), headerCell("Items")],
+      [headerCell("Order ID"), headerCell("Order Number"), headerCell("Date"), headerCell("Total"), headerCell("Discount %"), headerCell("Discount Amount"), headerCell("Payment Method"), headerCell("Items")],
       ...(reportData.recentOrders?.length
         ? reportData.recentOrders.map((order: any) => [
             normalCell(order.id),
+            normalCell(order.order_number || ""),
             normalCell(new Date(order.createdAt).toLocaleString()),
             normalCell(`$${parseFloat(order.total).toFixed(2)}`),
             normalCell(order.discount_percent ? `${order.discount_percent}%` : "0%"),
@@ -167,10 +169,10 @@ export default function AdminReportsPage() {
             normalCell(order.paymentMethod),
             normalCell(order.items.map((i: any) => `${i.quantity}x ${i.name}`).join("; ")),
           ])
-        : [[normalCell("No data"), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell("")]]),
+        : [[normalCell("No data"), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell(""), normalCell("")]]),
     ];
     const recentOrdersSheet = XLSX.utils.aoa_to_sheet(recentOrdersData);
-    recentOrdersSheet["!cols"] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
+    recentOrdersSheet["!cols"] = [{ wch: 15 }, { wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 40 }];
 
     // Build workbook
     const wb = XLSX.utils.book_new();
@@ -231,20 +233,6 @@ export default function AdminReportsPage() {
       };
 
       const total = toNumber(order.total);
-      const reportedSubtotal = toNumber(order.subtotal ?? order.sub_total);
-      const gstAmount = toNumber(
-        order.gst ?? order.taxDetails?.gst ?? order.tax_breakdown?.gst
-      );
-      const pstAmount = toNumber(
-        order.pst ?? order.taxDetails?.pst ?? order.tax_breakdown?.pst
-      );
-      const taxAmountBase = toNumber(
-        order.tax ?? order.taxTotal ?? order.totalTax ?? order.tax_total
-      );
-      const taxAmount =
-        gstAmount || pstAmount ? gstAmount + pstAmount : taxAmountBase;
-      const subtotal =
-        reportedSubtotal || (total ? Math.max(total - taxAmount, 0) : 0);
 
       const items = Array.isArray(order.items)
         ? order.items.map((item: any) => ({
@@ -255,15 +243,31 @@ export default function AdminReportsPage() {
           }))
         : [];
 
+      // Calculate subtotal from items
+      const calculatedSubtotal = roundToTwo(
+        items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0)
+      );
+
+      const discountPercentNew = toNumber(order.discount_percent ?? 0);
+      const discountAmountNew = discountPercentNew > 0 ? roundToTwo(calculatedSubtotal * (discountPercentNew / 100)) : toNumber(order.discount_amount ?? 0);
+      const discountedSubtotal = roundToTwo(calculatedSubtotal - discountAmountNew);
+
+      // Calculate taxes on discounted subtotal (GST 5%, PST 7%)
+      const gstAmountNew = roundToTwo(discountedSubtotal * 0.05);
+      const pstAmountNew = roundToTwo(discountedSubtotal * 0.07);
+      const taxAmountNew = roundToTwo(gstAmountNew + pstAmountNew);
+
       const printData: BrowserPrintPayload = {
         orderId: String(order.id),
         orderNumber: deriveOrderNumber(),
         items,
-        subtotal: roundToTwo(subtotal),
-        gst: roundToTwo(gstAmount),
-        pst: roundToTwo(pstAmount),
-        tax: roundToTwo(taxAmount),
+        subtotal: roundToTwo(calculatedSubtotal),
+        gst: roundToTwo(gstAmountNew),
+        pst: roundToTwo(pstAmountNew),
+        tax: roundToTwo(taxAmountNew),
         total: roundToTwo(total),
+        discountPercent: discountPercentNew > 0 ? roundToTwo(discountPercentNew) : undefined,
+        discountAmount: discountAmountNew > 0 ? roundToTwo(discountAmountNew) : undefined,
         paymentMethod: order.paymentMethod || "unknown",
         createdByName: order.createdByName || order.createdBy || undefined,
         notes: order.notes || undefined,
@@ -519,11 +523,32 @@ export default function AdminReportsPage() {
               className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 animate-slide-up"
               style={{ animationDelay: "0.2s" }}
             >
-              <h2 className="text-xl font-bold text-slate-900 mb-4">
-                Recent Orders
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-slate-900">
+                  Recent Orders
+                </h2>
+                <input
+                  type="text"
+                  placeholder="Search by Order ID or Number..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
               <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                {reportData.recentOrders.map((order: any) => (
+                {reportData.recentOrders
+                  .filter((order: any) => {
+                    if (!searchQuery) return true;
+                    const query = searchQuery.toLowerCase();
+                    const orderId = order.id.toLowerCase();
+                    const orderNumber = order.order_number?.toString() || "";
+                    const derivedNumber = parseInt(
+                      String(order.id).replace(/\D/g, "").slice(-6),
+                      10
+                    ).toString();
+                    return orderId.includes(query) || orderNumber.includes(query) || derivedNumber.includes(query);
+                  })
+                  .map((order: any) => (
                   <div
                     key={order.id}
                     className="bg-slate-50 rounded-xl p-4 hover:bg-slate-100 transition-all border border-slate-200"
@@ -531,7 +556,7 @@ export default function AdminReportsPage() {
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
                         <div className="font-bold text-slate-900">
-                          Order #{order.id.slice(0, 8)}
+                          Order #{order.order_number || order.id.slice(0, 8)}
                         </div>
                         <div className="text-sm text-slate-500">
                           {new Date(order.createdAt).toLocaleString()}

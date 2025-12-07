@@ -53,19 +53,31 @@ export class OrderService {
       console.log("Items:", JSON.stringify(items, null, 2));
 
       // Check if created_by columns exist (for backward compatibility)
-      // Check for optional columns (created_by, discount_percent, discount_amount)
+      // Check for optional columns (created_by, discount_percent, discount_amount, order_number)
       const [columns] = await connection.query(
-        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME IN ('created_by','discount_percent','discount_amount')`
+        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME IN ('created_by','discount_percent','discount_amount','order_number')`
       );
 
       const existingCols = (columns as any[]).map((c) => c.COLUMN_NAME);
       const hasCreatedByColumn = existingCols.includes("created_by");
       const hasDiscountPercent = existingCols.includes("discount_percent");
       const hasDiscountAmount = existingCols.includes("discount_amount");
+      const hasOrderNumberColumn = existingCols.includes("order_number");
+
+      // Generate order number from ID
+      const orderNumber = hasOrderNumberColumn ? parseInt(
+        String(orderId).replace(/\D/g, "").slice(-6),
+        10
+      ) || parseInt(Date.now().toString().slice(-6), 10) : null;
 
       // Build insert dynamically depending on which optional columns exist
       const insertCols = ["id", "total", "status", "notes", "payment_method"];
       const insertVals: any[] = [orderId, total, "pending", notes || null, paymentMethod || null];
+
+      if (hasOrderNumberColumn) {
+        insertCols.splice(1, 0, "order_number"); // Insert after id
+        insertVals.splice(1, 0, orderNumber);
+      }
 
       if (hasCreatedByColumn) {
         insertCols.push("created_by", "created_by_name");
