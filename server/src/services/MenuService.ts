@@ -1,4 +1,4 @@
-import type { MenuData, Topping } from "../../../shared/types/index.js";
+import type { MenuData, Topping } from "../../../shared/types";
 import db from "../db/database.js";
 
 export class MenuService {

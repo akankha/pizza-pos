@@ -4,7 +4,7 @@ import type {
   OrderItem,
   OrderStatus,
   PaymentMethod,
-} from "../../../shared/types/index.js";
+} from "../../../shared/types";
 import db from "../db/database.js";
 import { ReceiptService } from "./ReceiptService.js";
 
