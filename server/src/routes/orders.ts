@@ -14,7 +14,7 @@ const orderService = new OrderService();
 // Create new order - Requires authentication
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    const { items, notes, paymentMethod, createdBy, createdByName } = req.body;
+    const { items, notes, paymentMethod, createdBy, createdByName, discountPercent } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -32,7 +32,8 @@ router.post("/", authenticateToken, async (req, res) => {
       notes,
       paymentMethod,
       userId,
-      userName
+      userName,
+      discountPercent
     );
     res.status(201).json({ success: true, data: order });
   } catch (error: any) {
@@ -110,13 +111,18 @@ router.patch("/:id/status", authenticateToken, async (req, res) => {
             }))
           : [];
 
-        const totals = await ReceiptService.calculateTotals(mappedItems);
+        const totals = await ReceiptService.calculateTotals(
+          mappedItems,
+          order.discountPercent
+        );
 
         const receiptData = {
           orderId: order.id,
           orderNumber,
           items: mappedItems,
           subtotal: totals.subtotal,
+          discountPercent: totals.discountPercent,
+          discountAmount: totals.discountAmount,
           tax: totals.tax,
           gst: totals.gst,
           pst: totals.pst,
@@ -223,13 +229,18 @@ router.get("/:id/receipt/pdf", async (req, res) => {
         }))
       : [];
 
-    const totals = await ReceiptService.calculateTotals(mappedItems);
+    const totals = await ReceiptService.calculateTotals(
+      mappedItems,
+      order.discount_percent
+    );
 
     const receiptData = {
       orderId: order.id,
       orderNumber,
       items: mappedItems,
       subtotal: totals.subtotal,
+      discountPercent: totals.discountPercent,
+      discountAmount: totals.discountAmount,
       tax: totals.tax,
       gst: totals.gst,
       pst: totals.pst,
@@ -284,13 +295,18 @@ router.get("/:id/receipt/text", async (req, res) => {
         }))
       : [];
 
-    const totals = await ReceiptService.calculateTotals(mappedItems);
+    const totals = await ReceiptService.calculateTotals(
+      mappedItems,
+      order.discount_percent
+    );
 
     const receiptData = {
       orderId: order.id,
       orderNumber,
       items: mappedItems,
       subtotal: totals.subtotal,
+      discountPercent: totals.discountPercent,
+      discountAmount: totals.discountAmount,
       tax: totals.tax,
       gst: totals.gst,
       pst: totals.pst,
@@ -347,13 +363,18 @@ router.get("/:id/receipt/thermal", async (req, res) => {
         }))
       : [];
 
-    const totals = await ReceiptService.calculateTotals(mappedItems);
+    const totals = await ReceiptService.calculateTotals(
+      mappedItems,
+      order.discount_percent
+    );
 
     const receiptData = {
       orderId: order.id,
       orderNumber,
       items: mappedItems,
       subtotal: totals.subtotal,
+      discountPercent: totals.discountPercent,
+      discountAmount: totals.discountAmount,
       tax: totals.tax,
       gst: totals.gst,
       pst: totals.pst,

@@ -15,6 +15,9 @@ interface ReceiptData {
   orderNumber: number;
   items: ReceiptItem[];
   subtotal: number;
+  // Optional discount fields
+  discountPercent?: number;
+  discountAmount?: number;
   tax: number;
   gst?: number;
   pst?: number;
@@ -171,6 +174,12 @@ export class ReceiptService {
     doc.text("Subtotal:", { continued: true });
     doc.text(`$${data.subtotal.toFixed(2)}`, { align: "right" });
 
+    // Show discount if present
+    if (data.discountAmount && data.discountAmount > 0) {
+      doc.text("Discount:", { continued: true });
+      doc.text(`-$${data.discountAmount.toFixed(2)}`, { align: "right" });
+    }
+
     if (data.gst !== undefined && data.gst > 0) {
       doc.text(
         `${settings.tax_label_gst} (${(settings.gst_rate * 100).toFixed(1)}%):`,
@@ -325,6 +334,11 @@ export class ReceiptService {
 
     receipt += formatLine("Subtotal:", `$${data.subtotal.toFixed(2)}`);
 
+    // Discount line
+    if (data.discountAmount && data.discountAmount > 0) {
+      receipt += formatLine("Discount:", `-$${data.discountAmount.toFixed(2)}`);
+    }
+
     if (data.gst !== undefined && data.gst > 0) {
       receipt += formatLine(
         `${settings.tax_label_gst} (${(settings.gst_rate * 100).toFixed(1)}%):`,
@@ -433,6 +447,10 @@ export class ReceiptService {
 
     receipt += formatLine("Subtotal:", `$${data.subtotal.toFixed(2)}`);
 
+    if (data.discountAmount && data.discountAmount > 0) {
+      receipt += formatLine("Discount:", `-$${data.discountAmount.toFixed(2)}`);
+    }
+
     if (data.gst !== undefined && data.gst > 0) {
       receipt += formatLine(
         `${settings.tax_label_gst} (${(settings.gst_rate * 100).toFixed(1)}%):`,
@@ -487,9 +505,13 @@ export class ReceiptService {
    * Calculate totals with taxes
    */
   static async calculateTotals(
-    items: ReceiptItem[]
+    items: ReceiptItem[],
+    discountPercent?: number
   ): Promise<{
-    subtotal: number;
+    subtotal: number; // original subtotal before discount
+    discountPercent?: number;
+    discountAmount?: number;
+    discountedSubtotal: number; // subtotal after discount
     gst: number;
     pst: number;
     tax: number;
@@ -499,11 +521,19 @@ export class ReceiptService {
       (sum, item) => sum + item.quantity * item.price,
       0
     );
-    const taxes = await this.calculateTaxes(subtotal);
-    const total = subtotal + taxes.total;
+
+    const discountPct = Math.min(Math.max(Number(discountPercent) || 0, 0), 100);
+    const discountAmount = parseFloat((subtotal * (discountPct / 100)).toFixed(2));
+    const discountedSubtotal = parseFloat((subtotal - discountAmount).toFixed(2));
+
+    const taxes = await this.calculateTaxes(discountedSubtotal);
+    const total = parseFloat((discountedSubtotal + taxes.total).toFixed(2));
 
     return {
       subtotal,
+      discountPercent: discountPct > 0 ? discountPct : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
+      discountedSubtotal,
       gst: taxes.gst,
       pst: taxes.pst,
       tax: taxes.total,

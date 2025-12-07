@@ -181,54 +181,7 @@ export default function AdminReportsPage() {
     XLSX.writeFile(wb, `sales-report-${period}-${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
-  const generateCSV = (data: any) => {
-    let csv = '"Sales Report"\n';
-    csv += `"Period:","${period}"\n`;
-    csv += `"Generated:","${new Date().toLocaleString()}"\n`;
-    csv += '\n';
-    csv += `"Total Sales:","$${data.totalSales?.toFixed(2) || '0.00'}"\n`;
-    csv += `"Total Orders:","${data.totalOrders || 0}"\n`;
-    csv += `"Average Order:","$${data.avgOrder?.toFixed(2) || '0.00'}"\n`;
-    csv += '\n';
-    csv += '====================\n';
-    csv += '"Top Items"\n';
-    csv += '"Name","Quantity","Revenue"\n';
-    (data.topItems || []).forEach((item: any) => {
-      csv += `"${item.name}","${item.quantity}","$${item.revenue.toFixed(2)}"\n`;
-    });
-    if ((data.topItems || []).length === 0) {
-      csv += '"No data","",""\n';
-    }
-    csv += '\n';
-    csv += '====================\n';
-    csv += '"Payment Methods"\n';
-    csv += '"Method","Transactions","Total"\n';
-    Object.entries(data.paymentMethods || {}).forEach(
-      ([method, pmData]: [string, any]) => {
-        csv += `"${method}","${pmData.count}","$${pmData.total.toFixed(2)}"\n`;
-      }
-    );
-    if (!data.paymentMethods || Object.keys(data.paymentMethods).length === 0) {
-      csv += '"No data","",""\n';
-    }
-    csv += '\n';
-    csv += '====================\n';
-    csv += '"Recent Orders"\n';
-    csv += '"Order ID","Date","Total","Payment Method","Items"\n';
-    (data.recentOrders || []).forEach((order: any) => {
-      const itemsList = order.items
-        .map((i: any) => `${i.quantity}x ${i.name}`)
-        .join('; ');
-      csv += `"${order.id}","${new Date(order.createdAt).toLocaleString()}","$${parseFloat(order.total).toFixed(2)}","${order.paymentMethod}","${itemsList}"\n`;
-    });
-    if ((data.recentOrders || []).length === 0) {
-      csv += '"No data","","","",""\n';
-    }
-    csv += '\n';
-    csv += '====================\n';
-    csv += '"End of Report"\n';
-    return csv;
-  };
+  // generateCSV removed — Excel export and other CSV helpers are used instead.
 
   const handleReprint = async (order: any) => {
     try {
@@ -422,27 +375,6 @@ export default function AdminReportsPage() {
     return csv;
   };
 
-  const downloadStyledExcelReport = async () => {
-    try {
-      showToast("Generating Excel report...", "info");
-      const response = await authFetch(`/api/admin/reports/${period}/excel`, {
-        method: "GET",
-      });
-      if (!response.ok) throw new Error("Failed to download Excel report");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `sales-report-${period}-${new Date().toISOString().split("T")[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      showToast("Excel report downloaded", "success");
-    } catch (error: any) {
-      showToast("Failed to download Excel report: " + error.message, "error");
-    }
-  };
 
   if (loading) {
     return <LoadingScreen message="Loading reports..." variant="dark" />;
@@ -481,14 +413,7 @@ export default function AdminReportsPage() {
               >
                 <Trash2 size={20} />
               </button>
-              <button
-                onClick={downloadStyledExcelReport}
-                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition-all duration-300"
-                title="Download Styled Excel Report"
-              >
-                <Download size={20} />
-                <span className="hidden sm:inline">Excel</span>
-              </button>
+             
             </div>
           </div>
         </div>

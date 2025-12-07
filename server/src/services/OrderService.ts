@@ -6,6 +6,7 @@ import type {
   PaymentMethod,
 } from "../../../shared/types/index.js";
 import db from "../db/database.js";
+import { ReceiptService } from "./ReceiptService.js";
 
 export class OrderService {
   async createOrder(
@@ -13,7 +14,8 @@ export class OrderService {
     notes?: string,
     paymentMethod?: PaymentMethod,
     createdBy?: string,
-    createdByName?: string
+    createdByName?: string,
+    discountPercent?: number
   ): Promise<Order> {
     const connection = await db.getConnection();
 
@@ -21,14 +23,28 @@ export class OrderService {
       await connection.beginTransaction();
 
       const orderId = uuidv4();
-      const total = items.reduce(
+      const subtotal = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
       );
 
+      // Sanitize discount percent from caller and clamp 0-100
+      const discountPct = Math.min(Math.max(Number(discountPercent) || 0, 0), 100);
+      const discountAmount = parseFloat((subtotal * (discountPct / 100)).toFixed(2));
+      const discountedSubtotal = parseFloat((subtotal - discountAmount).toFixed(2));
+
+      // Calculate taxes on discounted subtotal
+      const taxes = await ReceiptService.calculateTaxes(discountedSubtotal);
+      const total = parseFloat((discountedSubtotal + taxes.total).toFixed(2));
+
       // Debug logging
       console.log("Creating order:", {
         orderId,
+        subtotal,
+        discountPct,
+        discountAmount,
+        discountedSubtotal,
+        taxes,
         total,
         itemCount: items.length,
         createdBy,
@@ -37,36 +53,33 @@ export class OrderService {
       console.log("Items:", JSON.stringify(items, null, 2));
 
       // Check if created_by columns exist (for backward compatibility)
-      const [columns] = await connection.query(`
-        SELECT COLUMN_NAME 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'orders' 
-        AND COLUMN_NAME = 'created_by'
-      `);
+      // Check for optional columns (created_by, discount_percent, discount_amount)
+      const [columns] = await connection.query(
+        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME IN ('created_by','discount_percent','discount_amount')`
+      );
 
-      const hasCreatedByColumn = (columns as any[]).length > 0;
+      const existingCols = (columns as any[]).map((c) => c.COLUMN_NAME);
+      const hasCreatedByColumn = existingCols.includes("created_by");
+      const hasDiscountColumns = existingCols.includes("discount_percent") && existingCols.includes("discount_amount");
+
+      // Build insert dynamically depending on which optional columns exist
+      const insertCols = ["id", "total", "status", "notes", "payment_method"];
+      const insertVals: any[] = [orderId, total, "pending", notes || null, paymentMethod || null];
 
       if (hasCreatedByColumn) {
-        await connection.query(
-          "INSERT INTO orders (id, total, status, notes, payment_method, created_by, created_by_name) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [
-            orderId,
-            total,
-            "pending",
-            notes || null,
-            paymentMethod || null,
-            createdBy || null,
-            createdByName || null,
-          ]
-        );
-      } else {
-        // Fallback for databases without created_by columns
-        await connection.query(
-          "INSERT INTO orders (id, total, status, notes, payment_method) VALUES (?, ?, ?, ?, ?)",
-          [orderId, total, "pending", notes || null, paymentMethod || null]
-        );
+        insertCols.push("created_by", "created_by_name");
+        insertVals.push(createdBy || null, createdByName || null);
       }
+
+      if (hasDiscountColumns) {
+        insertCols.push("discount_percent", "discount_amount");
+        insertVals.push(discountPct, discountAmount);
+      }
+
+      const placeholders = insertCols.map(() => "?").join(", ");
+      const insertSql = `INSERT INTO orders (${insertCols.join(", ")}) VALUES (${placeholders})`;
+
+      await connection.query(insertSql, insertVals);
 
       for (const item of items) {
         const itemId = item.id || uuidv4();
@@ -134,6 +147,8 @@ export class OrderService {
         notes: item.notes || undefined,
       })),
       total: parseFloat(order.total),
+      discountPercent: order.discount_percent !== undefined ? parseFloat(order.discount_percent) : undefined,
+      discountAmount: order.discount_amount !== undefined ? parseFloat(order.discount_amount) : undefined,
       status: order.status,
       paymentMethod: order.payment_method || undefined,
       notes: order.notes || undefined,

@@ -107,7 +107,7 @@ export default function AdminMenuPage() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-slate-800 flex flex-col animate-fade-in">
+    <div className="h-screen w-screen bg-slate-800 flex flex-col animate-fade-in">
       {/* Header */}
       <header className="bg-slate-900 border-b border-slate-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4">

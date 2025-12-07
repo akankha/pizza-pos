@@ -20,6 +20,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [orderNotes, setOrderNotes] = useState("");
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [taxRates, setTaxRates] = useState({
     gst: 0.05,
@@ -64,6 +65,9 @@ export default function CheckoutPage() {
           notes: orderNotes.trim() || undefined,
           createdBy: currentUser?.id,
           createdByName: currentUser?.full_name || currentUser?.username,
+          // Discount fields
+          discountPercent: Number(discountPercent) || 0,
+          discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
         }),
       });
 
@@ -108,11 +112,13 @@ export default function CheckoutPage() {
             price: item.price,
             customPizza: item.customPizza,
           })),
-          subtotal: getTotal(),
-          gst: getTotal() * taxRates.gst,
-          pst: getTotal() * taxRates.pst,
-          tax: getTotal() * (taxRates.gst + taxRates.pst),
-          total: getTotal() * (1 + taxRates.gst + taxRates.pst),
+          subtotal: discountedSubtotal,
+          discountPercent: Number(discountPercent) || 0,
+          discountAmount: Number((total - discountedSubtotal).toFixed(2)) || 0,
+          gst: gstAmount,
+          pst: pstAmount,
+          tax: gstAmount + pstAmount,
+          total: grandTotal,
           paymentMethod,
           createdByName: currentUser?.full_name || currentUser?.username,
           notes: orderNotes.trim() || undefined,
@@ -192,6 +198,10 @@ export default function CheckoutPage() {
   }
 
   const total = getTotal();
+  const discountedSubtotal = Math.max(0, total * (1 - Math.min(Math.max(discountPercent, 0), 100) / 100));
+  const gstAmount = discountedSubtotal * taxRates.gst;
+  const pstAmount = discountedSubtotal * taxRates.pst;
+  const grandTotal = discountedSubtotal * (1 + taxRates.gst + taxRates.pst);
 
   return (
     <div className="h-screen w-screen bg-slate-50 dark:bg-slate-950 flex flex-col animate-fade-in">
@@ -299,40 +309,50 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Discount */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
+                Discount (%)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(Number(e.target.value) || 0)}
+                  className="w-28 px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white focus:border-[#FF6B35] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 text-sm"
+                />
+                <div className="text-sm text-gray-500">% off applied to subtotal</div>
+              </div>
+            </div>
+
             {/* Total */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-4 border border-gray-200 dark:border-slate-700 shadow-sm">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500 dark:text-slate-400">
-                  Subtotal
-                </span>
-                <span className="text-sm font-semibold text-gray-800 dark:text-white">
-                  ${total.toFixed(2)}
-                </span>
+                <span className="text-sm text-gray-500 dark:text-slate-400">Subtotal</span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">${total.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500 dark:text-slate-400">Discount</span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">-${(total - discountedSubtotal).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-500 dark:text-slate-400">
                   {taxRates.gstLabel} ({(taxRates.gst * 100).toFixed(1)}%)
                 </span>
-                <span className="text-sm font-semibold text-gray-800 dark:text-white">
-                  ${(total * taxRates.gst).toFixed(2)}
-                </span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">${gstAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm text-gray-500 dark:text-slate-400">
                   {taxRates.pstLabel} ({(taxRates.pst * 100).toFixed(1)}%)
                 </span>
-                <span className="text-sm font-semibold text-gray-800 dark:text-white">
-                  ${(total * taxRates.pst).toFixed(2)}
-                </span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-white">${pstAmount.toFixed(2)}</span>
               </div>
               <div className="border-t border-gray-200 dark:border-slate-700 pt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-bold text-gray-700 dark:text-slate-200">
-                    Total
-                  </span>
-                  <span className="text-2xl font-bold text-[#FF6B35]">
-                    ${(total * (1 + taxRates.gst + taxRates.pst)).toFixed(2)}
-                  </span>
+                  <span className="text-base font-bold text-gray-700 dark:text-slate-200">Total</span>
+                  <span className="text-2xl font-bold text-[#FF6B35]">${grandTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>

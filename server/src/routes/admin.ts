@@ -101,6 +101,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
       `SELECT 
         COUNT(*) as totalOrders,
         COALESCE(SUM(total), 0) as totalSales,
+        COALESCE(SUM(discount_amount), 0) as totalDiscounts,
         COALESCE(AVG(total), 0) as avgOrder
        FROM orders 
        WHERE DATE(created_at) >= ? AND is_deleted = 0`,
@@ -200,6 +201,7 @@ router.get("/reports/:period", requireRestaurantAdmin, async (req, res) => {
       data: {
         totalOrders: (stats as any)[0].totalOrders || 0,
         totalSales: (stats as any)[0].totalSales || 0,
+        totalDiscounts: (stats as any)[0].totalDiscounts || 0,
         avgOrder: (stats as any)[0].avgOrder || 0,
         topItems: topItems || [],
         paymentMethods: paymentMethodsMap,

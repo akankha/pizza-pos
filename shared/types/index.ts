@@ -111,6 +111,8 @@ export interface Order {
   id: string;
   items: OrderItem[];
   total: number;
+  discountPercent?: number;
+  discountAmount?: number;
   status: OrderStatus;
   paymentMethod?: PaymentMethod;
   notes?: string;
